@@ -456,7 +456,7 @@ public class TestClientRMService {
     }
   }
 
-  public ClientRMService createRMService() throws IOException {
+  public ClientRMService createRMService() throws IOException, YarnException {
     YarnScheduler yarnScheduler = mockYarnScheduler();
     RMContext rmContext = mock(RMContext.class);
     mockRMContext(yarnScheduler, rmContext);
@@ -892,8 +892,7 @@ public class TestClientRMService {
     final CyclicBarrier startBarrier = new CyclicBarrier(2);
     final CyclicBarrier endBarrier = new CyclicBarrier(2);
 
-    @SuppressWarnings("rawtypes")
-    EventHandler eventHandler = new EventHandler() {
+    EventHandler<Event> eventHandler = new EventHandler<Event>() {
       @Override
       public void handle(Event rawEvent) {
         if (rawEvent instanceof RMAppEvent) {
@@ -968,6 +967,7 @@ public class TestClientRMService {
     submissionContext.setApplicationType(appType);
     submissionContext.setApplicationTags(tags);
     submissionContext.setUnmanagedAM(unmanaged);
+    submissionContext.setPriority(Priority.newInstance(0));
 
     SubmitApplicationRequest submitRequest =
         recordFactory.newRecordInstance(SubmitApplicationRequest.class);
@@ -979,7 +979,8 @@ public class TestClientRMService {
       throws IOException {
     Dispatcher dispatcher = mock(Dispatcher.class);
     when(rmContext.getDispatcher()).thenReturn(dispatcher);
-    EventHandler eventHandler = mock(EventHandler.class);
+    @SuppressWarnings("unchecked")
+    EventHandler<Event> eventHandler = mock(EventHandler.class);
     when(dispatcher.getEventHandler()).thenReturn(eventHandler);
     QueueInfo queInfo = recordFactory.newRecordInstance(QueueInfo.class);
     queInfo.setQueueName("testqueue");
@@ -1042,6 +1043,7 @@ public class TestClientRMService {
     ApplicationSubmissionContext asContext = mock(ApplicationSubmissionContext.class);
     when(asContext.getMaxAppAttempts()).thenReturn(1);
     when(asContext.getNodeLabelExpression()).thenReturn(appNodeLabelExpression);
+    when(asContext.getPriority()).thenReturn(Priority.newInstance(0));
     RMAppImpl app =
         spy(new RMAppImpl(applicationId3, rmContext, config, null, null,
             queueName, asContext, yarnScheduler, null,
@@ -1076,6 +1078,7 @@ public class TestClientRMService {
     attempts.put(attemptId, rmAppAttemptImpl);
     when(app.getCurrentAppAttempt()).thenReturn(rmAppAttemptImpl);
     when(app.getAppAttempts()).thenReturn(attempts);
+    when(app.getApplicationPriority()).thenReturn(Priority.newInstance(0));
     when(rmAppAttemptImpl.getMasterContainer()).thenReturn(container);
     ResourceScheduler rs = mock(ResourceScheduler.class);
     when(rmContext.getScheduler()).thenReturn(rs);
@@ -1091,14 +1094,14 @@ public class TestClientRMService {
         rmContext.getScheduler().getSchedulerAppInfo(attemptId)
             .getLiveContainers()).thenReturn(rmContainers);
     ContainerStatus cs = mock(ContainerStatus.class);
-    when(containerimpl.getFinishedStatus()).thenReturn(cs);
+    when(containerimpl.completed()).thenReturn(false);
     when(containerimpl.getDiagnosticsInfo()).thenReturn("N/A");
     when(containerimpl.getContainerExitStatus()).thenReturn(0);
     when(containerimpl.getContainerState()).thenReturn(ContainerState.COMPLETE);
     return app;
   }
 
-  private static YarnScheduler mockYarnScheduler() {
+  private static YarnScheduler mockYarnScheduler() throws YarnException {
     YarnScheduler yarnScheduler = mock(YarnScheduler.class);
     when(yarnScheduler.getMinimumResourceCapability()).thenReturn(
         Resources.createResource(
@@ -1116,6 +1119,9 @@ public class TestClientRMService {
     ResourceCalculator rs = mock(ResourceCalculator.class);
     when(yarnScheduler.getResourceCalculator()).thenReturn(rs);
 
+    when(yarnScheduler.checkAndGetApplicationPriority(any(Priority.class),
+        anyString(), anyString(), any(ApplicationId.class)))
+            .thenReturn(Priority.newInstance(0));
     return yarnScheduler;
   }
 
@@ -1528,7 +1534,7 @@ public class TestClientRMService {
     // Get node labels collection
     GetClusterNodeLabelsResponse response = client
         .getClusterNodeLabels(GetClusterNodeLabelsRequest.newInstance());
-    Assert.assertTrue(response.getNodeLabels().containsAll(
+    Assert.assertTrue(response.getNodeLabelList().containsAll(
         Arrays.asList(labelX, labelY)));
 
     // Get node labels mapping
@@ -1599,7 +1605,7 @@ public class TestClientRMService {
     // Get node labels collection
     GetClusterNodeLabelsResponse response = client
         .getClusterNodeLabels(GetClusterNodeLabelsRequest.newInstance());
-    Assert.assertTrue(response.getNodeLabels().containsAll(
+    Assert.assertTrue(response.getNodeLabelList().containsAll(
         Arrays.asList(labelX, labelY, labelZ)));
 
     // Get labels to nodes mapping
@@ -1642,6 +1648,25 @@ public class TestClientRMService {
   }
 
   @Test(timeout = 120000)
+  public void testUpdatePriorityAndKillAppWithZeroClusterResource()
+      throws Exception {
+    int maxPriority = 10;
+    int appPriority = 5;
+    YarnConfiguration conf = new YarnConfiguration();
+    conf.setInt(YarnConfiguration.MAX_CLUSTER_LEVEL_APPLICATION_PRIORITY,
+        maxPriority);
+    MockRM rm = new MockRM(conf);
+    rm.init(conf);
+    rm.start();
+    RMApp app1 = rm.submitApp(1024, Priority.newInstance(appPriority));
+    ClientRMService rmService = rm.getClientRMService();
+    testApplicationPriorityUpdation(rmService, app1, appPriority, appPriority);
+    rm.killApp(app1.getApplicationId());
+    rm.waitForState(app1.getApplicationId(), RMAppState.KILLED);
+    rm.stop();
+  }
+
+  @Test(timeout = 120000)
   public void testUpdateApplicationPriorityRequest() throws Exception {
     int maxPriority = 10;
     int appPriority = 5;
@@ -1651,13 +1676,12 @@ public class TestClientRMService {
     MockRM rm = new MockRM(conf);
     rm.init(conf);
     rm.start();
-
+    rm.registerNode("host1:1234", 1024);
     // Start app1 with appPriority 5
     RMApp app1 = rm.submitApp(1024, Priority.newInstance(appPriority));
 
     Assert.assertEquals("Incorrect priority has been set to application",
-        appPriority, app1.getApplicationSubmissionContext().getPriority()
-            .getPriority());
+        appPriority, app1.getApplicationPriority().getPriority());
 
     appPriority = 11;
     ClientRMService rmService = rm.getClientRMService();

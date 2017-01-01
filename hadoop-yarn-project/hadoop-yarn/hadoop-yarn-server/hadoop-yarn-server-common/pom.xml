@@ -22,7 +22,6 @@
     <version>3.0.0-alpha2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn-server-common</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <name>Apache Hadoop YARN Server Common</name>
@@ -129,7 +128,6 @@
         <executions>
           <execution>
             <id>compile-protoc</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>protoc</goal>
             </goals>
@@ -153,7 +151,6 @@
                   <include>collectornodemanager_protocol.proto</include>
                 </includes>
               </source>
-              <output>${project.build.directory}/generated-sources/java</output>
             </configuration>
           </execution>
         </executions>

@@ -19,7 +19,6 @@
     <version>3.0.0-alpha2-SNAPSHOT</version>
     <relativePath>../../hadoop-project</relativePath>
   </parent>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -237,5 +236,6 @@
     <module>hadoop-yarn-site</module>
     <module>hadoop-yarn-client</module>
     <module>hadoop-yarn-registry</module>
+    <module>hadoop-yarn-ui</module>
   </modules>
 </project>

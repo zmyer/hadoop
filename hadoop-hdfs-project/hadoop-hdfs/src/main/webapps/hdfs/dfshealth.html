@@ -152,11 +152,11 @@
   {/fs}
 </p>
 {#mem.HeapMemoryUsage}
-<p>Heap Memory used {used|fmt_bytes} of {committed|fmt_bytes} Heap Memory. Max Heap Memory is {@eq key=max value="-1" type="number"}&ltunbonded&gt{:else}{max|fmt_bytes}{/eq}.</p>
+<p>Heap Memory used {used|fmt_bytes} of {committed|fmt_bytes} Heap Memory. Max Heap Memory is {@eq key=max value="-1" type="number"}&ltunbounded&gt{:else}{max|fmt_bytes}{/eq}.</p>
 {/mem.HeapMemoryUsage}
 
 {#mem.NonHeapMemoryUsage}
-<p>Non Heap Memory used {used|fmt_bytes} of {committed|fmt_bytes} Commited Non Heap Memory. Max Non Heap Memory is {@eq key=max value="-1" type="number"}&ltunbonded&gt{:else}{max|fmt_bytes}{/eq}.</p>
+<p>Non Heap Memory used {used|fmt_bytes} of {committed|fmt_bytes} Commited Non Heap Memory. Max Non Heap Memory is {@eq key=max value="-1" type="number"}&ltunbounded&gt{:else}{max|fmt_bytes}{/eq}.</p>
 {/mem.NonHeapMemoryUsage}
 
 {#nn}
@@ -314,13 +314,7 @@
   {#LiveNodes}
   <tr>
     <td ng-value="{state}-{name}" class="dfshealth-node-icon dfshealth-node-{state}">{name} ({xferaddr})</td>
-    <td ng-value="{state}-{name}">
-    {@select key=secureMode}
-      {@eq value="off"}<a href='//{infoAddr}'>{infoAddr}</a>{/eq}
-      {@eq value="on"}<a href='//{infoSecureAddr}'>{infoSecureAddr}</a>{/eq}
-      {@default}<a href='//{infoAddr}'>{infoAddr}</a>{/default}
-    {/select}
-    </td>
+    <td ng-value="{state}-{name}"><a href='//{dnWebAddress}'>{dnWebAddress}</a></td>
     <td ng-value="{lastContact}">{lastContact}s</td>
     <td ng-value="{usedPercentage}">
       <div>
@@ -352,6 +346,7 @@
 
 <div class="page-header"><h1><small>Decommissioning</small></h1></div>
 <small>
+{?DecomNodes}
 <table class="table">
   <thead>
     <tr>
@@ -370,6 +365,9 @@
   </tr>
   {/DecomNodes}
 </table>
+{:else}
+No nodes are decommissioning
+{/DecomNodes}
 </small>
 </script>
 

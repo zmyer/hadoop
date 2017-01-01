@@ -25,7 +25,6 @@
     <version>3.0.0-alpha2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn-server-applicationhistoryservice</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <name>Apache Hadoop YARN ApplicationHistoryService</name>
@@ -38,7 +37,7 @@
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
     </dependency>
     <!-- 'mvn dependency:analyze' fails to detect use of this dependency -->
     <dependency>
@@ -195,7 +194,6 @@
         <executions>
           <execution>
             <id>compile-protoc</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>protoc</goal>
             </goals>
@@ -215,7 +213,6 @@
                   <include>yarn_server_timelineserver_recovery.proto</include>
                 </includes>
               </source>
-              <output>${project.build.directory}/generated-sources/java</output>
             </configuration>
           </execution>
         </executions>

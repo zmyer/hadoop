@@ -83,11 +83,11 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
                          NetworkTopology clusterMap, 
                          Host2NodesMap host2datanodeMap) {
     this.considerLoad = conf.getBoolean(
-        DFSConfigKeys.DFS_NAMENODE_REPLICATION_CONSIDERLOAD_KEY,
-        DFSConfigKeys.DFS_NAMENODE_REPLICATION_CONSIDERLOAD_DEFAULT);
+        DFSConfigKeys.DFS_NAMENODE_REDUNDANCY_CONSIDERLOAD_KEY,
+        DFSConfigKeys.DFS_NAMENODE_REDUNDANCY_CONSIDERLOAD_DEFAULT);
     this.considerLoadFactor = conf.getDouble(
-        DFSConfigKeys.DFS_NAMENODE_REPLICATION_CONSIDERLOAD_FACTOR,
-        DFSConfigKeys.DFS_NAMENODE_REPLICATION_CONSIDERLOAD_FACTOR_DEFAULT);
+        DFSConfigKeys.DFS_NAMENODE_REDUNDANCY_CONSIDERLOAD_FACTOR,
+        DFSConfigKeys.DFS_NAMENODE_REDUNDANCY_CONSIDERLOAD_FACTOR_DEFAULT);
     this.stats = stats;
     this.clusterMap = clusterMap;
     this.host2datanodeMap = host2datanodeMap;
@@ -1034,9 +1034,11 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
       }
       firstOne = false;
       if (cur == null) {
-        LOG.warn("No excess replica can be found. excessTypes: {}." +
-            " moreThanOne: {}. exactlyOne: {}.", excessTypes, moreThanOne,
-            exactlyOne);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("No excess replica can be found. excessTypes: {}." +
+              " moreThanOne: {}. exactlyOne: {}.", excessTypes,
+              moreThanOne, exactlyOne);
+        }
         break;
       }
 

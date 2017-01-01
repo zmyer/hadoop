@@ -21,7 +21,6 @@
     <groupId>org.apache.hadoop</groupId>
     <version>3.0.0-alpha2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn-server-tests</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <name>Apache Hadoop YARN Server Tests</name>
@@ -135,10 +134,9 @@
         <artifactId>hadoop-maven-plugins</artifactId>
         <executions>
           <execution>
-            <id>compile-protoc</id>
-            <phase>generate-sources</phase>
+            <id>compile-test-protoc</id>
             <goals>
-              <goal>protoc</goal>
+              <goal>test-protoc</goal>
             </goals>
             <configuration>
               <protocVersion>${protobuf.version}</protocVersion>
@@ -154,7 +152,6 @@
                   <include>test_token.proto</include>
                 </includes>
               </source>
-              <output>${project.build.directory}/generated-sources/java</output>
             </configuration>
           </execution>
         </executions>

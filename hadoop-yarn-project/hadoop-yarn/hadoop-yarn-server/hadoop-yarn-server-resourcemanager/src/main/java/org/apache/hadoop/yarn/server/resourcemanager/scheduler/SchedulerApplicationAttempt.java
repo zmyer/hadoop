@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.collect.ConcurrentHashMultiset;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.logging.Log;
@@ -55,6 +57,7 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
 import org.apache.hadoop.yarn.server.api.ContainerType;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
+import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.AggregateAppResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
@@ -69,9 +72,11 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerStat
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerUpdatesAcquiredEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeCleanContainerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.SchedulingMode;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.placement.SchedulingPlacementSet;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.SchedulableEntity;
 
 import org.apache.hadoop.yarn.server.scheduler.OpportunisticContainerContext;
+import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.state.InvalidStateTransitionException;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
@@ -177,6 +182,11 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
   protected ReentrantReadWriteLock.ReadLock readLock;
   protected ReentrantReadWriteLock.WriteLock writeLock;
+
+  // Not confirmed allocation resource, will be used to avoid too many proposal
+  // rejected because of duplicated allocation
+  private AtomicLong unconfirmedAllocatedMem = new AtomicLong();
+  private AtomicInteger unconfirmedAllocatedVcores = new AtomicInteger();
 
   public SchedulerApplicationAttempt(ApplicationAttemptId applicationAttemptId, 
       String user, Queue queue, ActiveUsersManager activeUsersManager,
@@ -529,6 +539,8 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
       if (rmContainer == null) {
         rmContainer = new RMContainerImpl(container, getApplicationAttemptId(),
             node.getNodeID(), appSchedulingInfo.getUser(), rmContext);
+      }
+      if (rmContainer.getState() == RMContainerState.NEW) {
         attemptResourceUsage.incReserved(node.getPartition(),
             container.getResource());
         ((RMContainerImpl) rmContainer).setQueueName(this.getQueueName());
@@ -839,16 +851,10 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   }
 
   // used for continuous scheduling
-  public void resetSchedulingOpportunities(
-      SchedulerRequestKey schedulerKey, long currentTimeMs) {
-    try {
-      writeLock.lock();
-      lastScheduledContainer.put(schedulerKey, currentTimeMs);
-      schedulingOpportunities.setCount(schedulerKey, 0);
-    } finally {
-      writeLock.unlock();
-    }
-
+  public void resetSchedulingOpportunities(SchedulerRequestKey schedulerKey,
+      long currentTimeMs) {
+    lastScheduledContainer.put(schedulerKey, currentTimeMs);
+    schedulingOpportunities.setCount(schedulerKey, 0);
   }
 
   @VisibleForTesting
@@ -906,7 +912,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
           Resources.add(usedResourceClone, reservedResourceClone),
           runningResourceUsage.getMemorySeconds(),
           runningResourceUsage.getVcoreSeconds(), queueUsagePerc,
-          clusterUsagePerc);
+          clusterUsagePerc, 0, 0);
     } finally {
       writeLock.unlock();
     }
@@ -998,6 +1004,11 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
   public void incNumAllocatedContainers(NodeType containerType,
       NodeType requestType) {
+    if (containerType == null || requestType == null) {
+      // Sanity check
+      return;
+    }
+
     RMAppAttempt attempt =
         rmContext.getRMApps().get(attemptId.getApplicationId())
           .getCurrentAppAttempt();
@@ -1039,9 +1050,27 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   public boolean hasPendingResourceRequest(ResourceCalculator rc,
       String nodePartition, Resource cluster,
       SchedulingMode schedulingMode) {
-    return SchedulerUtils.hasPendingResourceRequest(rc,
-        this.attemptResourceUsage, nodePartition, cluster,
-        schedulingMode);
+    // We need to consider unconfirmed allocations
+    if (schedulingMode == SchedulingMode.IGNORE_PARTITION_EXCLUSIVITY) {
+      nodePartition = RMNodeLabelsManager.NO_LABEL;
+    }
+
+    Resource pending = attemptResourceUsage.getPending(nodePartition);
+
+    // TODO, need consider node partition here
+    // To avoid too many allocation-proposals rejected for non-default
+    // partition allocation
+    if (StringUtils.equals(nodePartition, RMNodeLabelsManager.NO_LABEL)) {
+      pending = Resources.subtract(pending, Resources
+          .createResource(unconfirmedAllocatedMem.get(),
+              unconfirmedAllocatedVcores.get()));
+    }
+
+    if (Resources.greaterThan(rc, cluster, pending, Resources.none())) {
+      return true;
+    }
+
+    return false;
   }
   
   @VisibleForTesting
@@ -1204,6 +1233,38 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
   protected void setAttemptRecovering(boolean isRecovering) {
     this.isAttemptRecovering = isRecovering;
+  }
+
+  public <N extends SchedulerNode> SchedulingPlacementSet<N> getSchedulingPlacementSet(
+      SchedulerRequestKey schedulerRequestKey) {
+    return appSchedulingInfo.getSchedulingPlacementSet(schedulerRequestKey);
+  }
+
+
+  public void incUnconfirmedRes(Resource res) {
+    unconfirmedAllocatedMem.addAndGet(res.getMemorySize());
+    unconfirmedAllocatedVcores.addAndGet(res.getVirtualCores());
+  }
+
+  public void decUnconfirmedRes(Resource res) {
+    unconfirmedAllocatedMem.addAndGet(-res.getMemorySize());
+    unconfirmedAllocatedVcores.addAndGet(-res.getVirtualCores());
+  }
+
+  @Override
+  public int hashCode() {
+    return getApplicationAttemptId().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (! (o instanceof SchedulerApplicationAttempt)) {
+      return false;
+    }
+
+    SchedulerApplicationAttempt other = (SchedulerApplicationAttempt) o;
+    return (this == other ||
+        this.getApplicationAttemptId().equals(other.getApplicationAttemptId()));
   }
 
   /**

@@ -37,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
@@ -44,6 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.BlockStoragePolicySpi;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -58,10 +60,13 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.TestDFSClientRetries;
 import org.apache.hadoop.hdfs.TestFileCreation;
 import org.apache.hadoop.hdfs.client.HdfsClientConfigKeys;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
+import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.SnapshottableDirectoryStatus;
 import org.apache.hadoop.hdfs.server.namenode.NameNode;
 import org.apache.hadoop.hdfs.server.namenode.snapshot.SnapshotTestHelper;
@@ -75,6 +80,7 @@ import org.apache.hadoop.hdfs.web.resources.Param;
 import org.apache.hadoop.io.retry.RetryPolicy;
 import org.apache.hadoop.io.retry.RetryPolicy.RetryAction;
 import org.apache.hadoop.io.retry.RetryPolicy.RetryAction.RetryDecision;
+import org.apache.hadoop.ipc.RemoteException;
 import org.apache.hadoop.ipc.RetriableException;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.token.SecretManager.InvalidToken;
@@ -527,6 +533,15 @@ public class TestWebHDFS {
       final Path s1path = SnapshotTestHelper.getSnapshotRoot(foo, "s1");
       Assert.assertTrue(webHdfs.exists(s1path));
 
+      // delete operation snapshot name as null
+      try {
+        webHdfs.deleteSnapshot(foo, null);
+        fail("Expected IllegalArgumentException");
+      } catch (RemoteException e) {
+        Assert.assertEquals("Required param snapshotname for "
+            + "op: DELETESNAPSHOT is null or empty", e.getLocalizedMessage());
+      }
+
       // delete the two snapshots
       webHdfs.deleteSnapshot(foo, "s1");
       assertFalse(webHdfs.exists(s1path));
@@ -584,6 +599,15 @@ public class TestWebHDFS {
       webHdfs.createSnapshot(foo, "s1");
       final Path s1path = SnapshotTestHelper.getSnapshotRoot(foo, "s1");
       Assert.assertTrue(webHdfs.exists(s1path));
+
+      // rename s1 to s2 with oldsnapshotName as null
+      try {
+        webHdfs.renameSnapshot(foo, null, "s2");
+        fail("Expected IllegalArgumentException");
+      } catch (RemoteException e) {
+        Assert.assertEquals("Required param oldsnapshotname for "
+            + "op: RENAMESNAPSHOT is null or empty", e.getLocalizedMessage());
+      }
 
       // rename s1 to s2
       webHdfs.renameSnapshot(foo, "s1", "s2");
@@ -643,7 +667,7 @@ public class TestWebHDFS {
     try {
       cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
       final FileSystem webHdfs = WebHdfsTestUtil.getWebHdfsFileSystem(conf,
-          WebHdfsConstants.WEBHDFS_SCHEME);
+            WebHdfsConstants.WEBHDFS_SCHEME);
       Assert.assertNull(webHdfs.getDelegationToken(null));
     } finally {
       if (cluster != null) {
@@ -1069,6 +1093,130 @@ public class TestWebHDFS {
     } finally {
       if (cluster != null) {
         cluster.shutdown();
+      }
+    }
+  }
+
+  @Test
+  public void testGetTrashRoot() throws Exception {
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    final String currentUser =
+        UserGroupInformation.getCurrentUser().getShortUserName();
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
+      final WebHdfsFileSystem webFS = WebHdfsTestUtil.getWebHdfsFileSystem(
+          conf, WebHdfsConstants.WEBHDFS_SCHEME);
+
+      Path trashPath = webFS.getTrashRoot(new Path("/"));
+      Path expectedPath = new Path(FileSystem.USER_HOME_PREFIX,
+          new Path(currentUser, FileSystem.TRASH_PREFIX));
+      assertEquals(expectedPath.toUri().getPath(), trashPath.toUri().getPath());
+    } finally {
+      if (cluster != null) {
+        cluster.shutdown();
+      }
+    }
+  }
+
+
+  @Test
+  public void testStoragePolicy() throws Exception {
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    final Path path = new Path("/file");
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
+      final DistributedFileSystem dfs = cluster.getFileSystem();
+      final WebHdfsFileSystem webHdfs = WebHdfsTestUtil.getWebHdfsFileSystem(
+          conf, WebHdfsConstants.WEBHDFS_SCHEME);
+
+      // test getAllStoragePolicies
+      BlockStoragePolicy[] dfsPolicies = (BlockStoragePolicy[]) dfs
+          .getAllStoragePolicies().toArray();
+      BlockStoragePolicy[] webHdfsPolicies = (BlockStoragePolicy[]) webHdfs
+          .getAllStoragePolicies().toArray();
+      Assert.assertTrue(Arrays.equals(dfsPolicies, webHdfsPolicies));
+
+      // test get/set/unset policies
+      DFSTestUtil.createFile(dfs, path, 0, (short) 1, 0L);
+      // get defaultPolicy
+      BlockStoragePolicySpi defaultdfsPolicy = dfs.getStoragePolicy(path);
+      // set policy through webhdfs
+      webHdfs.setStoragePolicy(path, HdfsConstants.COLD_STORAGE_POLICY_NAME);
+      // get policy from dfs
+      BlockStoragePolicySpi dfsPolicy = dfs.getStoragePolicy(path);
+      // get policy from webhdfs
+      BlockStoragePolicySpi webHdfsPolicy = webHdfs.getStoragePolicy(path);
+      Assert.assertEquals(HdfsConstants.COLD_STORAGE_POLICY_NAME.toString(),
+          webHdfsPolicy.getName());
+      Assert.assertEquals(webHdfsPolicy, dfsPolicy);
+      // unset policy
+      webHdfs.unsetStoragePolicy(path);
+      Assert.assertEquals(defaultdfsPolicy, webHdfs.getStoragePolicy(path));
+    } finally {
+      if (cluster != null) {
+        cluster.shutdown();
+      }
+    }
+  }
+
+  @Test
+  public void testSetStoragePolicyWhenPolicyDisabled() throws Exception {
+    Configuration conf = new HdfsConfiguration();
+    conf.setBoolean(DFSConfigKeys.DFS_STORAGE_POLICY_ENABLED_KEY, false);
+    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0)
+        .build();
+    try {
+      cluster.waitActive();
+      final WebHdfsFileSystem webHdfs = WebHdfsTestUtil.getWebHdfsFileSystem(
+          conf, WebHdfsConstants.WEBHDFS_SCHEME);
+      webHdfs.setStoragePolicy(new Path("/"),
+          HdfsConstants.COLD_STORAGE_POLICY_NAME);
+      fail("Should throw exception, when storage policy disabled");
+    } catch (IOException e) {
+      Assert.assertTrue(e.getMessage().contains(
+          "Failed to set storage policy since"));
+    } finally {
+      cluster.shutdown();
+    }
+  }
+
+  @Test
+  public void testWebHdfsAppend() throws Exception {
+    MiniDFSCluster cluster = null;
+    final Configuration conf = WebHdfsTestUtil.createConf();
+    final int dnNumber = 3;
+    try {
+
+      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(dnNumber).build();
+
+      final WebHdfsFileSystem webFS = WebHdfsTestUtil.getWebHdfsFileSystem(
+          conf, WebHdfsConstants.WEBHDFS_SCHEME);
+
+      final DistributedFileSystem fs = cluster.getFileSystem();
+
+      final Path appendFile = new Path("/testAppend.txt");
+      final String content = "hello world";
+      DFSTestUtil.writeFile(fs, appendFile, content);
+
+      for (int index = 0; index < dnNumber - 1; index++){
+        cluster.shutdownDataNode(index);
+      }
+      cluster.restartNameNodes();
+      cluster.waitActive();
+
+      try {
+        DFSTestUtil.appendFile(webFS, appendFile, content);
+        fail("Should fail to append file since "
+            + "datanode number is 1 and replication is 3");
+      } catch (IOException ignored) {
+        String resultContent = DFSTestUtil.readFile(fs, appendFile);
+        assertTrue(resultContent.equals(content));
+      }
+    } finally {
+      if (cluster != null) {
+        cluster.shutdown(true);
       }
     }
   }

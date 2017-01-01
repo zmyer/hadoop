@@ -17,11 +17,11 @@
 
 package org.apache.hadoop.jmx;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.http.HttpServer2;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -38,6 +38,7 @@ import javax.management.RuntimeMBeanException;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.TabularData;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -168,7 +169,12 @@ public class JMXJsonServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
-      if (!isInstrumentationAccessAllowed(request, response)) {
+      // If user is a static user and auth Type is null, that means
+      // there is a non-security environment and no need authorization,
+      // otherwise, do the authorization.
+      final ServletContext servletContext = getServletContext();
+      if (!HttpServer2.isStaticUserAndNoneAuthType(servletContext, request) &&
+          !isInstrumentationAccessAllowed(request, response)) {
         return;
       }
       JsonGenerator jg = null;
@@ -180,7 +186,7 @@ public class JMXJsonServlet extends HttpServlet {
         response.setHeader(ACCESS_CONTROL_ALLOW_METHODS, "GET");
         response.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
 
-        jg = jsonFactory.createJsonGenerator(writer);
+        jg = jsonFactory.createGenerator(writer);
         jg.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         jg.useDefaultPrettyPrinter();
         jg.writeStartObject();

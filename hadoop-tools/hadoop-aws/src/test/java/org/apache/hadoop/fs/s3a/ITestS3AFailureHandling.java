@@ -18,13 +18,11 @@
 
 package org.apache.hadoop.fs.s3a;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.contract.AbstractFSContract;
-import org.apache.hadoop.fs.contract.AbstractFSContractTestBase;
-import org.apache.hadoop.fs.contract.s3a.S3AContract;
+import org.apache.hadoop.test.LambdaTestUtils;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,21 +32,14 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.Callable;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.*;
-import static org.apache.hadoop.fs.s3a.S3ATestUtils.*;
-import static org.apache.hadoop.fs.s3a.S3AUtils.*;
 
 /**
  * Test S3A Failure translation, including a functional test
  * generating errors during stream IO.
  */
-public class ITestS3AFailureHandling extends AbstractFSContractTestBase {
+public class ITestS3AFailureHandling extends AbstractS3ATestBase {
   private static final Logger LOG =
       LoggerFactory.getLogger(ITestS3AFailureHandling.class);
-
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new S3AContract(conf);
-  }
 
   @Test
   public void testReadFileChanged() throws Throwable {
@@ -68,13 +59,15 @@ public class ITestS3AFailureHandling extends AbstractFSContractTestBase {
       writeDataset(fs, testpath, shortDataset, shortDataset.length, 1024, true);
       // here the file length is less. Probe the file to see if this is true,
       // with a spin and wait
-      eventually(30 *1000, new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-          assertEquals(shortLen, fs.getFileStatus(testpath).getLen());
-          return null;
-        }
-      });
+      LambdaTestUtils.eventually(30 * 1000, 1000,
+          new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+              assertEquals(shortLen, fs.getFileStatus(testpath).getLen());
+              return null;
+            }
+          });
+
       // here length is shorter. Assuming it has propagated to all replicas,
       // the position of the input stream is now beyond the EOF.
       // An attempt to seek backwards to a position greater than the

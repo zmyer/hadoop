@@ -66,12 +66,8 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         conf.getLong(YarnConfiguration.NM_RESOURCE_MON_INTERVAL_MS,
             YarnConfiguration.DEFAULT_NM_RESOURCE_MON_INTERVAL_MS);
 
-    Class<? extends ResourceCalculatorPlugin> clazz =
-        conf.getClass(YarnConfiguration.NM_MON_RESOURCE_CALCULATOR, null,
-            ResourceCalculatorPlugin.class);
-
     this.resourceCalculatorPlugin =
-        ResourceCalculatorPlugin.getResourceCalculatorPlugin(clazz, conf);
+        ResourceCalculatorPlugin.getNodeResourceMonitorPlugin(conf);
 
     LOG.info(" Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
@@ -82,6 +78,11 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    * @return <em>true</em> if we can monitor the node resource utilization.
    */
   private boolean isEnabled() {
+    if (this.monitoringInterval <= 0) {
+      LOG.info("Node Resource monitoring interval is <=0. "
+          + this.getClass().getName() + " is disabled.");
+      return false;
+    }
     if (resourceCalculatorPlugin == null) {
       LOG.info("ResourceCalculatorPlugin is unavailable on this system. "
           + this.getClass().getName() + " is disabled.");

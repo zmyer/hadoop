@@ -443,9 +443,11 @@ public class DatanodeManager {
       Comparator<DatanodeInfo> comparator) {
     // As it is possible for the separation of node manager and datanode, 
     // here we should get node but not datanode only .
+    boolean nonDatanodeReader = false;
     Node client = getDatanodeByHost(targetHost);
     if (client == null) {
-      List<String> hosts = new ArrayList<> (1);
+      nonDatanodeReader = true;
+      List<String> hosts = new ArrayList<>(1);
       hosts.add(targetHost);
       List<String> resolvedHosts = dnsToSwitchMapping.resolve(hosts);
       if (resolvedHosts != null && !resolvedHosts.isEmpty()) {
@@ -470,8 +472,12 @@ public class DatanodeManager {
       --lastActiveIndex;
     }
     int activeLen = lastActiveIndex + 1;
-    networktopology.sortByDistance(client, lb.getLocations(), activeLen);
-
+    if(nonDatanodeReader) {
+      networktopology.sortByDistanceUsingNetworkLocation(client,
+          lb.getLocations(), activeLen);
+    } else {
+      networktopology.sortByDistance(client, lb.getLocations(), activeLen);
+    }
     // must update cache since we modified locations array
     lb.updateCachedStorageInfo();
   }
@@ -759,17 +765,25 @@ public class DatanodeManager {
     }
   }
 
+  /**
+   * Will return true for all Datanodes which have a non-null software
+   * version and are considered alive (by {@link DatanodeDescriptor#isAlive()}),
+   * indicating the node has not yet been removed. Use {@code isAlive}
+   * rather than {@link DatanodeManager#isDatanodeDead(DatanodeDescriptor)}
+   * to ensure that the version is decremented even if the datanode
+   * hasn't issued a heartbeat recently.
+   *
+   * @param node The datanode in question
+   * @return True iff its version count should be decremented
+   */
   private boolean shouldCountVersion(DatanodeDescriptor node) {
-    return node.getSoftwareVersion() != null && node.isAlive() &&
-      !isDatanodeDead(node);
+    return node.getSoftwareVersion() != null && node.isAlive();
   }
 
   private void countSoftwareVersions() {
     synchronized(this) {
       datanodesSoftwareVersions.clear();
       for(DatanodeDescriptor dn: datanodeMap.values()) {
-        // Check isAlive too because right after removeDatanode(),
-        // isDatanodeDead() is still true 
         if (shouldCountVersion(dn)) {
           Integer num = datanodesSoftwareVersions.get(dn.getSoftwareVersion());
           num = num == null ? 1 : num+1;
@@ -1647,10 +1661,10 @@ public class DatanodeManager {
       LOG.debug("Received handleLifeline from nodeReg = " + nodeReg);
     }
     DatanodeDescriptor nodeinfo = getDatanode(nodeReg);
-    if (nodeinfo == null) {
-      // This is null if the DataNode has not yet registered.  We expect this
-      // will never happen, because the DataNode has logic to prevent sending
-      // lifeline messages until after initial registration is successful.
+    if (nodeinfo == null || !nodeinfo.isRegistered()) {
+      // This can happen if the lifeline message comes when DataNode is either
+      // not registered at all or its marked dead at NameNode and expectes
+      // re-registration. Ignore lifeline messages without registration.
       // Lifeline message handling can't send commands back to the DataNode to
       // tell it to register, so simply exit.
       return;

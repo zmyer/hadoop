@@ -49,22 +49,6 @@ public class TestYarnConfigurationFields extends TestConfigurationFieldsBase {
 
     // Specific properties to skip
     configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_FS_NODE_LABELS_STORE_IMPL_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_RM_CONFIGURATION_PROVIDER_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_CLIENT_FAILOVER_PROXY_PROVIDER);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_IPC_RECORD_FACTORY_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_IPC_CLIENT_FACTORY_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_IPC_SERVER_FACTORY_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_IPC_RPC_IMPL);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_RM_SCHEDULER);
-    configurationPropsToSkipCompare
         .add(YarnConfiguration
             .YARN_SECURITY_SERVICE_AUTHORIZATION_APPLICATIONCLIENT_PROTOCOL);
     configurationPropsToSkipCompare
@@ -82,14 +66,6 @@ public class TestYarnConfigurationFields extends TestConfigurationFieldsBase {
     configurationPropsToSkipCompare
         .add(YarnConfiguration
             .YARN_SECURITY_SERVICE_AUTHORIZATION_RESOURCETRACKER_PROTOCOL);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_SCM_STORE_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_SCM_APP_CHECKER_CLASS);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_SHARED_CACHE_CHECKSUM_ALGO_IMPL);
-    configurationPropsToSkipCompare
-        .add(YarnConfiguration.DEFAULT_AMRM_PROXY_INTERCEPTOR_CLASS_PIPELINE);
     configurationPropsToSkipCompare.add(YarnConfiguration.CURATOR_LEADER_ELECTOR);
 
     // Ignore blacklisting nodes for AM failures feature since it is still a
@@ -135,10 +111,6 @@ public class TestYarnConfigurationFields extends TestConfigurationFieldsBase {
     xmlPropsToSkipCompare = new HashSet<String>();
     xmlPrefixToSkipCompare = new HashSet<String>();
 
-    // Should probably be moved from yarn-default.xml to mapred-default.xml
-    xmlPropsToSkipCompare.add("mapreduce.job.hdfs-servers");
-    xmlPropsToSkipCompare.add("mapreduce.job.jar");
-
     // Possibly obsolete, but unable to verify 100%
     xmlPropsToSkipCompare.add("yarn.nodemanager.aux-services.mapreduce_shuffle.class");
     xmlPropsToSkipCompare.add("yarn.resourcemanager.container.liveness-monitor.interval-ms");
@@ -151,5 +123,16 @@ public class TestYarnConfigurationFields extends TestConfigurationFieldsBase {
 
     // Currently defined in RegistryConstants/core-site.xml
     xmlPrefixToSkipCompare.add("hadoop.registry");
+
+    // Add the filters used for checking for collision of default values.
+    initDefaultValueCollisionCheck();
+  }
+
+  /**
+   * Add filters used to perform the check of default values collision by
+   * {@link TestConfigurationFieldsBase#filtersForDefaultValueCollisionCheck}.
+   */
+  private void initDefaultValueCollisionCheck() {
+    filtersForDefaultValueCollisionCheck.add("_PORT");
   }
 }

@@ -25,7 +25,6 @@
     <version>3.0.0-alpha2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn-server-timeline-pluginstorage</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <name>Apache Hadoop YARN Timeline Plugin Storage</name>
@@ -55,7 +54,7 @@
           <artifactId>jasper-compiler</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.mortbay.jetty</groupId>
+          <groupId>org.eclipse.jetty</groupId>
           <artifactId>jsp-2.1-jetty</artifactId>
         </exclusion>
       </exclusions>
@@ -99,18 +98,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-core-asl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-xc</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

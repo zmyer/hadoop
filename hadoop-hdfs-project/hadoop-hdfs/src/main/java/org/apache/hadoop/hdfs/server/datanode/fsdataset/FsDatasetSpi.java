@@ -21,7 +21,6 @@ package org.apache.hadoop.hdfs.server.datanode.fsdataset;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -159,6 +158,13 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
       return references.get(index).getVolume();
     }
 
+    /**
+     * Get the reference for a given index.
+     */
+    public FsVolumeReference getReference(int index) {
+      return references.get(index);
+    }
+
     @Override
     public void close() throws IOException {
       IOException ioe = null;
@@ -229,11 +235,17 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    */
   VolumeFailureSummary getVolumeFailureSummary();
 
-  /** @return a list of finalized blocks for the given block pool. */
+  /**
+   * Gets a list of references to the finalized blocks for the given block pool.
+   * <p>
+   * Callers of this function should call
+   * {@link FsDatasetSpi#acquireDatasetLock} to avoid blocks' status being
+   * changed during list iteration.
+   * </p>
+   * @return a list of references to the finalized blocks for the given block
+   *         pool.
+   */
   List<ReplicaInfo> getFinalizedBlocks(String bpid);
-
-  /** @return a list of finalized blocks for the given block pool. */
-  List<ReplicaInfo> getFinalizedBlocksOnPersistentStorage(String bpid);
 
   /**
    * Check whether the in-memory block record matches the block on the disk,
@@ -482,8 +494,9 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
     /**
      * Check if all the data directories are healthy
      * @return A set of unhealthy data directories.
+     * @param failedVolumes
      */
-  Set<StorageLocation> checkDataDir();
+  void handleVolumeFailures(Set<FsVolumeSpi> failedVolumes);
 
   /**
    * Shutdown the FSDataset
@@ -592,7 +605,7 @@ public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
    * submit a sync_file_range request to AsyncDiskService.
    */
   void submitBackgroundSyncFileRangeRequest(final ExtendedBlock block,
-      final FileDescriptor fd, final long offset, final long nbytes,
+      final ReplicaOutputStreams outs, final long offset, final long nbytes,
       final int flags);
 
   /**

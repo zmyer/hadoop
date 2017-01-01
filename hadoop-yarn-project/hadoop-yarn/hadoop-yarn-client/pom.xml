@@ -19,7 +19,6 @@
     <groupId>org.apache.hadoop</groupId>
     <version>3.0.0-alpha2-SNAPSHOT</version>
   </parent>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-yarn-client</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <name>Apache Hadoop YARN Client</name>
@@ -154,7 +153,6 @@
         <executions>
           <execution>
             <id>compile-protoc</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>protoc</goal>
             </goals>
@@ -172,7 +170,6 @@
                   <include>test_amrm_token.proto</include>
                 </includes>
               </source>
-              <output>${project.build.directory}/generated-sources/java</output>
             </configuration>
           </execution>
         </executions>

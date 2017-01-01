@@ -595,7 +595,8 @@ public class TestApplicationLimitsByPartition {
     when(csContext.getMaximumResourceCapability())
         .thenReturn(Resources.createResource(16 * GB));
     when(csContext.getNonPartitionedQueueComparator())
-        .thenReturn(CapacityScheduler.nonPartitionedQueueComparator);
+        .thenReturn(
+            CapacitySchedulerQueueManager.NON_PARTITIONED_QUEUE_COMPARATOR);
     when(csContext.getResourceCalculator()).thenReturn(resourceCalculator);
     RMContext rmContext = TestUtils.getMockRMContext();
     RMContext spyRMContext = spy(rmContext);
@@ -614,8 +615,8 @@ public class TestApplicationLimitsByPartition {
     when(csContext.getClusterResource()).thenReturn(clusterResource);
 
     Map<String, CSQueue> queues = new HashMap<String, CSQueue>();
-    CSQueue rootQueue = CapacityScheduler.parseQueue(csContext, csConf, null,
-        "root", queues, queues, TestUtils.spyHook);
+    CSQueue rootQueue = CapacitySchedulerQueueManager.parseQueue(csContext,
+        csConf, null, "root", queues, queues, TestUtils.spyHook);
 
     ResourceUsage queueResUsage = rootQueue.getQueueResourceUsage();
     when(csContext.getClusterResourceUsage())
@@ -686,6 +687,9 @@ public class TestApplicationLimitsByPartition {
     List<ResourceRequest> app_0_1_requests = new ArrayList<ResourceRequest>();
     app_0_1_requests.add(TestUtils.createResourceRequest(ResourceRequest.ANY,
         1 * GB, 2, true, priority_1, recordFactory));
+    app_0_1.updateResourceRequests(app_0_1_requests);
+
+    app_0_1_requests.clear();
     app_0_1_requests.add(TestUtils.createResourceRequest(ResourceRequest.ANY,
         1 * GB, 2, true, priority_1, recordFactory, "y"));
     app_0_1.updateResourceRequests(app_0_1_requests);
@@ -714,6 +718,9 @@ public class TestApplicationLimitsByPartition {
     List<ResourceRequest> app_1_0_requests = new ArrayList<ResourceRequest>();
     app_1_0_requests.add(TestUtils.createResourceRequest(ResourceRequest.ANY,
         1 * GB, 2, true, priority_1, recordFactory));
+    app_1_0.updateResourceRequests(app_1_0_requests);
+
+    app_1_0_requests.clear();
     app_1_0_requests.add(TestUtils.createResourceRequest(ResourceRequest.ANY,
         1 * GB, 2, true, priority_1, recordFactory, "y"));
     app_1_0.updateResourceRequests(app_1_0_requests);

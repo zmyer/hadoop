@@ -31,7 +31,7 @@ import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.event.EventHandler;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerRequestKey;
+import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 
 
 /**
@@ -45,6 +45,8 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerRequestK
 public interface RMContainer extends EventHandler<RMContainerEvent> {
 
   ContainerId getContainerId();
+
+  void setContainerId(ContainerId containerId);
 
   ApplicationAttemptId getApplicationAttemptId();
 
@@ -105,4 +107,14 @@ public interface RMContainer extends EventHandler<RMContainerEvent> {
    * @return If the container was allocated remotely.
    */
   boolean isRemotelyAllocated();
+
+  /*
+   * Return reserved resource for reserved containers, return allocated resource
+   * for other container
+   */
+  Resource getAllocatedOrReservedResource();
+
+  boolean completed();
+
+  NodeId getNodeId();
 }

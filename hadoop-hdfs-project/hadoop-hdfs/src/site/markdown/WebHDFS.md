@@ -42,6 +42,7 @@ WebHDFS REST API
         * [Get Content Summary of a Directory](#Get_Content_Summary_of_a_Directory)
         * [Get File Checksum](#Get_File_Checksum)
         * [Get Home Directory](#Get_Home_Directory)
+        * [Get Trash Root](#Get_Trash_Root)
         * [Set Permission](#Set_Permission)
         * [Set Owner](#Set_Owner)
         * [Set Replication Factor](#Set_Replication_Factor)
@@ -53,6 +54,10 @@ WebHDFS REST API
         * [Set ACL](#Set_ACL)
         * [Get ACL Status](#Get_ACL_Status)
         * [Check access](#Check_access)
+        * [Get all Storage Policies](#Get_all_Storage_Policies)
+        * [Set Storage Policy](#Set_Storage_Policy)
+        * [Unset Storage Policy](#Unset_Storage_Policy)
+        * [Get Storage Policy](#Get_Storage_Policy)
     * [Extended Attributes(XAttrs) Operations](#Extended_AttributesXAttrs_Operations)
         * [Set XAttr](#Set_XAttr)
         * [Remove XAttr](#Remove_XAttr)
@@ -89,6 +94,9 @@ WebHDFS REST API
         * [RemoteException JSON Schema](#RemoteException_JSON_Schema)
         * [Token JSON Schema](#Token_JSON_Schema)
             * [Token Properties](#Token_Properties)
+        * [BlockStoragePolicy JSON Schema](#BlockStoragePolicy_JSON_Schema)
+            * [BlockStoragePolicy Properties](#BlockStoragePolicy_Properties)
+        * [BlockStoragePolicies JSON Schema](#BlockStoragePolicies_JSON_Schema)
     * [HTTP Query Parameter Dictionary](#HTTP_Query_Parameter_Dictionary)
         * [ACL Spec](#ACL_Spec)
         * [XAttr Name](#XAttr_Name)
@@ -123,6 +131,8 @@ WebHDFS REST API
         * [Token Service](#Token_Service)
         * [Username](#Username)
         * [NoRedirect](#NoRedirect)
+        * [Storage Policy](#Storage_Policy)
+        * [Start After](#Start_After)
 
 Document Conventions
 --------------------
@@ -149,11 +159,14 @@ The HTTP REST API supports the complete [FileSystem](../../api/org/apache/hadoop
     * [`GETFILECHECKSUM`](#Get_File_Checksum) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getFileChecksum)
     * [`GETHOMEDIRECTORY`](#Get_Home_Directory) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getHomeDirectory)
     * [`GETDELEGATIONTOKEN`](#Get_Delegation_Token) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getDelegationToken)
+    * [`GETTRASHROOT`](#Get_Trash_Root) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getTrashRoot)
     * [`GETXATTRS`](#Get_an_XAttr) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttr)
     * [`GETXATTRS`](#Get_multiple_XAttrs) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttrs)
     * [`GETXATTRS`](#Get_all_XAttrs) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getXAttrs)
     * [`LISTXATTRS`](#List_all_XAttrs) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).listXAttrs)
     * [`CHECKACCESS`](#Check_access) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).access)
+    * [`GETALLSTORAGEPOLICY`](#Get_all_Storage_Policies) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getAllStoragePolicies)
+    * [`GETSTORAGEPOLICY`](#Get_Storage_Policy) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getStoragePolicy)
 *   HTTP PUT
     * [`CREATE`](#Create_and_Write_to_a_File) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).create)
     * [`MKDIRS`](#Make_a_Directory) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).mkdirs)
@@ -169,10 +182,12 @@ The HTTP REST API supports the complete [FileSystem](../../api/org/apache/hadoop
     * [`RENAMESNAPSHOT`](#Rename_Snapshot) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).renameSnapshot)
     * [`SETXATTR`](#Set_XAttr) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).setXAttr)
     * [`REMOVEXATTR`](#Remove_XAttr) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).removeXAttr)
+    * [`SETSTORAGEPOLICY`](#Set_Storage_Policy) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).setStoragePolicy)
 *   HTTP POST
     * [`APPEND`](#Append_to_a_File) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).append)
     * [`CONCAT`](#Concat_Files) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).concat)
     * [`TRUNCATE`](#Truncate_a_File) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).truncate)
+    * [`UNSETSTORAGEPOLICY`](#Unset_Storage_Policy) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).unsetStoragePolicy)
 *   HTTP DELETE
     * [`DELETE`](#Delete_a_FileDirectory) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).delete)
     * [`DELETESNAPSHOT`](#Delete_Snapshot) (see [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).deleteSnapshot)
@@ -578,7 +593,7 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getFileSt
                 "group"           : "supergroup",
                 "length"          : 0,
                 "modificationTime": 1320895981256,
-                "owner"           : "szetszwo",
+                "owner"           : "username",
                 "pathSuffix"      : "bar",
                 "permission"      : "711",
                 "replication"     : 0,
@@ -815,9 +830,35 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getFileCh
         Content-Type: application/json
         Transfer-Encoding: chunked
 
-        {"Path": "/user/szetszwo"}
+        {"Path": "/user/username"}
 
 See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getHomeDirectory
+
+### Get Trash Root
+
+* Submit a HTTP GET request.
+
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETTRASHROOT"
+
+    The client receives a response with a [`Path` JSON object](#Path_JSON_Schema):
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        Transfer-Encoding: chunked
+
+        {"Path": "/user/username/.Trash"}
+
+    if the path is an encrypted zone path and user has permission of the path, the client receives a response like this:
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        Transfer-Encoding: chunked
+
+        {"Path": "/PATH/.Trash/username"}
+
+See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getTrashRoot
+
+For more details about trash root in an encrypted zone, please refer to [Transparent Encryption Guide](./TransparentEncryption.html#Rename_and_Trash_considerations).
 
 ### Set Permission
 
@@ -987,6 +1028,129 @@ See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getAclSta
 
 See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).access
 
+Storage Policy Operations
+-------------------------
+
+### Get all Storage Policies
+
+* Submit a HTTP GET request.
+
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1?op=GETALLSTORAGEPOLICY"
+
+    The client receives a response with a [`BlockStoragePolicies` JSON object](#BlockStoragePolicies_JSON_Schema):
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        Transfer-Encoding: chunked
+
+        {
+            "BlockStoragePolicies": {
+                "BlockStoragePolicy": [
+                   {
+                       "copyOnCreateFile": false,
+                       "creationFallbacks": [],
+                       "id": 2,
+                       "name": "COLD",
+                       "replicationFallbacks": [],
+                       "storageTypes": ["ARCHIVE"]
+                   },
+                   {
+                       "copyOnCreateFile": false,
+                       "creationFallbacks": ["DISK","ARCHIVE"],
+                       "id": 5,
+                       "name": "WARM",
+                       "replicationFallbacks": ["DISK","ARCHIVE"],
+                       "storageTypes": ["DISK","ARCHIVE"]
+                   },
+                   {
+                       "copyOnCreateFile": false,
+                       "creationFallbacks": [],
+                       "id": 7,
+                       "name": "HOT",
+                       "replicationFallbacks": ["ARCHIVE"],
+                       "storageTypes": ["DISK"]
+                   },
+                   {
+                       "copyOnCreateFile": false,
+                       "creationFallbacks": ["SSD","DISK"],
+                       "id": 10,"name": "ONE_SSD",
+                       "replicationFallbacks": ["SSD","DISK"],
+                       "storageTypes": ["SSD","DISK"]
+                   },
+                   {
+                       "copyOnCreateFile": false,
+                       "creationFallbacks": ["DISK"],
+                       "id": 12,
+                       "name": "ALL_SSD",
+                       "replicationFallbacks": ["DISK"],
+                       "storageTypes": ["SSD"]
+                   },
+                   {
+                       "copyOnCreateFile": true,
+                       "creationFallbacks": ["DISK"],
+                       "id": 15,
+                       "name": "LAZY_PERSIST",
+                       "replicationFallbacks": ["DISK"],
+                       "storageTypes": ["RAM_DISK","DISK"]
+                   }
+               ]
+           }
+        }
+
+See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getAllStoragePolicies
+
+### Set Storage Policy
+
+* Submit a HTTP PUT request.
+
+        curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=SETSTORAGEPOLICY
+                                      &storagepolicy=<policy>"
+
+    The client receives a response with zero content length:
+
+        HTTP/1.1 200 OK
+        Content-Length: 0
+
+See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).setStoragePolicy
+
+### Unset Storage Policy
+
+* Submit a HTTP POT request.
+
+        curl -i -X POST "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=UNSETSTORAGEPOLICY"
+
+    The client receives a response with zero content length:
+
+        HTTP/1.1 200 OK
+        Content-Length: 0
+
+See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).unsetStoragePolicy
+
+### Get Storage Policy
+
+* Submit a HTTP GET request.
+
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=GETSTORAGEPOLICY"
+
+    The client receives a response with a [`BlockStoragePolicy` JSON object](#BlockStoragePolicy_JSON_Schema):
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        Transfer-Encoding: chunked
+
+        {
+            "BlockStoragePolicy": {
+                "copyOnCreateFile": false,
+               "creationFallbacks": [],
+                "id":7,
+                "name":"HOT",
+                "replicationFallbacks":["ARCHIVE"],
+                "storageTypes":["DISK"]
+            }
+        }
+
+See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).getStoragePolicy
+
 Extended Attributes(XAttrs) Operations
 --------------------------------------
 
@@ -1137,7 +1301,7 @@ Snapshot Operations
         Content-Type: application/json
         Transfer-Encoding: chunked
 
-        {"Path": "/user/szetszwo/.snapshot/s1"}
+        {"Path": "/user/username/.snapshot/s1"}
 
 See also: [FileSystem](../../api/org/apache/hadoop/fs/FileSystem.html).createSnapshot
 
@@ -1175,7 +1339,8 @@ Delegation Token Operations
 
 * Submit a HTTP GET request.
 
-        curl -i "http://<HOST>:<PORT>/webhdfs/v1/?op=GETDELEGATIONTOKEN&renewer=<USER>&service=<SERVICE>&kind=<KIND>"
+        curl -i "http://<HOST>:<PORT>/webhdfs/v1/?op=GETDELEGATIONTOKEN
+                    [&renewer=<USER>][&service=<SERVICE>][&kind=<KIND>]"
 
     The client receives a response with a [`Token` JSON object](#Token_JSON_Schema):
 
@@ -1842,6 +2007,107 @@ var tokenProperties =
 ```
 
 See also: [`Token` Properties](#Token_Properties), the note in [Delegation](#Delegation).
+### BlockStoragePolicy JSON Schema
+
+```json
+{
+  "name"      : "BlockStoragePolicy",
+  "properties":
+  {
+    "BlockStoragePolicy": blockStoragePolicyProperties      //See BlockStoragePolicy Properties
+  }
+}
+```
+
+See also: [`BlockStoragePolicy` Properties](#BlockStoragePolicy_Properties), [`GETSTORAGEPOLICY`](#Get_Storage_Policy)
+
+#### BlockStoragePolicy Properties
+
+JavaScript syntax is used to define `blockStoragePolicyProperties` so that it can be referred in both `BlockStoragePolicy` and `BlockStoragePolicies` JSON schemas.
+
+```javascript
+var blockStoragePolicyProperties =
+{
+  "type"      : "object",
+  "properties":
+  {
+    "id":
+    {
+      "description": "Policy ID.",
+      "type"       : "integer",
+      "required"   : true
+    },
+    "name":
+    {
+      "description": "Policy name.",
+      "type"       : "string",
+      "required"   : true
+    },
+    "storageTypes":
+    {
+      "description": "An array of storage types for block placement.",
+      "type"       : "array",
+      "required"   : true
+      "items"      :
+      {
+        "type": "string"
+      }
+    },
+    "replicationFallbacks":
+    {
+      "description": "An array of fallback storage types for replication.",
+      "type"       : "array",
+      "required"   : true
+      "items"      :
+      {
+        "type": "string"
+      }
+    },
+    "creationFallbacks":
+    {
+      "description": "An array of fallback storage types for file creation.",
+      "type"       : "array",
+      "required"   : true
+      "items"      :
+      {
+       "type": "string"
+      }
+    },
+    "copyOnCreateFile":
+    {
+      "description": "If set then the policy cannot be changed after file creation.",
+      "type"       : "boolean",
+      "required"   : true
+    }
+  }
+};
+```
+
+### BlockStoragePolicies JSON Schema
+
+A `BlockStoragePolicies` JSON object represents an array of `BlockStoragePolicy` JSON objects.
+
+```json
+{
+  "name"      : "BlockStoragePolicies",
+  "properties":
+  {
+    "BlockStoragePolicies":
+    {
+      "type"      : "object",
+      "properties":
+      {
+        "BlockStoragePolicy":
+        {
+          "description": "An array of BlockStoragePolicy",
+          "type"       : "array",
+          "items"      : blockStoragePolicyProperties      //See BlockStoragePolicy Properties
+        }
+      }
+    }
+  }
+}
+```
 
 HTTP Query Parameter Dictionary
 -------------------------------
@@ -2252,3 +2518,27 @@ See also: [Authentication](#Authentication)
 | Syntax | true |
 
 See also: [Create and Write to a File](#Create_and_Write_to_a_File)
+
+### Storage Policy
+
+| Name | `storagepolicy` |
+|:---- |:---- |
+| Description | The name of the storage policy. |
+| Type | String |
+| Default Value | \<empty\> |
+| Valid Values | Any valid storage policy name; see [GETALLSTORAGEPOLICY](#Get_all_Storage_Policies).  |
+| Syntax | Any string. |
+
+See also: [`SETSTORAGEPOLICY`](#Set_Storage_Policy)
+
+### Start After
+
+| Name | `startAfter` |
+|:---- |:---- |
+| Description | The last item returned in the liststatus batch. |
+| Type | String |
+| Default Value | \<empty\> |
+| Valid Values | Any valid file/directory name. |
+| Syntax | Any string. |
+
+See also: [`LISTSTATUS_BATCH`](#Iteratively_List_a_Directory)

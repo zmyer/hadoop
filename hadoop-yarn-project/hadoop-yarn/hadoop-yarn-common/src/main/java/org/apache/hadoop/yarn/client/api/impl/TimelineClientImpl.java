@@ -45,6 +45,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -77,7 +78,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
 import org.apache.hadoop.yarn.webapp.YarnJacksonJaxbJsonProvider;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -98,6 +98,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 public class TimelineClientImpl extends TimelineClient {
 
   private static final Log LOG = LogFactory.getLog(TimelineClientImpl.class);
+  private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final String RESOURCE_URI_STR_V1 = "/ws/v1/timeline/";
   private static final String RESOURCE_URI_STR_V2 = "/ws/v2/timeline/";
   private static final Joiner JOINER = Joiner.on("");
@@ -450,7 +451,7 @@ public class TimelineClientImpl extends TimelineClient {
       String errMessage = "TimelineClient has reached to max retry times : "
           + this.maxServiceRetries
           + ", but failed to fetch timeline service address. Please verify"
-          + " Timeline Auxillary Service is configured in all the NMs";
+          + " Timeline Auxiliary Service is configured in all the NMs";
       LOG.error(errMessage);
       throw new YarnException(errMessage);
     }
@@ -765,15 +766,14 @@ public class TimelineClientImpl extends TimelineClient {
       LOG.error("File [" + jsonFile.getAbsolutePath() + "] doesn't exist");
       return;
     }
-    ObjectMapper mapper = new ObjectMapper();
-    YarnJacksonJaxbJsonProvider.configObjectMapper(mapper);
+    YarnJacksonJaxbJsonProvider.configObjectMapper(MAPPER);
     TimelineEntities entities = null;
     TimelineDomains domains = null;
     try {
       if (type.equals(ENTITY_DATA_TYPE)) {
-        entities = mapper.readValue(jsonFile, TimelineEntities.class);
+        entities = MAPPER.readValue(jsonFile, TimelineEntities.class);
       } else if (type.equals(DOMAIN_DATA_TYPE)){
-        domains = mapper.readValue(jsonFile, TimelineDomains.class);
+        domains = MAPPER.readValue(jsonFile, TimelineDomains.class);
       }
     } catch (Exception e) {
       LOG.error("Error when reading  " + e.getMessage());
@@ -805,7 +805,7 @@ public class TimelineClientImpl extends TimelineClient {
                 error.getErrorCode());
           }
         }
-      } else if (type.equals(DOMAIN_DATA_TYPE)) {
+      } else if (type.equals(DOMAIN_DATA_TYPE) && domains != null) {
         boolean hasError = false;
         for (TimelineDomain domain : domains.getDomains()) {
           try {

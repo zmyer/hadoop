@@ -68,7 +68,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
   // For drainEventsOnStop enabled only, block newly coming events into the
   // queue while stopping.
   private volatile boolean blockNewEvents = false;
-  private final EventHandler handlerInstance = new GenericEventHandler();
+  private final EventHandler<Event> handlerInstance = new GenericEventHandler();
 
   private Thread eventHandlingThread;
   protected final Map<Class<? extends Enum>, EventHandler> eventDispatchers;
@@ -151,7 +151,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
         while (!isDrained() && eventHandlingThread != null
             && eventHandlingThread.isAlive()
             && System.currentTimeMillis() < endTime) {
-          waitForDrained.wait(1000);
+          waitForDrained.wait(100);
           LOG.info("Waiting for AsyncDispatcher to drain. Thread state is :" +
               eventHandlingThread.getState());
         }
@@ -195,6 +195,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
       if (exitOnDispatchException
           && (ShutdownHookManager.get().isShutdownInProgress()) == false
           && stopped == false) {
+        stopped = true;
         Thread shutDownThread = new Thread(createShutDownThread());
         shutDownThread.setName("AsyncDispatcher ShutDown handler");
         shutDownThread.start();
@@ -227,7 +228,7 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
   }
 
   @Override
-  public EventHandler getEventHandler() {
+  public EventHandler<Event> getEventHandler() {
     return handlerInstance;
   }
 
@@ -306,5 +307,9 @@ public class AsyncDispatcher extends AbstractService implements Dispatcher {
 
   protected boolean isDrained() {
     return drained;
+  }
+
+  protected boolean isStopped() {
+    return stopped;
   }
 }

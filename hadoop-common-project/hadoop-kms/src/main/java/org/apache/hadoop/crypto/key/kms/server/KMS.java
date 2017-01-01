@@ -24,13 +24,13 @@ import org.apache.hadoop.crypto.key.KeyProvider.KeyVersion;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension;
 import org.apache.hadoop.crypto.key.KeyProviderCryptoExtension.EncryptedKeyVersion;
 import org.apache.hadoop.crypto.key.kms.KMSRESTConstants;
+import org.apache.hadoop.http.JettyUtils;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.crypto.key.kms.KMSClientProvider;
 import org.apache.hadoop.security.token.delegation.web.HttpUserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -64,7 +64,7 @@ public class KMS {
     CREATE_KEY, DELETE_KEY, ROLL_NEW_VERSION,
     GET_KEYS, GET_KEYS_METADATA,
     GET_KEY_VERSIONS, GET_METADATA, GET_KEY_VERSION, GET_CURRENT_KEY,
-    GENERATE_EEK, DECRYPT_EEK
+    GENERATE_EEK, DECRYPT_EEK, REENCRYPT_EEK
   }
 
   private KeyProviderCryptoExtension provider;
@@ -101,7 +101,7 @@ public class KMS {
   @POST
   @Path(KMSRESTConstants.KEYS_RESOURCE)
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   @SuppressWarnings("unchecked")
   public Response createKey(Map jsonKey) throws Exception {
     try{
@@ -204,7 +204,7 @@ public class KMS {
   @POST
   @Path(KMSRESTConstants.KEY_RESOURCE + "/{name:.*}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response rolloverKey(@PathParam("name") final String name,
       Map jsonMaterial) throws Exception {
     try {
@@ -254,7 +254,7 @@ public class KMS {
 
   @GET
   @Path(KMSRESTConstants.KEYS_METADATA_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getKeysMetadata(@QueryParam(KMSRESTConstants.KEY)
       List<String> keyNamesList) throws Exception {
     try {
@@ -287,7 +287,7 @@ public class KMS {
 
   @GET
   @Path(KMSRESTConstants.KEYS_NAMES_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getKeyNames() throws Exception {
     try {
       LOG.trace("Entering getKeyNames method.");
@@ -332,7 +332,7 @@ public class KMS {
   @GET
   @Path(KMSRESTConstants.KEY_RESOURCE + "/{name:.*}/" +
       KMSRESTConstants.METADATA_SUB_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getMetadata(@PathParam("name") final String name)
       throws Exception {
     try {
@@ -366,7 +366,7 @@ public class KMS {
   @GET
   @Path(KMSRESTConstants.KEY_RESOURCE + "/{name:.*}/" +
       KMSRESTConstants.CURRENT_VERSION_SUB_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getCurrentVersion(@PathParam("name") final String name)
       throws Exception {
     try {
@@ -399,7 +399,7 @@ public class KMS {
 
   @GET
   @Path(KMSRESTConstants.KEY_VERSION_RESOURCE + "/{versionName:.*}")
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getKeyVersion(
       @PathParam("versionName") final String versionName) throws Exception {
     try {
@@ -436,7 +436,7 @@ public class KMS {
   @GET
   @Path(KMSRESTConstants.KEY_RESOURCE + "/{name:.*}/" +
       KMSRESTConstants.EEK_SUB_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response generateEncryptedKeys(
           @PathParam("name") final String name,
           @QueryParam(KMSRESTConstants.EEK_OP) String edekOp,
@@ -508,8 +508,8 @@ public class KMS {
   @POST
   @Path(KMSRESTConstants.KEY_VERSION_RESOURCE + "/{versionName:.*}/" +
       KMSRESTConstants.EEK_SUB_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response decryptEncryptedKey(
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
+  public Response handleEncryptedKeyOp(
       @PathParam("versionName") final String versionName,
       @QueryParam(KMSRESTConstants.EEK_OP) String eekOp,
       Map jsonPayload)
@@ -527,15 +527,15 @@ public class KMS {
       String ivStr = (String) jsonPayload.get(KMSRESTConstants.IV_FIELD);
       String encMaterialStr =
               (String) jsonPayload.get(KMSRESTConstants.MATERIAL_FIELD);
+      KMSClientProvider.checkNotNull(ivStr, KMSRESTConstants.IV_FIELD);
+      final byte[] iv = Base64.decodeBase64(ivStr);
+      KMSClientProvider.checkNotNull(encMaterialStr,
+          KMSRESTConstants.MATERIAL_FIELD);
+      final byte[] encMaterial = Base64.decodeBase64(encMaterialStr);
       Object retJSON;
       if (eekOp.equals(KMSRESTConstants.EEK_DECRYPT)) {
         assertAccess(KMSACLs.Type.DECRYPT_EEK, user, KMSOp.DECRYPT_EEK,
                 keyName);
-        KMSClientProvider.checkNotNull(ivStr, KMSRESTConstants.IV_FIELD);
-        final byte[] iv = Base64.decodeBase64(ivStr);
-        KMSClientProvider.checkNotNull(encMaterialStr,
-                KMSRESTConstants.MATERIAL_FIELD);
-        final byte[] encMaterial = Base64.decodeBase64(encMaterialStr);
 
         KeyProvider.KeyVersion retKeyVersion = user.doAs(
                 new PrivilegedExceptionAction<KeyVersion>() {
@@ -553,6 +553,23 @@ public class KMS {
 
         retJSON = KMSServerJSONUtils.toJSON(retKeyVersion);
         kmsAudit.ok(user, KMSOp.DECRYPT_EEK, keyName, "");
+      } else if (eekOp.equals(KMSRESTConstants.EEK_REENCRYPT)) {
+        assertAccess(KMSACLs.Type.GENERATE_EEK, user, KMSOp.REENCRYPT_EEK,
+            keyName);
+
+        EncryptedKeyVersion retEncryptedKeyVersion =
+            user.doAs(new PrivilegedExceptionAction<EncryptedKeyVersion>() {
+              @Override
+              public EncryptedKeyVersion run() throws Exception {
+                return provider.reencryptEncryptedKey(
+                    new KMSClientProvider.KMSEncryptedKeyVersion(keyName,
+                        versionName, iv, KeyProviderCryptoExtension.EEK,
+                        encMaterial));
+              }
+            });
+
+        retJSON = KMSServerJSONUtils.toJSON(retEncryptedKeyVersion);
+        kmsAudit.ok(user, KMSOp.REENCRYPT_EEK, keyName, "");
       } else {
         StringBuilder error;
         error = new StringBuilder("IllegalArgumentException Wrong ");
@@ -565,11 +582,11 @@ public class KMS {
         throw new IllegalArgumentException(error.toString());
       }
       KMSWebApp.getDecryptEEKCallsMeter().mark();
-      LOG.trace("Exiting decryptEncryptedKey method.");
+      LOG.trace("Exiting handleEncryptedKeyOp method.");
       return Response.ok().type(MediaType.APPLICATION_JSON).entity(retJSON)
-              .build();
+          .build();
     } catch (Exception e) {
-      LOG.debug("Exception in decryptEncryptedKey.", e);
+      LOG.debug("Exception in handleEncryptedKeyOp.", e);
       throw e;
     }
   }
@@ -577,7 +594,7 @@ public class KMS {
   @GET
   @Path(KMSRESTConstants.KEY_RESOURCE + "/{name:.*}/" +
       KMSRESTConstants.VERSIONS_SUB_RESOURCE)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response getKeyVersions(@PathParam("name") final String name)
       throws Exception {
     try {

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +37,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -60,7 +63,7 @@ public class DirectoryScanner implements Runnable {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final String START_MESSAGE =
       "Periodic Directory Tree Verification scan"
-      + " starting at %dms with interval of %dms";
+      + " starting at %s with interval of %dms";
   private static final String START_MESSAGE_WITH_THROTTLE = START_MESSAGE
       + " and throttle limit of %dms/s";
 
@@ -267,10 +270,12 @@ public class DirectoryScanner implements Runnable {
     String logMsg;
 
     if (throttleLimitMsPerSec < MILLIS_PER_SECOND) {
-      logMsg = String.format(START_MESSAGE_WITH_THROTTLE, firstScanTime,
-          scanPeriodMsecs, throttleLimitMsPerSec);
+      logMsg = String.format(START_MESSAGE_WITH_THROTTLE,
+          FastDateFormat.getInstance().format(firstScanTime), scanPeriodMsecs,
+          throttleLimitMsPerSec);
     } else {
-      logMsg = String.format(START_MESSAGE, firstScanTime, scanPeriodMsecs);
+      logMsg = String.format(START_MESSAGE,
+          FastDateFormat.getInstance().format(firstScanTime), scanPeriodMsecs);
     }
 
     LOG.info(logMsg);
@@ -398,14 +403,13 @@ public class DirectoryScanner implements Runnable {
         diffs.put(bpid, diffRecord);
         
         statsRecord.totalBlocks = blockpoolReport.length;
-        List<ReplicaInfo> bl = dataset.getFinalizedBlocks(bpid);
-        ReplicaInfo[] memReport = bl.toArray(new ReplicaInfo[bl.size()]);
-        Arrays.sort(memReport); // Sort based on blockId
+        final List<ReplicaInfo> bl = dataset.getFinalizedBlocks(bpid);
+        Collections.sort(bl); // Sort based on blockId
   
         int d = 0; // index for blockpoolReport
         int m = 0; // index for memReprot
-        while (m < memReport.length && d < blockpoolReport.length) {
-          ReplicaInfo memBlock = memReport[m];
+        while (m < bl.size() && d < blockpoolReport.length) {
+          ReplicaInfo memBlock = bl.get(m);
           ScanInfo info = blockpoolReport[d];
           if (info.getBlockId() < memBlock.getBlockId()) {
             if (!dataset.isDeletingBlock(bpid, info.getBlockId())) {
@@ -452,8 +456,8 @@ public class DirectoryScanner implements Runnable {
             ++m;
           }
         }
-        while (m < memReport.length) {
-          ReplicaInfo current = memReport[m++];
+        while (m < bl.size()) {
+          ReplicaInfo current = bl.get(m++);
           addDifference(diffRecord, statsRecord,
                         current.getBlockId(), current.getVolume());
         }

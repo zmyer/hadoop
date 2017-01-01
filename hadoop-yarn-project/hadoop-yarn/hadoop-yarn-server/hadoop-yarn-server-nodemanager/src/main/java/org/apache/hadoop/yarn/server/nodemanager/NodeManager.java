@@ -56,7 +56,6 @@ import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
-import org.apache.hadoop.yarn.security.ContainerTokenIdentifier;
 import org.apache.hadoop.yarn.server.api.protocolrecords.LogAggregationReport;
 import org.apache.hadoop.yarn.server.api.records.NodeHealthStatus;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.ContainerManager;
@@ -64,7 +63,6 @@ import org.apache.hadoop.yarn.server.nodemanager.collectormanager.NMCollectorSer
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.ContainerManagerImpl;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.Application;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Container;
-import org.apache.hadoop.yarn.server.nodemanager.containermanager.queuing.QueuingContainerManagerImpl;
 import org.apache.hadoop.yarn.server.nodemanager.metrics.NodeManagerMetrics;
 import org.apache.hadoop.yarn.server.nodemanager.nodelabels.ConfigurationNodeLabelsProvider;
 import org.apache.hadoop.yarn.server.nodemanager.nodelabels.NodeLabelsProvider;
@@ -177,14 +175,8 @@ public class NodeManager extends CompositeService
       ContainerExecutor exec, DeletionService del,
       NodeStatusUpdater nodeStatusUpdater, ApplicationACLsManager aclsManager,
       LocalDirsHandlerService dirsHandler) {
-    if (getConfig().getBoolean(YarnConfiguration.NM_CONTAINER_QUEUING_ENABLED,
-        YarnConfiguration.NM_CONTAINER_QUEUING_ENABLED_DEFAULT)) {
-      return new QueuingContainerManagerImpl(context, exec, del,
-          nodeStatusUpdater, metrics, dirsHandler);
-    } else {
-      return new ContainerManagerImpl(context, exec, del, nodeStatusUpdater,
-          metrics, dirsHandler);
-    }
+    return new ContainerManagerImpl(context, exec, del, nodeStatusUpdater,
+        metrics, dirsHandler);
   }
 
   protected NMCollectorService createNMCollectorService(Context ctxt) {
@@ -337,7 +329,7 @@ public class NodeManager extends CompositeService
 
     boolean isDistSchedulingEnabled =
         conf.getBoolean(YarnConfiguration.DIST_SCHEDULING_ENABLED,
-            YarnConfiguration.DIST_SCHEDULING_ENABLED_DEFAULT);
+            YarnConfiguration.DEFAULT_DIST_SCHEDULING_ENABLED);
 
     this.context = createNMContext(containerTokenSecretManager,
         nmTokenSecretManager, nmStore, isDistSchedulingEnabled, conf);
@@ -374,7 +366,7 @@ public class NodeManager extends CompositeService
 
     ((NMContext) context).setQueueableContainerAllocator(
         new OpportunisticContainerAllocator(
-            context.getContainerTokenSecretManager(), webServer.getPort()));
+            context.getContainerTokenSecretManager()));
 
     dispatcher.register(ContainerManagerEventType.class, containerManager);
     dispatcher.register(NodeManagerEventType.class, this);
@@ -510,7 +502,6 @@ public class NodeManager extends CompositeService
 
     private OpportunisticContainerAllocator containerAllocator;
 
-    private final QueuingContext queuingContext;
     private ContainerExecutor executor;
 
     private NMTimelinePublisher nmTimelinePublisher;
@@ -533,7 +524,6 @@ public class NodeManager extends CompositeService
       this.stateStore = stateStore;
       this.logAggregationReportForApps = new ConcurrentLinkedQueue<
           LogAggregationReport>();
-      this.queuingContext = new QueuingNMContext();
       this.isDistSchedulingEnabled = isDistSchedulingEnabled;
       this.conf = conf;
     }
@@ -662,11 +652,6 @@ public class NodeManager extends CompositeService
       this.nodeStatusUpdater = nodeStatusUpdater;
     }
 
-    @Override
-    public QueuingContext getQueuingContext() {
-      return this.queuingContext;
-    }
-
     public boolean isDistributedSchedulingEnabled() {
       return isDistSchedulingEnabled;
     }
@@ -716,29 +701,6 @@ public class NodeManager extends CompositeService
   }
 
   /**
-   * Class that keeps the context for containers queued at the NM.
-   */
-  public static class QueuingNMContext implements Context.QueuingContext {
-    protected final ConcurrentMap<ContainerId, ContainerTokenIdentifier>
-        queuedContainers = new ConcurrentSkipListMap<>();
-
-    protected final ConcurrentMap<ContainerTokenIdentifier, String>
-        killedQueuedContainers = new ConcurrentHashMap<>();
-
-    @Override
-    public ConcurrentMap<ContainerId, ContainerTokenIdentifier>
-        getQueuedContainers() {
-      return this.queuedContainers;
-    }
-
-    @Override
-    public ConcurrentMap<ContainerTokenIdentifier, String>
-        getKilledQueuedContainers() {
-      return this.killedQueuedContainers;
-    }
-  }
-
-  /**
    * @return the node health checker
    */
   public NodeHealthCheckerService getNodeHealthChecker() {
@@ -750,7 +712,7 @@ public class NodeManager extends CompositeService
       // Failed to start if we're a Unix based system but we don't have bash.
       // Bash is necessary to launch containers under Unix-based systems.
       if (!Shell.WINDOWS) {
-        if (!Shell.isBashSupported) {
+        if (!Shell.checkIsBashSupported()) {
           String message =
               "Failing NodeManager start since we're on a "
                   + "Unix-based system but bash doesn't seem to be available.";

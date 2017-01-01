@@ -36,6 +36,7 @@ import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.NMToken;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RemoteNode;
 import org.apache.hadoop.yarn.server.nodemanager.amrmproxy.AMRMProxyApplicationContext;
 import org.apache.hadoop.yarn.server.nodemanager.amrmproxy.AbstractRequestInterceptor;
 import org.apache.hadoop.yarn.server.nodemanager.security.NMTokenSecretManagerInNM;
@@ -198,7 +199,7 @@ public final class DistributedScheduler extends AbstractRequestInterceptor {
     setNodeList(registerResponse.getNodesForScheduling());
   }
 
-  private void setNodeList(List<NodeId> nodeList) {
+  private void setNodeList(List<RemoteNode> nodeList) {
     oppContainerContext.updateNodeList(nodeList);
   }
 
@@ -219,16 +220,27 @@ public final class DistributedScheduler extends AbstractRequestInterceptor {
   public DistributedSchedulingAllocateResponse allocateForDistributedScheduling(
       DistributedSchedulingAllocateRequest request)
       throws YarnException, IOException {
+
+    // Partition requests to GUARANTEED and OPPORTUNISTIC.
+    OpportunisticContainerAllocator.PartitionedResourceRequests
+        partitionedAsks = containerAllocator
+        .partitionAskList(request.getAllocateRequest().getAskList());
+
+    // Allocate OPPORTUNISTIC containers.
+    List<Container> allocatedContainers =
+        containerAllocator.allocateContainers(
+            request.getAllocateRequest().getResourceBlacklistRequest(),
+            partitionedAsks.getOpportunistic(), applicationAttemptId,
+            oppContainerContext, rmIdentifier, appSubmitter);
+
+    // Prepare request for sending to RM for scheduling GUARANTEED containers.
+    request.setAllocatedContainers(allocatedContainers);
+    request.getAllocateRequest().setAskList(partitionedAsks.getGuaranteed());
+
     if (LOG.isDebugEnabled()) {
       LOG.debug("Forwarding allocate request to the" +
           "Distributed Scheduler Service on YARN RM");
     }
-    List<Container> allocatedContainers =
-        containerAllocator.allocateContainers(
-            request.getAllocateRequest(), applicationAttemptId,
-            oppContainerContext, rmIdentifier, appSubmitter);
-
-    request.setAllocatedContainers(allocatedContainers);
 
     DistributedSchedulingAllocateResponse dsResp =
         getNextInterceptor().allocateForDistributedScheduling(request);
@@ -240,18 +252,11 @@ public final class DistributedScheduler extends AbstractRequestInterceptor {
       nodeTokens.put(nmToken.getNodeId(), nmToken);
     }
 
-    oppContainerContext.updateCompletedContainers(dsResp.getAllocateResponse());
-
     // Check if we have NM tokens for all the allocated containers. If not
     // generate one and update the response.
     updateAllocateResponse(
         dsResp.getAllocateResponse(), nmTokens, allocatedContainers);
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Number of opportunistic containers currently" +
-          "allocated by application: " + oppContainerContext
-          .getContainersAllocated().size());
-    }
     return dsResp;
   }
 }

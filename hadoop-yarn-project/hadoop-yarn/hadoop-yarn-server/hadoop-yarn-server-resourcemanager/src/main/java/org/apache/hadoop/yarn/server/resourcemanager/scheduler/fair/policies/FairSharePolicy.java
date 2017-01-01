@@ -63,7 +63,11 @@ public class FairSharePolicy extends SchedulingPolicy {
    * 
    * Schedulables above their min share are compared by (runningTasks / weight).
    * If all weights are equal, slots are given to the job with the fewest tasks;
-   * otherwise, jobs with more weight get proportionally more slots.
+   * otherwise, jobs with more weight get proportionally more slots. If weight
+   * equals to 0, we can't compare Schedulables by (resource usage/weight).
+   * There are two situations: 1)All weights equal to 0, slots are given
+   * to one with less resource usage. 2)Only one of weight equals to 0, slots
+   * are given to the one with non-zero weight.
    */
   private static class FairShareComparator implements Comparator<Schedulable>,
       Serializable {
@@ -74,22 +78,42 @@ public class FairSharePolicy extends SchedulingPolicy {
     public int compare(Schedulable s1, Schedulable s2) {
       double minShareRatio1, minShareRatio2;
       double useToWeightRatio1, useToWeightRatio2;
+      double weight1, weight2;
+      //Do not repeat the getResourceUsage calculation
+      Resource resourceUsage1 = s1.getResourceUsage();
+      Resource resourceUsage2 = s2.getResourceUsage();
       Resource minShare1 = Resources.min(RESOURCE_CALCULATOR, null,
           s1.getMinShare(), s1.getDemand());
       Resource minShare2 = Resources.min(RESOURCE_CALCULATOR, null,
           s2.getMinShare(), s2.getDemand());
       boolean s1Needy = Resources.lessThan(RESOURCE_CALCULATOR, null,
-          s1.getResourceUsage(), minShare1);
+          resourceUsage1, minShare1);
       boolean s2Needy = Resources.lessThan(RESOURCE_CALCULATOR, null,
-          s2.getResourceUsage(), minShare2);
-      minShareRatio1 = (double) s1.getResourceUsage().getMemorySize()
+          resourceUsage2, minShare2);
+      minShareRatio1 = (double) resourceUsage1.getMemorySize()
           / Resources.max(RESOURCE_CALCULATOR, null, minShare1, ONE).getMemorySize();
-      minShareRatio2 = (double) s2.getResourceUsage().getMemorySize()
+      minShareRatio2 = (double) resourceUsage2.getMemorySize()
           / Resources.max(RESOURCE_CALCULATOR, null, minShare2, ONE).getMemorySize();
-      useToWeightRatio1 = s1.getResourceUsage().getMemorySize() /
-          s1.getWeights().getWeight(ResourceType.MEMORY);
-      useToWeightRatio2 = s2.getResourceUsage().getMemorySize() /
-          s2.getWeights().getWeight(ResourceType.MEMORY);
+
+      weight1 = s1.getWeights().getWeight(ResourceType.MEMORY);
+      weight2 = s2.getWeights().getWeight(ResourceType.MEMORY);
+      if (weight1 > 0.0 && weight2 > 0.0) {
+        useToWeightRatio1 = resourceUsage1.getMemorySize() / weight1;
+        useToWeightRatio2 = resourceUsage2.getMemorySize() / weight2;
+      } else { // Either weight1 or weight2 equals to 0
+        if (weight1 == weight2) {
+          // If they have same weight, just compare usage
+          useToWeightRatio1 = resourceUsage1.getMemorySize();
+          useToWeightRatio2 = resourceUsage2.getMemorySize();
+        } else {
+          // By setting useToWeightRatios to negative weights, we give the
+          // zero-weight one less priority, so the non-zero weight one will
+          // be given slots.
+          useToWeightRatio1 = -weight1;
+          useToWeightRatio2 = -weight2;
+        }
+      }
+
       int res = 0;
       if (s1Needy && !s2Needy)
         res = -1;

@@ -55,6 +55,7 @@ import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfoWithStorage;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
+import org.apache.hadoop.hdfs.protocol.ErasureCodingPolicy;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
@@ -521,7 +522,7 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
     } catch (FileNotFoundException fnfe) {
       blocks = null;
     } finally {
-      fsn.readUnlock();
+      fsn.readUnlock("fsckGetBlockLocations");
     }
     return blocks;
   }
@@ -540,11 +541,20 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
     res.totalFiles++;
     res.totalSize += fileLen;
     res.totalBlocks += blocks.locatedBlockCount();
+    String redundancyPolicy;
+    ErasureCodingPolicy ecPolicy = file.getErasureCodingPolicy();
+    if (ecPolicy == null) { // a replicated file
+      redundancyPolicy = "replicated: replication=" +
+          file.getReplication() + ",";
+    } else {
+      redundancyPolicy = "erasure-coded: policy=" + ecPolicy.getName() + ",";
+    }
+
     if (showOpenFiles && isOpen) {
-      out.print(path + " " + fileLen + " bytes, " +
+      out.print(path + " " + fileLen + " bytes, " + redundancyPolicy + " " +
         blocks.locatedBlockCount() + " block(s), OPENFORWRITE: ");
     } else if (showFiles) {
-      out.print(path + " " + fileLen + " bytes, " +
+      out.print(path + " " + fileLen + " bytes, " + redundancyPolicy + " " +
         blocks.locatedBlockCount() + " block(s): ");
     } else if (showprogress) {
       out.print('.');
@@ -650,6 +660,13 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
           decommissioningReplicas;
       res.totalReplicas += totalReplicasPerBlock;
 
+      boolean isMissing;
+      if (storedBlock.isStriped()) {
+        isMissing = totalReplicasPerBlock < minReplication;
+      } else {
+        isMissing = totalReplicasPerBlock == 0;
+      }
+
       // count expected replicas
       short targetFileReplication;
       if (file.getErasureCodingPolicy() != null) {
@@ -687,7 +704,7 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
         res.numMinReplicatedBlocks++;
 
       // count missing replicas / under replicated blocks
-      if (totalReplicasPerBlock < targetFileReplication && totalReplicasPerBlock > 0) {
+      if (totalReplicasPerBlock < targetFileReplication && !isMissing) {
         res.missingReplicas += (targetFileReplication - totalReplicasPerBlock);
         res.numUnderReplicatedBlocks += 1;
         underReplicatedPerFile++;
@@ -727,12 +744,6 @@ public class NamenodeFsck implements DataEncryptionKeyFactory {
       String blkName = block.toString();
       report.append(blockNumber + ". " + blkName + " len=" +
           block.getNumBytes());
-      boolean isMissing;
-      if (storedBlock.isStriped()) {
-        isMissing = totalReplicasPerBlock < minReplication;
-      } else {
-        isMissing = totalReplicasPerBlock == 0;
-      }
       if (isMissing && !isCorrupt) {
         // If the block is corrupted, it means all its available replicas are
         // corrupted in the case of replication, and it means the state of the

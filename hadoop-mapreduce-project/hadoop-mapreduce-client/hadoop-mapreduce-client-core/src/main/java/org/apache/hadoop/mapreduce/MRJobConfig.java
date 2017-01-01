@@ -215,7 +215,11 @@ public interface MRJobConfig {
 
   public static final String IO_SORT_FACTOR = "mapreduce.task.io.sort.factor";
 
+  public static final int DEFAULT_IO_SORT_FACTOR = 10;
+
   public static final String IO_SORT_MB = "mapreduce.task.io.sort.mb";
+
+  public static final int DEFAULT_IO_SORT_MB = 100;
 
   public static final String INDEX_CACHE_MEMORY_LIMIT = "mapreduce.task.index.cache.limit.bytes";
 
@@ -1001,9 +1005,9 @@ public interface MRJobConfig {
    * requested by the AM will be opportunistic. If the total number of maps
    * for the job is less than 'x', then ALL maps will be OPPORTUNISTIC
    */
-  public static final String MR_NUM_OPPORTUNISTIC_MAPS_PER_100 =
-      "mapreduce.job.num-opportunistic-maps-per-100";
-  public static final int DEFAULT_MR_NUM_OPPORTUNISTIC_MAPS_PER_100 = 0;
+  public static final String MR_NUM_OPPORTUNISTIC_MAPS_PERCENTAGE =
+      "mapreduce.job.num-opportunistic-maps-percentage";
+  public static final int DEFAULT_MR_NUM_OPPORTUNISTIC_MAPS_PERCENTAGE = 0;
 
   /**
    * A comma-separated list of properties whose value will be redacted.

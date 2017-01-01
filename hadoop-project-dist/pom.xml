@@ -23,7 +23,6 @@
     <version>3.0.0-alpha2-SNAPSHOT</version>
     <relativePath>../hadoop-project</relativePath>
   </parent>
-  <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-project-dist</artifactId>
   <version>3.0.0-alpha2-SNAPSHOT</version>
   <description>Apache Hadoop Project Dist POM</description>
@@ -106,7 +105,7 @@
           <source>${maven.compile.source}</source>
           <charset>${maven.compile.encoding}</charset>
           <reportOutputDirectory>${project.build.directory}/site</reportOutputDirectory>
-          <destDir>api</destDir>
+          <destDir>${project.build.directory}/api</destDir>
           <groups>
             <group>
               <title>${project.name} API</title>

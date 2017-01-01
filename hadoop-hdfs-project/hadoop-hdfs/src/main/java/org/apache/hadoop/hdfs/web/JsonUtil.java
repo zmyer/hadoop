@@ -27,8 +27,8 @@ import org.apache.hadoop.ipc.RemoteException;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.util.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import java.io.IOException;
@@ -436,4 +436,31 @@ public class JsonUtil {
     return MAPPER.writeValueAsString(obj);
   }
 
+  public static String toJsonString(BlockStoragePolicy[] storagePolicies) {
+    final Map<String, Object> blockStoragePolicies = new TreeMap<>();
+    Object[] a = null;
+    if (storagePolicies != null && storagePolicies.length > 0) {
+      a = new Object[storagePolicies.length];
+      for (int i = 0; i < storagePolicies.length; i++) {
+        a[i] = toJsonMap(storagePolicies[i]);
+      }
+    }
+    blockStoragePolicies.put("BlockStoragePolicy", a);
+    return toJsonString("BlockStoragePolicies", blockStoragePolicies);
+  }
+
+  private static Object toJsonMap(BlockStoragePolicy blockStoragePolicy) {
+    final Map<String, Object> m = new TreeMap<String, Object>();
+    m.put("id", blockStoragePolicy.getId());
+    m.put("name", blockStoragePolicy.getName());
+    m.put("storageTypes", blockStoragePolicy.getStorageTypes());
+    m.put("creationFallbacks", blockStoragePolicy.getCreationFallbacks());
+    m.put("replicationFallbacks", blockStoragePolicy.getReplicationFallbacks());
+    m.put("copyOnCreateFile", blockStoragePolicy.isCopyOnCreateFile());
+    return m;
+  }
+
+  public static String toJsonString(BlockStoragePolicy storagePolicy) {
+    return toJsonString(BlockStoragePolicy.class, toJsonMap(storagePolicy));
+  }
 }

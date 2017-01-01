@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
 import org.apache.hadoop.security.AccessControlException;
@@ -41,9 +43,13 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ActiveUsersManage
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceLimits;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerApplicationAttempt;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerQueue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedContainerChangeRequest;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.ResourceCommitRequest;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerNode;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.placement.PlacementSet;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.placement.SimplePlacementSet;
 
 /**
  * <code>CSQueue</code> represents a node in the tree of 
@@ -51,8 +57,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaS
  */
 @Stable
 @Private
-public interface CSQueue 
-extends org.apache.hadoop.yarn.server.resourcemanager.scheduler.Queue {
+public interface CSQueue extends SchedulerQueue<CSQueue> {
   /**
    * Get the parent <code>Queue</code>.
    * @return the parent queue
@@ -195,14 +200,14 @@ extends org.apache.hadoop.yarn.server.resourcemanager.scheduler.Queue {
   /**
    * Assign containers to applications in the queue or it's children (if any).
    * @param clusterResource the resource of the cluster.
-   * @param node node on which resources are available
+   * @param ps {@link PlacementSet} of nodes which resources are available
    * @param resourceLimits how much overall resource of this queue can use. 
    * @param schedulingMode Type of exclusive check when assign container on a 
    * NodeManager, see {@link SchedulingMode}.
    * @return the assignment
    */
   public CSAssignment assignContainers(Resource clusterResource,
-      FiCaSchedulerNode node, ResourceLimits resourceLimits,
+      PlacementSet<FiCaSchedulerNode> ps, ResourceLimits resourceLimits,
       SchedulingMode schedulingMode);
   
   /**
@@ -340,4 +345,31 @@ extends org.apache.hadoop.yarn.server.resourcemanager.scheduler.Queue {
    * @return valid node labels
    */
   public Set<String> getNodeLabelsForQueue();
+
+  @VisibleForTesting
+  CSAssignment assignContainers(Resource clusterResource,
+      FiCaSchedulerNode node, ResourceLimits resourceLimits,
+      SchedulingMode schedulingMode);
+
+  boolean accept(Resource cluster,
+      ResourceCommitRequest<FiCaSchedulerApp, FiCaSchedulerNode> request);
+
+  void apply(Resource cluster,
+      ResourceCommitRequest<FiCaSchedulerApp, FiCaSchedulerNode> request);
+
+  /**
+   * Get readLock associated with the Queue.
+   * @return readLock of corresponding queue.
+   */
+  public ReentrantReadWriteLock.ReadLock getReadLock();
+
+  /**
+   * Validate submitApplication api so that moveApplication do a pre-check.
+   * @param applicationId Application ID
+   * @param userName User Name
+   * @param queue Queue Name
+   * @throws AccessControlException if any acl violation is there.
+   */
+  public void validateSubmitApplication(ApplicationId applicationId,
+      String userName, String queue) throws AccessControlException;
 }

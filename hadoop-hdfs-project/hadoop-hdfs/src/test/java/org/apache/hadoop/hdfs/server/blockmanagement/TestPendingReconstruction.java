@@ -40,6 +40,7 @@ import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
 import org.apache.hadoop.hdfs.server.namenode.INodeFile;
 import org.apache.hadoop.hdfs.server.namenode.NameNodeAdapter;
 import org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration;
+import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.ReceivedDeletedBlockInfo;
 import org.apache.hadoop.hdfs.server.protocol.ReceivedDeletedBlockInfo.BlockStatus;
 import org.apache.hadoop.hdfs.server.protocol.StorageReceivedDeletedBlocks;
@@ -312,7 +313,8 @@ public class TestPendingReconstruction {
           DatanodeRegistration dnR = datanodes.get(i).getDNRegistrationForBP(
               poolId);
           StorageReceivedDeletedBlocks[] report = {
-              new StorageReceivedDeletedBlocks("Fake-storage-ID-Ignored",
+              new StorageReceivedDeletedBlocks(
+                  new DatanodeStorage("Fake-storage-ID-Ignored"),
               new ReceivedDeletedBlockInfo[] { new ReceivedDeletedBlockInfo(
                   blocks[0], BlockStatus.RECEIVED_BLOCK, "") }) };
           cluster.getNameNodeRpc().blockReceivedAndDeleted(dnR, poolId, report);
@@ -330,9 +332,11 @@ public class TestPendingReconstruction {
           DatanodeRegistration dnR = datanodes.get(i).getDNRegistrationForBP(
               poolId);
           StorageReceivedDeletedBlocks[] report =
-            { new StorageReceivedDeletedBlocks("Fake-storage-ID-Ignored",
-              new ReceivedDeletedBlockInfo[] { new ReceivedDeletedBlockInfo(
-                  blocks[0], BlockStatus.RECEIVED_BLOCK, "") }) };
+            { new StorageReceivedDeletedBlocks(
+                new DatanodeStorage("Fake-storage-ID-Ignored"),
+                new ReceivedDeletedBlockInfo[] {
+                  new ReceivedDeletedBlockInfo(
+                      blocks[0], BlockStatus.RECEIVED_BLOCK, "")}) };
           cluster.getNameNodeRpc().blockReceivedAndDeleted(dnR, poolId, report);
           reportDnNum++;
         }
@@ -370,7 +374,7 @@ public class TestPendingReconstruction {
     CONF.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, 1024);
     CONF.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY,
         DFS_REPLICATION_INTERVAL);
-    CONF.setInt(DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_KEY,
+    CONF.setInt(DFSConfigKeys.DFS_NAMENODE_REDUNDANCY_INTERVAL_SECONDS_KEY,
         DFS_REPLICATION_INTERVAL);
     MiniDFSCluster cluster = new MiniDFSCluster.Builder(CONF).numDataNodes(
         DATANODE_COUNT).build();

@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.ha.HAServiceProtocol;
@@ -108,8 +107,6 @@ public class AdminService extends CompositeService implements
   private String rmId;
 
   private boolean autoFailoverEnabled;
-  private boolean curatorEnabled;
-  private EmbeddedElectorService embeddedElector;
 
   private Server server;
 
@@ -134,18 +131,8 @@ public class AdminService extends CompositeService implements
 
   @Override
   public void serviceInit(Configuration conf) throws Exception {
-    if (rmContext.isHAEnabled()) {
-      curatorEnabled = conf.getBoolean(YarnConfiguration.CURATOR_LEADER_ELECTOR,
-          YarnConfiguration.DEFAULT_CURATOR_LEADER_ELECTOR_ENABLED);
-      autoFailoverEnabled = HAUtil.isAutomaticFailoverEnabled(conf);
-      if (autoFailoverEnabled && !curatorEnabled) {
-        if (HAUtil.isAutomaticFailoverEmbedded(conf)) {
-          embeddedElector = createEmbeddedElectorService();
-          addIfService(embeddedElector);
-        }
-      }
-
-    }
+    autoFailoverEnabled =
+        rmContext.isHAEnabled() && HAUtil.isAutomaticFailoverEnabled(conf);
 
     masterServiceBindAddress = conf.getSocketAddr(
         YarnConfiguration.RM_BIND_HOST,
@@ -154,8 +141,7 @@ public class AdminService extends CompositeService implements
         YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
     daemonUser = UserGroupInformation.getCurrentUser();
     authorizer = YarnAuthorizationProvider.getInstance(conf);
-    authorizer.setAdmins(getAdminAclList(conf), UserGroupInformation
-        .getCurrentUser());
+    authorizer.setAdmins(getAdminAclList(conf), daemonUser);
     rmId = conf.get(YarnConfiguration.RM_HA_ID);
 
     isCentralizedNodeLabelConfiguration =
@@ -226,17 +212,6 @@ public class AdminService extends CompositeService implements
   protected void stopServer() throws Exception {
     if (this.server != null) {
       this.server.stop();
-    }
-  }
-
-  protected EmbeddedElectorService createEmbeddedElectorService() {
-    return new EmbeddedElectorService(rmContext);
-  }
-
-  @InterfaceAudience.Private
-  void resetLeaderElection() {
-    if (embeddedElector != null) {
-      embeddedElector.resetLeaderElection();
     }
   }
 
@@ -376,30 +351,24 @@ public class AdminService extends CompositeService implements
     }
   }
 
+  /**
+   * Return the HA status of this RM. This includes the current state and
+   * whether the RM is ready to become active.
+   *
+   * @return {@link HAServiceStatus} of the current RM
+   * @throws IOException if the caller does not have permissions
+   */
   @Override
   public synchronized HAServiceStatus getServiceStatus() throws IOException {
     checkAccess("getServiceState");
-    if (curatorEnabled) {
-      HAServiceStatus state;
-      if (rmContext.getLeaderElectorService().hasLeaderShip()) {
-        state = new HAServiceStatus(HAServiceState.ACTIVE);
-      } else {
-        state = new HAServiceStatus(HAServiceState.STANDBY);
-      }
-      // set empty string to avoid NPE at
-      // HAServiceProtocolServerSideTranslatorPB#getServiceStatus
-      state.setNotReadyToBecomeActive("");
-      return state;
+    HAServiceState haState = rmContext.getHAServiceState();
+    HAServiceStatus ret = new HAServiceStatus(haState);
+    if (isRMActive() || haState == HAServiceProtocol.HAServiceState.STANDBY) {
+      ret.setReadyToBecomeActive();
     } else {
-      HAServiceState haState = rmContext.getHAServiceState();
-      HAServiceStatus ret = new HAServiceStatus(haState);
-      if (isRMActive() || haState == HAServiceProtocol.HAServiceState.STANDBY) {
-        ret.setReadyToBecomeActive();
-      } else {
-        ret.setNotReadyToBecomeActive("State is " + haState);
-      }
-      return ret;
+      ret.setNotReadyToBecomeActive("State is " + haState);
     }
+    return ret;
   }
 
   @Override
@@ -542,8 +511,7 @@ public class AdminService extends CompositeService implements
     Configuration conf =
         getConfiguration(new Configuration(false),
             YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
-    authorizer.setAdmins(getAdminAclList(conf), UserGroupInformation
-        .getCurrentUser());
+    authorizer.setAdmins(getAdminAclList(conf), daemonUser);
     RMAuditLogger.logSuccess(user.getShortUserName(), operation,
         "AdminService");
 
@@ -927,20 +895,5 @@ public class AdminService extends CompositeService implements
             YarnConfiguration.YARN_SITE_CONFIGURATION_FILE);
 
     rmContext.getScheduler().setClusterMaxPriority(conf);
-  }
-
-  public String getHAZookeeperConnectionState() {
-    if (!rmContext.isHAEnabled()) {
-      return "ResourceManager HA is not enabled.";
-    } else if (!autoFailoverEnabled) {
-      return "Auto Failover is not enabled.";
-    }
-    if (curatorEnabled) {
-      return "Connected to zookeeper : " + rmContext
-          .getLeaderElectorService().getCuratorClient().getZookeeperClient()
-          .isConnected();
-    } else {
-      return this.embeddedElector.getHAZookeeperConnectionState();
-    }
   }
 }

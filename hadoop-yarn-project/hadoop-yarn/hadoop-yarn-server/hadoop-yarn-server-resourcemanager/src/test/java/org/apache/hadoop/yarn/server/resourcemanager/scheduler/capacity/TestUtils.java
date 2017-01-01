@@ -24,6 +24,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -51,7 +53,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsMana
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAllocationExpirer;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerRequestKey;
+import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerNode;
 import org.apache.hadoop.yarn.server.resourcemanager.security.AMRMTokenSecretManager;
@@ -65,6 +67,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.google.common.collect.Sets;
+import org.apache.hadoop.yarn.event.Event;
 
 public class TestUtils {
   private static final Log LOG = LogFactory.getLog(TestUtils.class);
@@ -88,7 +91,7 @@ public class TestUtils {
           EventHandler handler) {
       }
       @Override
-      public EventHandler getEventHandler() {
+      public EventHandler<Event> getEventHandler() {
         return handler; 
       }
     };
@@ -139,7 +142,7 @@ public class TestUtils {
   /**
    * Hook to spy on queues.
    */
-  static class SpyHook extends CapacityScheduler.QueueHook {
+  static class SpyHook extends CapacitySchedulerQueueManager.QueueHook {
     @Override
     public CSQueue hook(CSQueue queue) {
       return spy(queue);
@@ -429,5 +432,29 @@ public class TestUtils {
     ResourceRequest req = ResourceRequest.newInstance(pri, null, null, 0);
     req.setAllocationRequestId(allocationRequestId);
     return SchedulerRequestKey.create(req);
+  }
+
+  public static void applyResourceCommitRequest(Resource clusterResource,
+      CSAssignment csAssignment,
+      final Map<NodeId, FiCaSchedulerNode> nodes,
+      final Map<ApplicationAttemptId, FiCaSchedulerApp> apps)
+      throws IOException {
+    CapacityScheduler cs = new CapacityScheduler() {
+      @Override
+      public FiCaSchedulerNode getNode(NodeId nodeId) {
+        return nodes.get(nodeId);
+      }
+
+      @Override
+      public FiCaSchedulerApp getApplicationAttempt(
+          ApplicationAttemptId applicationAttemptId) {
+        return apps.get(applicationAttemptId);
+      }
+    };
+
+    cs.setResourceCalculator(new DefaultResourceCalculator());
+
+    cs.submitResourceCommitRequest(clusterResource,
+        csAssignment);
   }
 }

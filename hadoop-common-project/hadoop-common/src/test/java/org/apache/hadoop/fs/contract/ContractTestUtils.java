@@ -400,18 +400,18 @@ public class ContractTestUtils extends Assert {
    * @param fileSystem filesystem
    * @param path path to delete
    * @param recursive flag to indicate child entry deletion should be recursive
-   * @return the number of child entries found and deleted (not including
+   * @return the immediate child entries found and deleted (not including
    * any recursive children of those entries)
    * @throws IOException problem in the deletion process.
    */
-  public static int deleteChildren(FileSystem fileSystem,
+  public static FileStatus[] deleteChildren(FileSystem fileSystem,
       Path path,
       boolean recursive) throws IOException {
     FileStatus[] children = listChildren(fileSystem, path);
     for (FileStatus entry : children) {
       fileSystem.delete(entry.getPath(), recursive);
     }
-    return children.length;
+    return children;
   }
 
   /**
@@ -834,6 +834,7 @@ public class ContractTestUtils extends Assert {
 
     long totalBytesRead = 0;
     int nextExpectedNumber = 0;
+    NanoTimer timer = new NanoTimer();
     try (InputStream inputStream = fs.open(path)) {
       while (true) {
         final int bytesRead = inputStream.read(testBuffer);
@@ -862,6 +863,8 @@ public class ContractTestUtils extends Assert {
             " bytes but only received " + totalBytesRead);
       }
     }
+    timer.end("Time to read %d bytes", expectedSize);
+    bandwidth(timer, expectedSize);
   }
 
   /**
@@ -925,9 +928,12 @@ public class ContractTestUtils extends Assert {
     final Path objectPath = new Path(parent, objectName);
 
     // Write test file in a specific pattern
+    NanoTimer timer = new NanoTimer();
     assertEquals(fileSize,
         generateTestFile(fs, objectPath, fileSize, testBufferSize, modulus));
     assertPathExists(fs, "not created successful", objectPath);
+    timer.end("Time to write %d bytes", fileSize);
+    bandwidth(timer, fileSize);
 
     // Now read the same file back and verify its content
     try {
@@ -1089,6 +1095,36 @@ public class ContractTestUtils extends Assert {
    */
   public static boolean containsDuplicates(Collection<Path> paths) {
     return new HashSet<>(paths).size() != paths.size();
+  }
+
+  /**
+   * Get the status of a path eventually, even if the FS doesn't have create
+   * consistency. If the path is not there by the time the timeout completes,
+   * an assertion is raised.
+   * @param fs FileSystem
+   * @param path path to look for
+   * @param timeout timeout in milliseconds
+   * @return the status
+   * @throws IOException if an I/O error occurs while writing or reading the
+   * test file <i>other than file not found</i>
+   */
+  public static FileStatus getFileStatusEventually(FileSystem fs, Path path,
+      int timeout) throws IOException, InterruptedException {
+    long endTime = System.currentTimeMillis() + timeout;
+    FileStatus stat = null;
+    do {
+      try {
+        stat = fs.getFileStatus(path);
+      } catch (FileNotFoundException e) {
+        if (System.currentTimeMillis() > endTime) {
+          // timeout, raise an assert with more diagnostics
+          assertPathExists(fs, "Path not found after " + timeout + " mS", path);
+        } else {
+          Thread.sleep(50);
+        }
+      }
+    } while (stat == null);
+    return stat;
   }
 
   /**
@@ -1465,4 +1501,5 @@ public class ContractTestUtils extends Assert {
       return endTime;
     }
   }
+
 }

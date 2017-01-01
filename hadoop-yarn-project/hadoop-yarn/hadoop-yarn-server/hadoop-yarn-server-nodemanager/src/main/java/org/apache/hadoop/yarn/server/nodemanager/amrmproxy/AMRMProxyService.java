@@ -79,7 +79,7 @@ import com.google.common.base.Preconditions;
  * to intercept and inspect messages from application master to the cluster
  * resource manager. It listens to messages from the application master and
  * creates a request intercepting pipeline instance for each application. The
- * pipeline is a chain of intercepter instances that can inspect and modify the
+ * pipeline is a chain of interceptor instances that can inspect and modify the
  * request/response as needed.
  */
 public class AMRMProxyService extends AbstractService implements
@@ -549,7 +549,9 @@ public class AMRMProxyService extends AbstractService implements
           AMRMProxyService.this.stopApplication(event.getApplicationID());
           break;
         default:
-          LOG.debug("AMRMProxy is ignoring event: " + event.getType());
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("AMRMProxy is ignoring event: " + event.getType());
+          }
           break;
         }
       } else {

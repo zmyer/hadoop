@@ -39,6 +39,7 @@ import java.net.URI;
 import java.net.URL;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,8 @@ import java.util.StringTokenizer;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.hadoop.conf.Configuration;
@@ -80,6 +83,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSUtilClient;
 import org.apache.hadoop.hdfs.HAUtilClient;
 import org.apache.hadoop.hdfs.client.HdfsClientConfigKeys;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.HdfsFileStatus;
@@ -103,8 +107,6 @@ import org.apache.hadoop.security.token.TokenSelector;
 import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenSelector;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +152,7 @@ public class WebHdfsFileSystem extends FileSystem
   private String restCsrfCustomHeader;
   private Set<String> restCsrfMethodsToIgnore;
   private static final ObjectReader READER =
-      new ObjectMapper().reader(Map.class);
+      new ObjectMapper().readerFor(Map.class);
 
   private DFSOpsCountStatistics storageStatistics;
 
@@ -657,7 +659,9 @@ public class WebHdfsFileSystem extends FileSystem
           url = new URL(conn.getHeaderField("Location"));
           redirectHost = url.getHost() + ":" + url.getPort();
         } finally {
-          conn.disconnect();
+          // Don't call conn.disconnect() to allow connection reuse
+          // See http://tinyurl.com/java7-http-keepalive
+          conn.getInputStream().close();
         }
       }
       try {
@@ -889,7 +893,9 @@ public class WebHdfsFileSystem extends FileSystem
         LOG.debug("Response decoding failure.", e);
         throw ioe;
       } finally {
-        conn.disconnect();
+        // Don't call conn.disconnect() to allow connection reuse
+        // See http://tinyurl.com/java7-http-keepalive
+        conn.getInputStream().close();
       }
     }
 
@@ -936,6 +942,9 @@ public class WebHdfsFileSystem extends FileSystem
             try {
               validateResponse(op, conn, true);
             } finally {
+              // This is a connection to DataNode.  Let's disconnect since
+              // there is little chance that the connection will be reused
+              // any time soonl
               conn.disconnect();
             }
           }
@@ -1622,6 +1631,27 @@ public class WebHdfsFileSystem extends FileSystem
   }
 
   @Override
+  public Path getTrashRoot(Path path) {
+    statistics.incrementReadOps(1);
+    storageStatistics.incrementOpCounter(OpType.GET_TRASH_ROOT);
+
+    final HttpOpParam.Op op = GetOpParam.Op.GETTRASHROOT;
+    try {
+      String strTrashPath = new FsPathResponseRunner<String>(op, path) {
+        @Override
+        String decodeResponse(Map<?, ?> json) throws IOException {
+          return JsonUtilClient.getPath(json);
+        }
+      }.run();
+      return new Path(strTrashPath).makeQualified(getUri(), null);
+    } catch(IOException e) {
+      LOG.warn("Cannot find trash root of " + path, e);
+      // keep the same behavior with dfs
+      return super.getTrashRoot(path).makeQualified(getUri(), null);
+    }
+  }
+
+  @Override
   public void access(final Path path, final FsAction mode) throws IOException {
     final HttpOpParam.Op op = GetOpParam.Op.CHECKACCESS;
     new FsPathRunner(op, path, new FsActionParam(mode)).run();
@@ -1692,6 +1722,50 @@ public class WebHdfsFileSystem extends FileSystem
   public String getCanonicalServiceName() {
     return tokenServiceName == null ? super.getCanonicalServiceName()
         : tokenServiceName.toString();
+  }
+
+  @Override
+  public void setStoragePolicy(Path p, String policyName) throws IOException {
+    if (policyName == null) {
+      throw new IOException("policyName == null");
+    }
+    statistics.incrementWriteOps(1);
+    storageStatistics.incrementOpCounter(OpType.SET_STORAGE_POLICY);
+    final HttpOpParam.Op op = PutOpParam.Op.SETSTORAGEPOLICY;
+    new FsPathRunner(op, p, new StoragePolicyParam(policyName)).run();
+  }
+
+  @Override
+  public Collection<BlockStoragePolicy> getAllStoragePolicies()
+      throws IOException {
+    final HttpOpParam.Op op = GetOpParam.Op.GETALLSTORAGEPOLICY;
+    return new FsPathResponseRunner<Collection<BlockStoragePolicy>>(op, null) {
+      @Override
+      Collection<BlockStoragePolicy> decodeResponse(Map<?, ?> json)
+          throws IOException {
+        return JsonUtilClient.getStoragePolicies(json);
+      }
+    }.run();
+  }
+
+  @Override
+  public BlockStoragePolicy getStoragePolicy(Path src) throws IOException {
+    final HttpOpParam.Op op = GetOpParam.Op.GETSTORAGEPOLICY;
+    return new FsPathResponseRunner<BlockStoragePolicy>(op, src) {
+      @Override
+      BlockStoragePolicy decodeResponse(Map<?, ?> json) throws IOException {
+        return JsonUtilClient.toBlockStoragePolicy((Map<?, ?>) json
+            .get(BlockStoragePolicy.class.getSimpleName()));
+      }
+    }.run();
+  }
+
+  @Override
+  public void unsetStoragePolicy(Path src) throws IOException {
+    statistics.incrementWriteOps(1);
+    storageStatistics.incrementOpCounter(OpType.UNSET_STORAGE_POLICY);
+    final HttpOpParam.Op op = PostOpParam.Op.UNSETSTORAGEPOLICY;
+    new FsPathRunner(op, src).run();
   }
 
   @VisibleForTesting
@@ -1831,6 +1905,9 @@ public class WebHdfsFileSystem extends FileSystem
     int read(byte[] b, int off, int len) throws IOException {
       if (runnerState == RunnerState.CLOSED) {
         throw new IOException("Stream closed");
+      }
+      if (len == 0) {
+        return 0;
       }
 
       // Before the first read, pos and fileLength will be 0 and readBuffer

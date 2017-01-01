@@ -35,7 +35,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.junit.Test;
-import org.mortbay.util.ajax.JSON;
+import org.eclipse.jetty.util.ajax.JSON;
 
 /**
  * Class for testing {@link NameNodeMXBean} implementation
@@ -156,6 +156,30 @@ public class TestFSNamesystemMBean {
       if (fsn != null && fsn.hasWriteLock()) {
         fsn.writeUnlock();
       }
+      if (cluster != null) {
+        cluster.shutdown();
+      }
+    }
+  }
+
+  // The test makes sure JMX request can be processed even if FSEditLog
+  // is synchronized.
+  @Test
+  public void testWithFSEditLogLock() throws Exception {
+    Configuration conf = new Configuration();
+    MiniDFSCluster cluster = null;
+    try {
+      cluster = new MiniDFSCluster.Builder(conf).build();
+      cluster.waitActive();
+      synchronized (cluster.getNameNode().getFSImage().getEditLog()) {
+        MBeanClient client = new MBeanClient();
+        client.start();
+        client.join(20000);
+        assertTrue("JMX calls are blocked when FSEditLog" +
+            " is synchronized by another thread", client.succeeded);
+        client.interrupt();
+      }
+    } finally {
       if (cluster != null) {
         cluster.shutdown();
       }

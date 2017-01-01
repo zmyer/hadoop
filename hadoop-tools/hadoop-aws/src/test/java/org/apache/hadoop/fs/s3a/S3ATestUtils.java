@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.s3a;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.s3a.scale.S3AScaleTestBase;
 import org.junit.Assert;
 import org.junit.internal.AssumptionViolatedException;
@@ -28,7 +29,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.Callable;
+import java.util.List;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.skip;
 import static org.apache.hadoop.fs.s3a.S3ATestConstants.*;
@@ -37,7 +38,7 @@ import static org.apache.hadoop.fs.s3a.Constants.*;
 /**
  * Utilities for the S3A tests.
  */
-public class S3ATestUtils {
+public final class S3ATestUtils {
 
   /**
    * Value to set a system property to (in maven) to declare that
@@ -59,7 +60,7 @@ public class S3ATestUtils {
    */
   public static S3AFileSystem createTestFileSystem(Configuration conf)
       throws IOException {
-    return createTestFileSystem(conf, true);
+    return createTestFileSystem(conf, false);
   }
 
   /**
@@ -131,34 +132,8 @@ public class S3ATestUtils {
       throw new AssumptionViolatedException("No test filesystem in "
           + TEST_FS_S3A_NAME);
     }
-    FileContext fc = FileContext.getFileContext(testURI,conf);
+    FileContext fc = FileContext.getFileContext(testURI, conf);
     return fc;
-  }
-
-  /**
-   * Repeatedly attempt a callback until timeout or a {@link FailFastException}
-   * is raised. This is modeled on ScalaTests {@code eventually(Closure)} code.
-   * @param timeout timeout
-   * @param callback callback to invoke
-   * @throws FailFastException any fast-failure
-   * @throws Exception the exception which caused the iterator to fail
-   */
-  public static void eventually(int timeout, Callable<Void> callback)
-      throws Exception {
-    Exception lastException;
-    long endtime = System.currentTimeMillis() + timeout;
-    do {
-      try {
-        callback.call();
-        return;
-      } catch (InterruptedException | FailFastException e) {
-        throw e;
-      } catch (Exception e) {
-        lastException = e;
-      }
-      Thread.sleep(500);
-    } while (endtime > System.currentTimeMillis());
-    throw lastException;
   }
 
   /**
@@ -291,27 +266,6 @@ public class S3ATestUtils {
   }
 
   /**
-   * The exception to raise so as to exit fast from
-   * {@link #eventually(int, Callable)}.
-   */
-  public static class FailFastException extends Exception {
-    public FailFastException() {
-    }
-
-    public FailFastException(String message) {
-      super(message);
-    }
-
-    public FailFastException(String message, Throwable cause) {
-      super(message, cause);
-    }
-
-    public FailFastException(Throwable cause) {
-      super(cause);
-    }
-  }
-
-  /**
    * Verify the class of an exception. If it is not as expected, rethrow it.
    * Comparison is on the exact class, not subclass-of inference as
    * offered by {@code instanceof}.
@@ -347,6 +301,19 @@ public class S3ATestUtils {
     if (!configuration.getBoolean(KEY_ENCRYPTION_TESTS, true)) {
       skip("Skipping encryption tests");
     }
+  }
+
+  /**
+   * Create a test path, using the value of
+   * {@link S3ATestConstants#TEST_UNIQUE_FORK_ID} if it is set.
+   * @param defVal default value
+   * @return a path
+   */
+  public static Path createTestPath(Path defVal) {
+    String testUniqueForkId = System.getProperty(
+        S3ATestConstants.TEST_UNIQUE_FORK_ID);
+    return testUniqueForkId == null ? defVal :
+        new Path("/" + testUniqueForkId, "test");
   }
 
   /**
@@ -494,7 +461,7 @@ public class S3ATestUtils {
     }
 
     /**
-     * Get the statistic
+     * Get the statistic.
      * @return the statistic
      */
     public Statistic getStatistic() {
@@ -508,5 +475,40 @@ public class S3ATestUtils {
     public long getStartingValue() {
       return startingValue;
     }
+  }
+
+  /**
+   * Asserts that {@code obj} is an instance of {@code expectedClass} using a
+   * descriptive assertion message.
+   * @param expectedClass class
+   * @param obj object to check
+   */
+  public static void assertInstanceOf(Class<?> expectedClass, Object obj) {
+    Assert.assertTrue(String.format("Expected instance of class %s, but is %s.",
+        expectedClass, obj.getClass()),
+        expectedClass.isAssignableFrom(obj.getClass()));
+  }
+
+  /**
+   * Builds a comma-separated list of class names.
+   * @param classes list of classes
+   * @return comma-separated list of class names
+   */
+  public static <T extends Class<?>> String buildClassListString(
+      List<T> classes) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < classes.size(); ++i) {
+      if (i > 0) {
+        sb.append(',');
+      }
+      sb.append(classes.get(i).getName());
+    }
+    return sb.toString();
+  }
+
+  /**
+   * This class should not be instantiated.
+   */
+  private S3ATestUtils() {
   }
 }

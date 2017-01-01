@@ -134,6 +134,14 @@ public class DataNodeMetrics {
   MutableCounterLong ecReconstructionTasks;
   @Metric("Count of erasure coding failed reconstruction tasks")
   MutableCounterLong ecFailedReconstructionTasks;
+  @Metric("Nanoseconds spent by decoding tasks")
+  MutableCounterLong ecDecodingTimeNanos;
+  @Metric("Bytes read by erasure coding worker")
+  MutableCounterLong ecReconstructionBytesRead;
+  @Metric("Bytes written by erasure coding worker")
+  MutableCounterLong ecReconstructionBytesWritten;
+  @Metric("Bytes remote read by erasure coding worker")
+  MutableCounterLong ecReconstructionRemoteBytesRead;
 
   final MetricsRegistry registry = new MetricsRegistry("datanode");
   final String name;
@@ -153,7 +161,7 @@ public class DataNodeMetrics {
     sendDataPacketTransferNanosQuantiles = new MutableQuantiles[len];
     ramDiskBlocksEvictionWindowMsQuantiles = new MutableQuantiles[len];
     ramDiskBlocksLazyPersistWindowMsQuantiles = new MutableQuantiles[len];
-    
+
     for (int i = 0; i < len; i++) {
       int interval = intervals[i];
       packetAckRoundTripTimeNanosQuantiles[i] = registry.newQuantiles(
@@ -442,7 +450,22 @@ public class DataNodeMetrics {
   }
 
   public void setDataNodeActiveXceiversCount(int value) {
-    this.dataNodeActiveXceiversCount.set(value);
+    dataNodeActiveXceiversCount.set(value);
   }
 
+  public void incrECDecodingTime(long decodingTimeNanos) {
+    ecDecodingTimeNanos.incr(decodingTimeNanos);
+  }
+
+  public void incrECReconstructionBytesRead(long bytes) {
+    ecReconstructionBytesRead.incr(bytes);
+  }
+
+  public void incrECReconstructionRemoteBytesRead(long bytes) {
+    ecReconstructionRemoteBytesRead.incr(bytes);
+  }
+
+  public void incrECReconstructionBytesWritten(long bytes) {
+    ecReconstructionBytesWritten.incr(bytes);
+  }
 }

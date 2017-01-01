@@ -30,6 +30,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ExecutionType;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceUtilization;
@@ -39,6 +40,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsMana
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerState;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
+import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 import com.google.common.collect.ImmutableSet;
@@ -148,8 +150,10 @@ public abstract class SchedulerNode {
    */
   public synchronized void allocateContainer(RMContainer rmContainer) {
     Container container = rmContainer.getContainer();
-    deductUnallocatedResource(container.getResource());
-    ++numContainers;
+    if (rmContainer.getExecutionType() == ExecutionType.GUARANTEED) {
+      deductUnallocatedResource(container.getResource());
+      ++numContainers;
+    }
 
     launchedContainers.put(container.getId(), rmContainer);
 
@@ -246,8 +250,10 @@ public abstract class SchedulerNode {
    */
   protected synchronized void updateResourceForReleasedContainer(
       Container container) {
-    addUnallocatedResource(container.getResource());
-    --numContainers;
+    if (container.getExecutionType() == ExecutionType.GUARANTEED) {
+      addUnallocatedResource(container.getResource());
+      --numContainers;
+    }
   }
 
   /**

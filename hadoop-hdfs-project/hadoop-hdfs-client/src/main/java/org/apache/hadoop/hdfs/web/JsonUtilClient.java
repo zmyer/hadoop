@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.hdfs.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -33,7 +35,9 @@ import org.apache.hadoop.fs.permission.AclEntry;
 import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DFSUtilClient;
+import org.apache.hadoop.hdfs.protocol.BlockStoragePolicy;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
+import org.apache.hadoop.hdfs.protocol.DatanodeInfo.DatanodeInfoBuilder;
 import org.apache.hadoop.hdfs.protocol.DirectoryListing;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.FsPermissionExtension;
@@ -48,13 +52,13 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.util.DataChecksum;
 import org.apache.hadoop.util.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -271,27 +275,26 @@ class JsonUtilClient {
     }
 
     // TODO: Fix storageID
-    return new DatanodeInfo(
-        ipAddr,
-        (String)m.get("hostName"),
-        (String)m.get("storageID"),
-        xferPort,
-        ((Number) m.get("infoPort")).intValue(),
-        getInt(m, "infoSecurePort", 0),
-        ((Number) m.get("ipcPort")).intValue(),
-
-        getLong(m, "capacity", 0l),
-        getLong(m, "dfsUsed", 0l),
-        getLong(m, "remaining", 0l),
-        getLong(m, "blockPoolUsed", 0l),
-        getLong(m, "cacheCapacity", 0l),
-        getLong(m, "cacheUsed", 0l),
-        getLong(m, "lastUpdate", 0l),
-        getLong(m, "lastUpdateMonotonic", 0l),
-        getInt(m, "xceiverCount", 0),
-        getString(m, "networkLocation", ""),
-        DatanodeInfo.AdminStates.valueOf(getString(m, "adminState", "NORMAL")),
-        getString(m, "upgradeDomain", ""));
+    return new DatanodeInfoBuilder().setIpAddr(ipAddr)
+        .setHostName((String) m.get("hostName"))
+        .setDatanodeUuid((String) m.get("storageID")).setXferPort(xferPort)
+        .setInfoPort(((Number) m.get("infoPort")).intValue())
+        .setInfoSecurePort(getInt(m, "infoSecurePort", 0))
+        .setIpcPort(((Number) m.get("ipcPort")).intValue())
+        .setCapacity(getLong(m, "capacity", 0L))
+        .setDfsUsed(getLong(m, "dfsUsed", 0L))
+        .setRemaining(getLong(m, "remaining", 0L))
+        .setBlockPoolUsed(getLong(m, "blockPoolUsed", 0L))
+        .setCacheCapacity(getLong(m, "cacheCapacity", 0L))
+        .setCacheUsed(getLong(m, "cacheUsed", 0L))
+        .setLastUpdate(getLong(m, "lastUpdate", 0L))
+        .setLastUpdateMonotonic(getLong(m, "lastUpdateMonotonic", 0L))
+        .setXceiverCount(getInt(m, "xceiverCount", 0))
+        .setNetworkLocation(getString(m, "networkLocation", "")).setAdminState(
+            DatanodeInfo.AdminStates
+                .valueOf(getString(m, "adminState", "NORMAL")))
+        .setUpgradeDomain(getString(m, "upgradeDomain", ""))
+        .build();
   }
 
   /** Convert an Object[] to a DatanodeInfo[]. */
@@ -523,7 +526,7 @@ class JsonUtilClient {
     }
 
     final String namesInJson = (String) json.get("XAttrNames");
-    ObjectReader reader = new ObjectMapper().reader(List.class);
+    ObjectReader reader = new ObjectMapper().readerFor(List.class);
     final List<Object> xattrs = reader.readValue(namesInJson);
     final List<String> names =
         Lists.newArrayListWithCapacity(json.keySet().size());
@@ -586,6 +589,52 @@ class JsonUtilClient {
     final boolean isLastBlockComplete = (Boolean)m.get("isLastBlockComplete");
     return new LocatedBlocks(fileLength, isUnderConstruction, locatedBlocks,
         lastLocatedBlock, isLastBlockComplete, null, null);
+  }
+
+  public static Collection<BlockStoragePolicy> getStoragePolicies(
+      Map<?, ?> json) {
+    Map<?, ?> policiesJson = (Map<?, ?>) json.get("BlockStoragePolicies");
+    if (policiesJson != null) {
+      List<?> objs = (List<?>) policiesJson.get(BlockStoragePolicy.class
+          .getSimpleName());
+      if (objs != null) {
+        BlockStoragePolicy[] storagePolicies = new BlockStoragePolicy[objs
+            .size()];
+        for (int i = 0; i < objs.size(); i++) {
+          final Map<?, ?> m = (Map<?, ?>) objs.get(i);
+          BlockStoragePolicy blockStoragePolicy = toBlockStoragePolicy(m);
+          storagePolicies[i] = blockStoragePolicy;
+        }
+        return Arrays.asList(storagePolicies);
+      }
+    }
+    return new ArrayList<BlockStoragePolicy>(0);
+  }
+
+  public static BlockStoragePolicy toBlockStoragePolicy(Map<?, ?> m) {
+    byte id = ((Number) m.get("id")).byteValue();
+    String name = (String) m.get("name");
+    StorageType[] storageTypes = toStorageTypes((List<?>) m
+        .get("storageTypes"));
+    StorageType[] creationFallbacks = toStorageTypes((List<?>) m
+        .get("creationFallbacks"));
+    StorageType[] replicationFallbacks = toStorageTypes((List<?>) m
+        .get("replicationFallbacks"));
+    Boolean copyOnCreateFile = (Boolean) m.get("copyOnCreateFile");
+    return new BlockStoragePolicy(id, name, storageTypes, creationFallbacks,
+        replicationFallbacks, copyOnCreateFile.booleanValue());
+  }
+
+  private static StorageType[] toStorageTypes(List<?> list) {
+    if (list == null) {
+      return null;
+    } else {
+      StorageType[] storageTypes = new StorageType[list.size()];
+      for (int i = 0; i < list.size(); i++) {
+        storageTypes[i] = StorageType.parseStorageType((String) list.get(i));
+      }
+      return storageTypes;
+    }
   }
 
 }

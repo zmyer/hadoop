@@ -26,13 +26,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.ipc.Server;
+import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.QueueACL;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
@@ -40,6 +43,7 @@ import org.apache.hadoop.yarn.api.records.QueueState;
 import org.apache.hadoop.yarn.api.records.QueueStatistics;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
 import org.apache.hadoop.yarn.security.AccessRequest;
@@ -54,12 +58,19 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceLimits;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceUsage;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerApplicationAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.ContainerAllocationProposal;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.ResourceCommitRequest;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.SchedulerContainer;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerApp;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerNode;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.placement.SimplePlacementSet;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 import com.google.common.collect.Sets;
 
 public abstract class AbstractCSQueue implements CSQueue {
+
   private static final Log LOG = LogFactory.getLog(AbstractCSQueue.class);  
   volatile CSQueue parent;
   final String queueName;
@@ -67,7 +78,7 @@ public abstract class AbstractCSQueue implements CSQueue {
   
   final Resource minimumAllocation;
   volatile Resource maximumAllocation;
-  volatile QueueState state;
+  private volatile QueueState state = null;
   final CSQueueMetrics metrics;
   protected final PrivilegedEntity queueEntity;
 
@@ -282,9 +293,16 @@ public abstract class AbstractCSQueue implements CSQueue {
           csContext.getConfiguration().getMaximumAllocationPerQueue(
               getQueuePath());
 
+      // initialized the queue state based on previous state, configured state
+      // and its parent state.
+      QueueState previous = getState();
+      QueueState configuredState = csContext.getConfiguration()
+          .getConfiguredState(getQueuePath());
+      QueueState parentState = (parent == null) ? null : parent.getState();
+      initializeQueueState(previous, configuredState, parentState);
+
       authorizer = YarnAuthorizationProvider.getInstance(csContext.getConf());
 
-      this.state = csContext.getConfiguration().getState(getQueuePath());
       this.acls = csContext.getConfiguration().getAcls(getQueuePath());
 
       // Update metrics
@@ -323,6 +341,56 @@ public abstract class AbstractCSQueue implements CSQueue {
     }
   }
 
+  private void initializeQueueState(QueueState previousState,
+      QueueState configuredState, QueueState parentState) {
+    // verify that we can not any value for State other than RUNNING/STOPPED
+    if (configuredState != null && configuredState != QueueState.RUNNING
+        && configuredState != QueueState.STOPPED) {
+      throw new IllegalArgumentException("Invalid queue state configuration."
+          + " We can only use RUNNING or STOPPED.");
+    }
+    // If we did not set state in configuration, use Running as default state
+    QueueState defaultState = QueueState.RUNNING;
+
+    if (previousState == null) {
+      // If current state of the queue is null, we would inherit the state
+      // from its parent. If this queue does not has parent, such as root queue,
+      // we would use the configured state.
+      if (parentState == null) {
+        updateQueueState((configuredState == null) ? defaultState
+            : configuredState);
+      } else {
+        if (configuredState == null) {
+          updateQueueState((parentState == QueueState.DRAINING) ?
+              QueueState.STOPPED : parentState);
+        } else if (configuredState == QueueState.RUNNING
+            && parentState != QueueState.RUNNING) {
+          throw new IllegalArgumentException(
+              "The parent queue:" + parent.getQueueName()
+              + " state is STOPPED, child queue:" + queueName
+              + " state cannot be RUNNING.");
+        } else {
+          updateQueueState(configuredState);
+        }
+      }
+    } else {
+      // when we get a refreshQueue request from AdminService,
+      if (previousState == QueueState.RUNNING) {
+        if (configuredState == QueueState.STOPPED) {
+          stopQueue();
+        }
+      } else {
+        if (configuredState == QueueState.RUNNING) {
+          try {
+            activeQueue();
+          } catch (YarnException ex) {
+            throw new IllegalArgumentException(ex.getMessage());
+          }
+        }
+      }
+    }
+  }
+
   protected QueueInfo getQueueInfo() {
     // Deliberately doesn't use lock here, because this method will be invoked
     // from schedulerApplicationAttempt, to avoid deadlock, sacrifice
@@ -333,7 +401,7 @@ public abstract class AbstractCSQueue implements CSQueue {
     queueInfo.setAccessibleNodeLabels(accessibleLabels);
     queueInfo.setCapacity(queueCapacities.getCapacity());
     queueInfo.setMaximumCapacity(queueCapacities.getMaximumCapacity());
-    queueInfo.setQueueState(state);
+    queueInfo.setQueueState(getState());
     queueInfo.setDefaultNodeLabelExpression(defaultLabelExpression);
     queueInfo.setCurrentCapacity(getUsedCapacity());
     queueInfo.setQueueStatistics(getQueueStatistics());
@@ -425,7 +493,6 @@ public abstract class AbstractCSQueue implements CSQueue {
     } finally {
       readLock.unlock();
     }
-
   }
 
   @Private
@@ -441,6 +508,11 @@ public abstract class AbstractCSQueue implements CSQueue {
   @Private
   public ResourceUsage getQueueResourceUsage() {
     return queueUsage;
+  }
+
+  @Override
+  public ReentrantReadWriteLock.ReadLock getReadLock() {
+    return readLock;
   }
 
   /**
@@ -737,5 +809,118 @@ public abstract class AbstractCSQueue implements CSQueue {
   public Iterator<RMContainer> getKillableContainers(String partition) {
     return csContext.getPreemptionManager().getKillableContainers(queueName,
         partition);
+  }
+
+  @VisibleForTesting
+  @Override
+  public CSAssignment assignContainers(Resource clusterResource,
+      FiCaSchedulerNode node, ResourceLimits resourceLimits,
+      SchedulingMode schedulingMode) {
+    return assignContainers(clusterResource, new SimplePlacementSet<>(node),
+        resourceLimits, schedulingMode);
+  }
+
+  @Override
+  public boolean accept(Resource cluster,
+      ResourceCommitRequest<FiCaSchedulerApp, FiCaSchedulerNode> request) {
+    // Do we need to check parent queue before making this decision?
+    boolean checkParentQueue = false;
+
+    ContainerAllocationProposal<FiCaSchedulerApp, FiCaSchedulerNode> allocation =
+        request.getFirstAllocatedOrReservedContainer();
+    SchedulerContainer<FiCaSchedulerApp, FiCaSchedulerNode> schedulerContainer =
+        allocation.getAllocatedOrReservedContainer();
+
+    // Do not check when allocating new container from a reserved container
+    if (allocation.getAllocateFromReservedContainer() == null) {
+      Resource required = allocation.getAllocatedOrReservedResource();
+      Resource netAllocated = Resources.subtract(required,
+          request.getTotalReleasedResource());
+
+      try {
+        readLock.lock();
+
+        String partition = schedulerContainer.getNodePartition();
+        Resource maxResourceLimit;
+        if (allocation.getSchedulingMode()
+            == SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY) {
+          maxResourceLimit = getQueueMaxResource(partition, cluster);
+        } else{
+          maxResourceLimit = labelManager.getResourceByLabel(
+              schedulerContainer.getNodePartition(), cluster);
+        }
+        if (!Resources.fitsIn(resourceCalculator, cluster,
+            Resources.add(queueUsage.getUsed(partition), netAllocated),
+            maxResourceLimit)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Used resource=" + queueUsage.getUsed(partition)
+                + " exceeded maxResourceLimit of the queue ="
+                + maxResourceLimit);
+          }
+          return false;
+        }
+      } finally {
+        readLock.unlock();
+      }
+
+      // Only check parent queue when something new allocated or reserved.
+      checkParentQueue = true;
+    }
+
+
+    if (parent != null && checkParentQueue) {
+      return parent.accept(cluster, request);
+    }
+
+    return true;
+  }
+
+  @Override
+  public void validateSubmitApplication(ApplicationId applicationId,
+      String userName, String queue) throws AccessControlException {
+    // Dummy implementation
+  }
+
+  @Override
+  public void updateQueueState(QueueState queueState) {
+    this.state = queueState;
+  }
+
+  @Override
+  public void activeQueue() throws YarnException {
+    try {
+      this.writeLock.lock();
+      if (getState() == QueueState.RUNNING) {
+        LOG.info("The specified queue:" + queueName
+            + " is already in the RUNNING state.");
+      } else if (getState() == QueueState.DRAINING) {
+        throw new YarnException(
+            "The queue:" + queueName + " is in the Stopping process. "
+            + "Please wait for the queue getting fully STOPPED.");
+      } else {
+        CSQueue parent = getParent();
+        if (parent == null || parent.getState() == QueueState.RUNNING) {
+          updateQueueState(QueueState.RUNNING);
+        } else {
+          throw new YarnException("The parent Queue:" + parent.getQueueName()
+              + " is not running. Please activate the parent queue first");
+        }
+      }
+    } finally {
+      this.writeLock.unlock();
+    }
+  }
+
+  protected void appFinished() {
+    try {
+      this.writeLock.lock();
+      if (getState() == QueueState.DRAINING) {
+        if (getNumApplications() == 0) {
+          updateQueueState(QueueState.STOPPED);
+        }
+      }
+    } finally {
+      this.writeLock.unlock();
+    }
   }
 }

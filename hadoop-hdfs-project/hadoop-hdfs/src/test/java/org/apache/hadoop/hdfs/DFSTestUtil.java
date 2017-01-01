@@ -110,6 +110,8 @@ import org.apache.hadoop.hdfs.protocol.CachePoolInfo;
 import org.apache.hadoop.hdfs.protocol.DatanodeID;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo.AdminStates;
+import org.apache.hadoop.hdfs.protocol.DatanodeInfo.DatanodeInfoBuilder;
+import org.apache.hadoop.hdfs.protocol.ErasureCodingPolicy;
 import org.apache.hadoop.hdfs.protocol.ExtendedBlock;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.protocol.LayoutVersion;
@@ -170,8 +172,6 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.google.common.annotations.VisibleForTesting;
-import static org.apache.hadoop.hdfs.StripedFileTestUtil.BLOCK_STRIPED_CELL_SIZE;
-import static org.apache.hadoop.hdfs.StripedFileTestUtil.NUM_DATA_BLOCKS;
 
 /** Utilities for HDFS tests */
 public class DFSTestUtil {
@@ -1066,34 +1066,42 @@ public class DFSTestUtil {
   }
 
   public static DatanodeInfo getLocalDatanodeInfo() {
-    return new DatanodeInfo(getLocalDatanodeID());
+    return new DatanodeInfoBuilder().setNodeID(getLocalDatanodeID())
+        .build();
   }
 
   public static DatanodeInfo getDatanodeInfo(String ipAddr) {
-    return new DatanodeInfo(getDatanodeID(ipAddr));
+    return new DatanodeInfoBuilder().setNodeID(getDatanodeID(ipAddr))
+        .build();
   }
   
   public static DatanodeInfo getLocalDatanodeInfo(int port) {
-    return new DatanodeInfo(getLocalDatanodeID(port));
+    return new DatanodeInfoBuilder().setNodeID(getLocalDatanodeID(port))
+        .build();
   }
 
   public static DatanodeInfo getDatanodeInfo(String ipAddr, 
       String host, int port) {
-    return new DatanodeInfo(new DatanodeID(ipAddr, host,
-        UUID.randomUUID().toString(), port,
-        DFSConfigKeys.DFS_DATANODE_HTTP_DEFAULT_PORT,
-        DFSConfigKeys.DFS_DATANODE_HTTPS_DEFAULT_PORT,
-        DFSConfigKeys.DFS_DATANODE_IPC_DEFAULT_PORT));
+    return new DatanodeInfoBuilder().setNodeID(
+        new DatanodeID(ipAddr, host, UUID.randomUUID().toString(), port,
+            DFSConfigKeys.DFS_DATANODE_HTTP_DEFAULT_PORT,
+            DFSConfigKeys.DFS_DATANODE_HTTPS_DEFAULT_PORT,
+            DFSConfigKeys.DFS_DATANODE_IPC_DEFAULT_PORT)).build();
   }
 
   public static DatanodeInfo getLocalDatanodeInfo(String ipAddr,
       String hostname, AdminStates adminState) {
-    return new DatanodeInfo(ipAddr, hostname, "",
-        DFSConfigKeys.DFS_DATANODE_DEFAULT_PORT,
-        DFSConfigKeys.DFS_DATANODE_HTTP_DEFAULT_PORT,
-        DFSConfigKeys.DFS_DATANODE_HTTPS_DEFAULT_PORT,
-        DFSConfigKeys.DFS_DATANODE_IPC_DEFAULT_PORT,
-        1l, 2l, 3l, 4l, 0l, 0l, 0l, 5, 6, "local", adminState);
+    return new DatanodeInfoBuilder().setIpAddr(ipAddr).setHostName(hostname)
+        .setDatanodeUuid("")
+        .setXferPort(DFSConfigKeys.DFS_DATANODE_DEFAULT_PORT)
+        .setInfoPort(DFSConfigKeys.DFS_DATANODE_HTTP_DEFAULT_PORT)
+        .setInfoSecurePort(DFSConfigKeys.DFS_DATANODE_HTTPS_DEFAULT_PORT)
+        .setIpcPort(DFSConfigKeys.DFS_DATANODE_IPC_DEFAULT_PORT).setCapacity(1L)
+        .setDfsUsed(2L).setRemaining(3L).setBlockPoolUsed(4L)
+        .setCacheCapacity(0L).setCacheUsed(0L).setLastUpdate(0L)
+        .setLastUpdateMonotonic(5).setXceiverCount(6)
+        .setNetworkLocation("local").setAdminState(adminState)
+        .build();
   }
 
   public static DatanodeDescriptor getDatanodeDescriptor(String ipAddr,
@@ -1880,21 +1888,41 @@ public class DFSTestUtil {
    * Creates the metadata of a file in striped layout. This method only
    * manipulates the NameNode state without injecting data to DataNode.
    * You should disable periodical heartbeat before use this.
-   *  @param file Path of the file to create
+   * @param file Path of the file to create
    * @param dir Parent path of the file
    * @param numBlocks Number of striped block groups to add to the file
    * @param numStripesPerBlk Number of striped cells in each block
    * @param toMkdir
    */
-  public static void createStripedFile(MiniDFSCluster cluster, Path file, Path dir,
-      int numBlocks, int numStripesPerBlk, boolean toMkdir) throws Exception {
+  public static void createStripedFile(MiniDFSCluster cluster, Path file,
+      Path dir, int numBlocks, int numStripesPerBlk, boolean toMkdir)
+      throws Exception {
+    createStripedFile(cluster, file, dir, numBlocks, numStripesPerBlk,
+        toMkdir, null);
+  }
+
+  /**
+   * Creates the metadata of a file in striped layout. This method only
+   * manipulates the NameNode state without injecting data to DataNode.
+   * You should disable periodical heartbeat before use this.
+   * @param file Path of the file to create
+   * @param dir Parent path of the file
+   * @param numBlocks Number of striped block groups to add to the file
+   * @param numStripesPerBlk Number of striped cells in each block
+   * @param toMkdir
+   * @param ecPolicy erasure coding policy apply to created file. A null value
+   *                 means using default erasure coding policy.
+   */
+  public static void createStripedFile(MiniDFSCluster cluster, Path file,
+      Path dir, int numBlocks, int numStripesPerBlk, boolean toMkdir,
+      ErasureCodingPolicy ecPolicy) throws Exception {
     DistributedFileSystem dfs = cluster.getFileSystem();
     // If outer test already set EC policy, dir should be left as null
     if (toMkdir) {
       assert dir != null;
       dfs.mkdirs(dir);
       try {
-        dfs.getClient().setErasureCodingPolicy(dir.toString(), null);
+        dfs.getClient().setErasureCodingPolicy(dir.toString(), ecPolicy);
       } catch (IOException e) {
         if (!e.getMessage().contains("non-empty directory")) {
           throw e;
@@ -1962,9 +1990,11 @@ public class DFSTestUtil {
       }
     }
 
+    final ErasureCodingPolicy ecPolicy =
+        fs.getErasureCodingPolicy(new Path(file));
     // 2. RECEIVED_BLOCK IBR
     long blockSize = isStripedBlock ?
-        numStripes * BLOCK_STRIPED_CELL_SIZE : len;
+        numStripes * ecPolicy.getCellSize() : len;
     for (int i = 0; i < groupSize; i++) {
       DataNode dn = dataNodes.get(i);
       final Block block = new Block(lastBlock.getBlockId() + i,
@@ -1978,7 +2008,7 @@ public class DFSTestUtil {
       }
     }
     long bytes = isStripedBlock ?
-        numStripes * BLOCK_STRIPED_CELL_SIZE * NUM_DATA_BLOCKS : len;
+        numStripes * ecPolicy.getCellSize() * ecPolicy.getNumDataUnits() : len;
     lastBlock.setNumBytes(bytes);
     return lastBlock;
   }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hadoop.yarn.server.api;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.retry.AtMostOnce;
 import org.apache.hadoop.io.retry.Idempotent;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -33,17 +32,21 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.UnRegisterNodeManagerRe
  * This is used by the Node Manager to register/nodeHeartbeat/unregister with
  * the ResourceManager.
  */
+// TODO: 17/3/23 by zmyer
 public interface ResourceTracker {
-  
-  @Idempotent
-  RegisterNodeManagerResponse registerNodeManager(
-      RegisterNodeManagerRequest request) throws YarnException, IOException;
 
-  @AtMostOnce
-  NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
-      throws YarnException, IOException;
+    // TODO: 17/3/28 by zmyer
+    @Idempotent
+    RegisterNodeManagerResponse registerNodeManager(RegisterNodeManagerRequest request)
+        throws YarnException, IOException;
 
-  @Idempotent
-  UnRegisterNodeManagerResponse unRegisterNodeManager(
-      UnRegisterNodeManagerRequest request) throws YarnException, IOException;
+    // TODO: 17/3/28 by zmyer
+    @AtMostOnce
+    NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
+        throws YarnException, IOException;
+
+    // TODO: 17/3/28 by zmyer
+    @Idempotent
+    UnRegisterNodeManagerResponse unRegisterNodeManager(UnRegisterNodeManagerRequest request)
+        throws YarnException, IOException;
 }

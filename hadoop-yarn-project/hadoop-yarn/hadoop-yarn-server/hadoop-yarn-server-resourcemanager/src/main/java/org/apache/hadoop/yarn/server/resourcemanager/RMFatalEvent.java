@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,18 +20,25 @@ package org.apache.hadoop.yarn.server.resourcemanager;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
+// TODO: 17/4/3 by zmyer
 public class RMFatalEvent extends AbstractEvent<RMFatalEventType> {
-  private String cause;
+    //异常信息
+    private String cause;
 
-  public RMFatalEvent(RMFatalEventType rmFatalEventType, String cause) {
-    super(rmFatalEventType);
-    this.cause = cause;
-  }
+    // TODO: 17/4/3 by zmyer
+    public RMFatalEvent(RMFatalEventType rmFatalEventType, String cause) {
+        super(rmFatalEventType);
+        this.cause = cause;
+    }
 
-  public RMFatalEvent(RMFatalEventType rmFatalEventType, Exception cause) {
-    super(rmFatalEventType);
-    this.cause = StringUtils.stringifyException(cause);
-  }
+    // TODO: 17/4/3 by zmyer
+    public RMFatalEvent(RMFatalEventType rmFatalEventType, Exception cause) {
+        super(rmFatalEventType);
+        this.cause = StringUtils.stringifyException(cause);
+    }
 
-  public String getCause() {return this.cause;}
+    // TODO: 17/4/3 by zmyer
+    public String getCause() {
+        return this.cause;
+    }
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,51 +28,58 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The request sent by the client to the <code>ResourceManager</code>
  * to abort a submitted application.</p>
- * 
+ *
  * <p>The request includes the {@link ApplicationId} of the application to be
  * aborted.</p>
- * 
+ *
  * @see ApplicationClientProtocol#forceKillApplication(KillApplicationRequest)
  */
 @Public
 @Stable
+// TODO: 17/3/25 by zmyer
 public abstract class KillApplicationRequest {
 
-  @Public
-  @Stable 
-  public static KillApplicationRequest newInstance(ApplicationId applicationId) {
-    KillApplicationRequest request =
-        Records.newRecord(KillApplicationRequest.class);
-    request.setApplicationId(applicationId);
-    return request;
-  }
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public static KillApplicationRequest newInstance(ApplicationId applicationId) {
+        KillApplicationRequest request = Records.newRecord(KillApplicationRequest.class);
+        request.setApplicationId(applicationId);
+        return request;
+    }
 
-  /**
-   * Get the <code>ApplicationId</code> of the application to be aborted.
-   * @return <code>ApplicationId</code> of the application to be aborted
-   */
-  @Public
-  @Stable
-  public abstract ApplicationId getApplicationId();
-  
-  @Public
-  @Stable
-  public abstract void setApplicationId(ApplicationId applicationId);
+    /**
+     * Get the <code>ApplicationId</code> of the application to be aborted.
+     *
+     * @return <code>ApplicationId</code> of the application to be aborted
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract ApplicationId getApplicationId();
 
-  /**
-   * Get the <em>diagnostics</em> to which the application is being killed.
-   * @return <em>diagnostics</em> to which the application is being killed
-   */
-  @Public
-  @Unstable
-  public abstract String getDiagnostics();
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setApplicationId(ApplicationId applicationId);
 
-  /**
-   * Set the <em>diagnostics</em> to which the application is being killed.
-   * @param diagnostics <em>diagnostics</em> to which the application is being
-   *          killed
-   */
-  @Public
-  @Unstable
-  public abstract void setDiagnostics(String diagnostics);
+    /**
+     * Get the <em>diagnostics</em> to which the application is being killed.
+     *
+     * @return <em>diagnostics</em> to which the application is being killed
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract String getDiagnostics();
+
+    /**
+     * Set the <em>diagnostics</em> to which the application is being killed.
+     *
+     * @param diagnostics <em>diagnostics</em> to which the application is being killed
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setDiagnostics(String diagnostics);
 }

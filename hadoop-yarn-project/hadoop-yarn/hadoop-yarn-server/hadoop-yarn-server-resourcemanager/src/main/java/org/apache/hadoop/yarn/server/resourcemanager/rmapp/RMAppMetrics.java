@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,55 +19,55 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmapp;
 
 import org.apache.hadoop.yarn.api.records.Resource;
-
+// TODO: 17/3/23 by zmyer
 public class RMAppMetrics {
-  final Resource resourcePreempted;
-  final int numNonAMContainersPreempted;
-  final int numAMContainersPreempted;
-  final long memorySeconds;
-  final long vcoreSeconds;
-  private final long preemptedMemorySeconds;
-  private final long preemptedVcoreSeconds;
+    final Resource resourcePreempted;
+    final int numNonAMContainersPreempted;
+    final int numAMContainersPreempted;
+    final long memorySeconds;
+    final long vcoreSeconds;
+    private final long preemptedMemorySeconds;
+    private final long preemptedVcoreSeconds;
 
-  public RMAppMetrics(Resource resourcePreempted,
-      int numNonAMContainersPreempted, int numAMContainersPreempted,
-      long memorySeconds, long vcoreSeconds, long preemptedMemorySeconds,
-      long preemptedVcoreSeconds) {
-    this.resourcePreempted = resourcePreempted;
-    this.numNonAMContainersPreempted = numNonAMContainersPreempted;
-    this.numAMContainersPreempted = numAMContainersPreempted;
-    this.memorySeconds = memorySeconds;
-    this.vcoreSeconds = vcoreSeconds;
-    this.preemptedMemorySeconds = preemptedMemorySeconds;
-    this.preemptedVcoreSeconds = preemptedVcoreSeconds;
-  }
+    public RMAppMetrics(Resource resourcePreempted,
+        int numNonAMContainersPreempted, int numAMContainersPreempted,
+        long memorySeconds, long vcoreSeconds, long preemptedMemorySeconds,
+        long preemptedVcoreSeconds) {
+        this.resourcePreempted = resourcePreempted;
+        this.numNonAMContainersPreempted = numNonAMContainersPreempted;
+        this.numAMContainersPreempted = numAMContainersPreempted;
+        this.memorySeconds = memorySeconds;
+        this.vcoreSeconds = vcoreSeconds;
+        this.preemptedMemorySeconds = preemptedMemorySeconds;
+        this.preemptedVcoreSeconds = preemptedVcoreSeconds;
+    }
 
-  public Resource getResourcePreempted() {
-    return resourcePreempted;
-  }
+    public Resource getResourcePreempted() {
+        return resourcePreempted;
+    }
 
-  public int getNumNonAMContainersPreempted() {
-    return numNonAMContainersPreempted;
-  }
+    public int getNumNonAMContainersPreempted() {
+        return numNonAMContainersPreempted;
+    }
 
-  public int getNumAMContainersPreempted() {
-    return numAMContainersPreempted;
-  }
+    public int getNumAMContainersPreempted() {
+        return numAMContainersPreempted;
+    }
 
-  public long getMemorySeconds() {
-    return memorySeconds;
-  }
+    public long getMemorySeconds() {
+        return memorySeconds;
+    }
 
-  public long getVcoreSeconds() {
-    return vcoreSeconds;
-  }
+    public long getVcoreSeconds() {
+        return vcoreSeconds;
+    }
 
-  public long getPreemptedMemorySeconds() {
-    return preemptedMemorySeconds;
-  }
+    public long getPreemptedMemorySeconds() {
+        return preemptedMemorySeconds;
+    }
 
-  public long getPreemptedVcoreSeconds() {
-    return preemptedVcoreSeconds;
-  }
+    public long getPreemptedVcoreSeconds() {
+        return preemptedVcoreSeconds;
+    }
 
 }

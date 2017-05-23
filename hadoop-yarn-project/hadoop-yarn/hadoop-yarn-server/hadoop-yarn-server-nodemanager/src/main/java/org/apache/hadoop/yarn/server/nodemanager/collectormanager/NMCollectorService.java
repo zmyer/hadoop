@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -50,96 +49,95 @@ import org.apache.hadoop.yarn.server.nodemanager.timelineservice.NMTimelinePubli
 public class NMCollectorService extends CompositeService implements
     CollectorNodemanagerProtocol {
 
-  private static final Log LOG = LogFactory.getLog(NMCollectorService.class);
+    private static final Log LOG = LogFactory.getLog(NMCollectorService.class);
 
-  private final Context context;
+    private final Context context;
 
-  private Server server;
+    private Server server;
 
-  public NMCollectorService(Context context) {
-    super(NMCollectorService.class.getName());
-    this.context = context;
-  }
-
-  @Override
-  protected void serviceStart() throws Exception {
-    Configuration conf = getConfig();
-
-    InetSocketAddress collectorServerAddress = conf.getSocketAddr(
-        YarnConfiguration.NM_BIND_HOST,
-        YarnConfiguration.NM_COLLECTOR_SERVICE_ADDRESS,
-        YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_ADDRESS,
-        YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_PORT);
-
-    Configuration serverConf = new Configuration(conf);
-
-    // TODO Security settings.
-    YarnRPC rpc = YarnRPC.create(conf);
-
-    server =
-        rpc.getServer(CollectorNodemanagerProtocol.class, this,
-            collectorServerAddress, serverConf,
-            this.context.getNMTokenSecretManager(),
-            conf.getInt(YarnConfiguration.NM_COLLECTOR_SERVICE_THREAD_COUNT,
-                YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_THREAD_COUNT));
-
-    server.start();
-    collectorServerAddress = conf.updateConnectAddr(
-        YarnConfiguration.NM_BIND_HOST,
-        YarnConfiguration.NM_COLLECTOR_SERVICE_ADDRESS,
-        YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_ADDRESS,
-        server.getListenerAddress());
-    // start remaining services
-    super.serviceStart();
-    LOG.info("NMCollectorService started at " + collectorServerAddress);
-  }
-
-
-  @Override
-  public void serviceStop() throws Exception {
-    if (server != null) {
-      server.stop();
+    public NMCollectorService(Context context) {
+        super(NMCollectorService.class.getName());
+        this.context = context;
     }
-    // TODO may cleanup app collectors running on this NM in future.
-    super.serviceStop();
-  }
 
-  @Override
-  public ReportNewCollectorInfoResponse reportNewCollectorInfo(
-      ReportNewCollectorInfoRequest request) throws YarnException, IOException {
-    List<AppCollectorsMap> newCollectorsList = request.getAppCollectorsList();
-    if (newCollectorsList != null && !newCollectorsList.isEmpty()) {
-      Map<ApplicationId, String> newCollectorsMap =
-          new HashMap<ApplicationId, String>();
-      for (AppCollectorsMap collector : newCollectorsList) {
-        ApplicationId appId = collector.getApplicationId();
-        String collectorAddr = collector.getCollectorAddr();
-        newCollectorsMap.put(appId, collectorAddr);
-        // set registered collector address to TimelineClient.
-        NMTimelinePublisher nmTimelinePublisher =
-            context.getNMTimelinePublisher();
-        if (nmTimelinePublisher != null) {
-          nmTimelinePublisher.setTimelineServiceAddress(appId, collectorAddr);
+    @Override
+    protected void serviceStart() throws Exception {
+        Configuration conf = getConfig();
+
+        InetSocketAddress collectorServerAddress = conf.getSocketAddr(
+            YarnConfiguration.NM_BIND_HOST,
+            YarnConfiguration.NM_COLLECTOR_SERVICE_ADDRESS,
+            YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_ADDRESS,
+            YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_PORT);
+
+        Configuration serverConf = new Configuration(conf);
+
+        // TODO Security settings.
+        YarnRPC rpc = YarnRPC.create(conf);
+
+        server =
+            rpc.getServer(CollectorNodemanagerProtocol.class, this,
+                collectorServerAddress, serverConf,
+                this.context.getNMTokenSecretManager(),
+                conf.getInt(YarnConfiguration.NM_COLLECTOR_SERVICE_THREAD_COUNT,
+                    YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_THREAD_COUNT));
+
+        server.start();
+        collectorServerAddress = conf.updateConnectAddr(
+            YarnConfiguration.NM_BIND_HOST,
+            YarnConfiguration.NM_COLLECTOR_SERVICE_ADDRESS,
+            YarnConfiguration.DEFAULT_NM_COLLECTOR_SERVICE_ADDRESS,
+            server.getListenerAddress());
+        // start remaining services
+        super.serviceStart();
+        LOG.info("NMCollectorService started at " + collectorServerAddress);
+    }
+
+    @Override
+    public void serviceStop() throws Exception {
+        if (server != null) {
+            server.stop();
         }
-      }
-      ((NodeManager.NMContext)context).addRegisteredCollectors(
-          newCollectorsMap);
+        // TODO may cleanup app collectors running on this NM in future.
+        super.serviceStop();
     }
 
-    return ReportNewCollectorInfoResponse.newInstance();
-  }
+    @Override
+    public ReportNewCollectorInfoResponse reportNewCollectorInfo(
+        ReportNewCollectorInfoRequest request) throws YarnException, IOException {
+        List<AppCollectorsMap> newCollectorsList = request.getAppCollectorsList();
+        if (newCollectorsList != null && !newCollectorsList.isEmpty()) {
+            Map<ApplicationId, String> newCollectorsMap =
+                new HashMap<ApplicationId, String>();
+            for (AppCollectorsMap collector : newCollectorsList) {
+                ApplicationId appId = collector.getApplicationId();
+                String collectorAddr = collector.getCollectorAddr();
+                newCollectorsMap.put(appId, collectorAddr);
+                // set registered collector address to TimelineClient.
+                NMTimelinePublisher nmTimelinePublisher =
+                    context.getNMTimelinePublisher();
+                if (nmTimelinePublisher != null) {
+                    nmTimelinePublisher.setTimelineServiceAddress(appId, collectorAddr);
+                }
+            }
+            ((NodeManager.NMContext) context).addRegisteredCollectors(
+                newCollectorsMap);
+        }
 
-  @Override
-  public GetTimelineCollectorContextResponse getTimelineCollectorContext(
-      GetTimelineCollectorContextRequest request)
-      throws YarnException, IOException {
-    Application app = context.getApplications().get(request.getApplicationId());
-    if (app == null) {
-      throw new YarnException("Application " + request.getApplicationId() +
-          " doesn't exist on NM.");
+        return ReportNewCollectorInfoResponse.newInstance();
     }
-    return GetTimelineCollectorContextResponse.newInstance(
-        app.getUser(), app.getFlowName(), app.getFlowVersion(),
-        app.getFlowRunId());
-  }
+
+    @Override
+    public GetTimelineCollectorContextResponse getTimelineCollectorContext(
+        GetTimelineCollectorContextRequest request)
+        throws YarnException, IOException {
+        Application app = context.getApplications().get(request.getApplicationId());
+        if (app == null) {
+            throw new YarnException("Application " + request.getApplicationId() +
+                " doesn't exist on NM.");
+        }
+        return GetTimelineCollectorContextResponse.newInstance(
+            app.getUser(), app.getFlowName(), app.getFlowVersion(),
+            app.getFlowRunId());
+    }
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,38 +18,37 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.rmnode;
 
+// TODO: 17/4/3 by zmyer
 public enum RMNodeEventType {
-  
-  STARTED,
-  
-  // Source: AdminService
-  DECOMMISSION,
-  GRACEFUL_DECOMMISSION,
-  RECOMMISSION,
-  
-  // Source: AdminService, ResourceTrackerService
-  RESOURCE_UPDATE,
+    STARTED,
+    // Source: AdminService
+    DECOMMISSION,
+    GRACEFUL_DECOMMISSION,
+    RECOMMISSION,
 
-  // ResourceTrackerService
-  STATUS_UPDATE,
-  REBOOTING,
-  RECONNECTED,
-  SHUTDOWN,
+    // Source: AdminService, ResourceTrackerService
+    RESOURCE_UPDATE,
 
-  // Source: Application
-  CLEANUP_APP,
+    // ResourceTrackerService
+    STATUS_UPDATE,
+    REBOOTING,
+    RECONNECTED,
+    SHUTDOWN,
 
-  // Source: Container
-  CONTAINER_ALLOCATED,
-  CLEANUP_CONTAINER,
-  DECREASE_CONTAINER,
+    // Source: Application
+    CLEANUP_APP,
 
-  // Source: ClientRMService
-  SIGNAL_CONTAINER,
+    // Source: Container
+    CONTAINER_ALLOCATED,
+    CLEANUP_CONTAINER,
+    DECREASE_CONTAINER,
 
-  // Source: RMAppAttempt
-  FINISHED_CONTAINERS_PULLED_BY_AM,
+    // Source: ClientRMService
+    SIGNAL_CONTAINER,
 
-  // Source: NMLivelinessMonitor
-  EXPIRE
+    // Source: RMAppAttempt
+    FINISHED_CONTAINERS_PULLED_BY_AM,
+
+    // Source: NMLivelinessMonitor
+    EXPIRE
 }

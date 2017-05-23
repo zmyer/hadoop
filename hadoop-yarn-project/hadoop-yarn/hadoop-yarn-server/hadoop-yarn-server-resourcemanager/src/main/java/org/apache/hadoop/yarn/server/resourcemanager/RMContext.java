@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.resourcemanager;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ha.HAServiceProtocol.HAServiceState;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -29,8 +28,8 @@ import org.apache.hadoop.yarn.conf.ConfigurationProvider;
 import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.server.resourcemanager.ahs.RMApplicationHistoryWriter;
 import org.apache.hadoop.yarn.server.resourcemanager.metrics.SystemMetricsPublisher;
-import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMDelegatedNodeLabelsUpdater;
+import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.placement.PlacementManager;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore;
 import org.apache.hadoop.yarn.server.resourcemanager.reservation.ReservationSystem;
@@ -40,7 +39,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.monitor.RMAppLifetime
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAllocationExpirer;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
-
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.distributed.QueueLimitCalculator;
 import org.apache.hadoop.yarn.server.resourcemanager.security.AMRMTokenSecretManager;
 import org.apache.hadoop.yarn.server.resourcemanager.security.ClientToAMTokenSecretManagerInRM;
@@ -53,107 +51,108 @@ import org.apache.hadoop.yarn.server.resourcemanager.timelineservice.RMTimelineC
 /**
  * Context of the ResourceManager.
  */
+// TODO: 17/4/4 by zmyer
 public interface RMContext {
 
-  Dispatcher getDispatcher();
+    Dispatcher getDispatcher();
 
-  boolean isHAEnabled();
+    boolean isHAEnabled();
 
-  HAServiceState getHAServiceState();
+    HAServiceState getHAServiceState();
 
-  RMStateStore getStateStore();
+    RMStateStore getStateStore();
 
-  ConcurrentMap<ApplicationId, RMApp> getRMApps();
-  
-  ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
+    ConcurrentMap<ApplicationId, RMApp> getRMApps();
 
-  ConcurrentMap<NodeId, RMNode> getInactiveRMNodes();
+    ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
 
-  ConcurrentMap<NodeId, RMNode> getRMNodes();
+    ConcurrentMap<NodeId, RMNode> getInactiveRMNodes();
 
-  AMLivelinessMonitor getAMLivelinessMonitor();
+    ConcurrentMap<NodeId, RMNode> getRMNodes();
 
-  AMLivelinessMonitor getAMFinishingMonitor();
+    AMLivelinessMonitor getAMLivelinessMonitor();
 
-  ContainerAllocationExpirer getContainerAllocationExpirer();
-  
-  DelegationTokenRenewer getDelegationTokenRenewer();
+    AMLivelinessMonitor getAMFinishingMonitor();
 
-  AMRMTokenSecretManager getAMRMTokenSecretManager();
+    ContainerAllocationExpirer getContainerAllocationExpirer();
 
-  RMContainerTokenSecretManager getContainerTokenSecretManager();
-  
-  NMTokenSecretManagerInRM getNMTokenSecretManager();
+    DelegationTokenRenewer getDelegationTokenRenewer();
 
-  ResourceScheduler getScheduler();
+    AMRMTokenSecretManager getAMRMTokenSecretManager();
 
-  NodesListManager getNodesListManager();
+    RMContainerTokenSecretManager getContainerTokenSecretManager();
 
-  ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager();
+    NMTokenSecretManagerInRM getNMTokenSecretManager();
 
-  AdminService getRMAdminService();
+    ResourceScheduler getScheduler();
 
-  ClientRMService getClientRMService();
+    NodesListManager getNodesListManager();
 
-  ApplicationMasterService getApplicationMasterService();
+    ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager();
 
-  ResourceTrackerService getResourceTrackerService();
+    AdminService getRMAdminService();
 
-  void setClientRMService(ClientRMService clientRMService);
+    ClientRMService getClientRMService();
 
-  RMDelegationTokenSecretManager getRMDelegationTokenSecretManager();
+    ApplicationMasterService getApplicationMasterService();
 
-  void setRMDelegationTokenSecretManager(
-      RMDelegationTokenSecretManager delegationTokenSecretManager);
+    ResourceTrackerService getResourceTrackerService();
 
-  RMApplicationHistoryWriter getRMApplicationHistoryWriter();
+    void setClientRMService(ClientRMService clientRMService);
 
-  void setRMApplicationHistoryWriter(
-      RMApplicationHistoryWriter rmApplicationHistoryWriter);
+    RMDelegationTokenSecretManager getRMDelegationTokenSecretManager();
 
-  void setSystemMetricsPublisher(SystemMetricsPublisher systemMetricsPublisher);
+    void setRMDelegationTokenSecretManager(
+        RMDelegationTokenSecretManager delegationTokenSecretManager);
 
-  SystemMetricsPublisher getSystemMetricsPublisher();
+    RMApplicationHistoryWriter getRMApplicationHistoryWriter();
 
-  void setRMTimelineCollectorManager(
-      RMTimelineCollectorManager timelineCollectorManager);
+    void setRMApplicationHistoryWriter(
+        RMApplicationHistoryWriter rmApplicationHistoryWriter);
 
-  RMTimelineCollectorManager getRMTimelineCollectorManager();
+    void setSystemMetricsPublisher(SystemMetricsPublisher systemMetricsPublisher);
 
-  ConfigurationProvider getConfigurationProvider();
+    SystemMetricsPublisher getSystemMetricsPublisher();
 
-  boolean isWorkPreservingRecoveryEnabled();
-  
-  RMNodeLabelsManager getNodeLabelManager();
-  
-  public void setNodeLabelManager(RMNodeLabelsManager mgr);
+    void setRMTimelineCollectorManager(
+        RMTimelineCollectorManager timelineCollectorManager);
 
-  RMDelegatedNodeLabelsUpdater getRMDelegatedNodeLabelsUpdater();
+    RMTimelineCollectorManager getRMTimelineCollectorManager();
 
-  void setRMDelegatedNodeLabelsUpdater(
-      RMDelegatedNodeLabelsUpdater nodeLabelsUpdater);
+    ConfigurationProvider getConfigurationProvider();
 
-  long getEpoch();
+    boolean isWorkPreservingRecoveryEnabled();
 
-  ReservationSystem getReservationSystem();
+    RMNodeLabelsManager getNodeLabelManager();
 
-  boolean isSchedulerReadyForAllocatingContainers();
-  
-  Configuration getYarnConfiguration();
-  
-  PlacementManager getQueuePlacementManager();
-  
-  void setQueuePlacementManager(PlacementManager placementMgr);
+    public void setNodeLabelManager(RMNodeLabelsManager mgr);
 
-  void setLeaderElectorService(EmbeddedElector elector);
+    RMDelegatedNodeLabelsUpdater getRMDelegatedNodeLabelsUpdater();
 
-  EmbeddedElector getLeaderElectorService();
+    void setRMDelegatedNodeLabelsUpdater(
+        RMDelegatedNodeLabelsUpdater nodeLabelsUpdater);
 
-  QueueLimitCalculator getNodeManagerQueueLimitCalculator();
+    long getEpoch();
 
-  void setRMAppLifetimeMonitor(RMAppLifetimeMonitor rmAppLifetimeMonitor);
+    ReservationSystem getReservationSystem();
 
-  RMAppLifetimeMonitor getRMAppLifetimeMonitor();
+    boolean isSchedulerReadyForAllocatingContainers();
 
-  String getHAZookeeperConnectionState();
+    Configuration getYarnConfiguration();
+
+    PlacementManager getQueuePlacementManager();
+
+    void setQueuePlacementManager(PlacementManager placementMgr);
+
+    void setLeaderElectorService(EmbeddedElector elector);
+
+    EmbeddedElector getLeaderElectorService();
+
+    QueueLimitCalculator getNodeManagerQueueLimitCalculator();
+
+    void setRMAppLifetimeMonitor(RMAppLifetimeMonitor rmAppLifetimeMonitor);
+
+    RMAppLifetimeMonitor getRMAppLifetimeMonitor();
+
+    String getHAZookeeperConnectionState();
 }

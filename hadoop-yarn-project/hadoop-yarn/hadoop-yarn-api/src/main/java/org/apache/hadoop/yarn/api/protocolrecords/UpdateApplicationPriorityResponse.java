@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,32 +32,32 @@ import org.apache.hadoop.yarn.util.Records;
  * <p>
  * A response without exception means that the move has completed successfully.
  * </p>
- * 
+ *
  * @see ApplicationClientProtocol#updateApplicationPriority(UpdateApplicationPriorityRequest)
  */
 
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class UpdateApplicationPriorityResponse {
 
-  public static UpdateApplicationPriorityResponse newInstance(
-      Priority priority) {
-    UpdateApplicationPriorityResponse response =
-        Records.newRecord(UpdateApplicationPriorityResponse.class);
-    response.setApplicationPriority(priority);
-    return response;
-  }
+    public static UpdateApplicationPriorityResponse newInstance(Priority priority) {
+        UpdateApplicationPriorityResponse response =
+            Records.newRecord(UpdateApplicationPriorityResponse.class);
+        response.setApplicationPriority(priority);
+        return response;
+    }
 
-  /**
-   * Get the <code>Priority</code> of the application to be set.
-   * @return Updated <code>Priority</code> of the application.
-   */
-  public abstract Priority getApplicationPriority();
+    /**
+     * Get the <code>Priority</code> of the application to be set.
+     * @return Updated <code>Priority</code> of the application.
+     */
+    public abstract Priority getApplicationPriority();
 
-  /**
-   * Set the <code>Priority</code> of the application.
-   *
-   * @param priority <code>Priority</code> of the application
-   */
-  public abstract void setApplicationPriority(Priority priority);
+    /**
+     * Set the <code>Priority</code> of the application.
+     *
+     * @param priority <code>Priority</code> of the application
+     */
+    public abstract void setApplicationPriority(Priority priority);
 }

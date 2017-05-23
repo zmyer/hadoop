@@ -35,6 +35,7 @@ public class DefaultResourceCalculator extends ResourceCalculator {
     return Long.compare(lhs.getMemorySize(), rhs.getMemorySize());
   }
 
+  // TODO: 17/4/6 by zmyer
   @Override
   public long computeAvailableContainers(Resource available, Resource required) {
     // Only consider memory

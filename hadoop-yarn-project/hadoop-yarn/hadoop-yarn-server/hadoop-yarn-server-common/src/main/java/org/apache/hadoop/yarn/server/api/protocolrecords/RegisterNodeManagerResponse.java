@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,37 +25,38 @@ import org.apache.hadoop.yarn.server.api.records.NodeAction;
 /**
  * Node Manager's register response.
  */
+// TODO: 17/3/28 by zmyer
 public abstract class RegisterNodeManagerResponse {
-  public abstract MasterKey getContainerTokenMasterKey();
+    public abstract MasterKey getContainerTokenMasterKey();
 
-  public abstract void setContainerTokenMasterKey(MasterKey secretKey);
+    public abstract void setContainerTokenMasterKey(MasterKey secretKey);
 
-  public abstract MasterKey getNMTokenMasterKey();
+    public abstract MasterKey getNMTokenMasterKey();
 
-  public abstract void setNMTokenMasterKey(MasterKey secretKey);
+    public abstract void setNMTokenMasterKey(MasterKey secretKey);
 
-  public abstract NodeAction getNodeAction();
+    public abstract NodeAction getNodeAction();
 
-  public abstract void setNodeAction(NodeAction nodeAction);
+    public abstract void setNodeAction(NodeAction nodeAction);
 
-  public abstract long getRMIdentifier();
+    public abstract long getRMIdentifier();
 
-  public abstract void setRMIdentifier(long rmIdentifier);
+    public abstract void setRMIdentifier(long rmIdentifier);
 
-  public abstract String getDiagnosticsMessage();
+    public abstract String getDiagnosticsMessage();
 
-  public abstract void setDiagnosticsMessage(String diagnosticsMessage);
+    public abstract void setDiagnosticsMessage(String diagnosticsMessage);
 
-  public abstract void setRMVersion(String version);
+    public abstract void setRMVersion(String version);
 
-  public abstract String getRMVersion();
+    public abstract String getRMVersion();
 
-  public abstract Resource getResource();
+    public abstract Resource getResource();
 
-  public abstract void setResource(Resource resource);
+    public abstract void setResource(Resource resource);
 
-  public abstract boolean getAreNodeLabelsAcceptedByRM();
+    public abstract boolean getAreNodeLabelsAcceptedByRM();
 
-  public abstract void setAreNodeLabelsAcceptedByRM(
-      boolean areNodeLabelsAcceptedByRM);
+    public abstract void setAreNodeLabelsAcceptedByRM(
+        boolean areNodeLabelsAcceptedByRM);
 }

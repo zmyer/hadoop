@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,18 +24,19 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 /**
  * Application timeout type.
  */
+// TODO: 17/3/25 by zmyer
 @Public
 @Unstable
 public enum ApplicationTimeoutType {
 
-  /**
-   * <p>
-   * Timeout imposed on overall application life time. It includes actual
-   * run-time plus non-runtime. Non-runtime delays are time elapsed by scheduler
-   * to allocate container, time taken to store in RMStateStore and etc.
-   * </p>
-   * If this is set, then timeout monitoring start from application submission
-   * time.
-   */
-  LIFETIME;
+    /**
+     * <p>
+     * Timeout imposed on overall application life time. It includes actual
+     * run-time plus non-runtime. Non-runtime delays are time elapsed by scheduler
+     * to allocate container, time taken to store in RMStateStore and etc.
+     * </p>
+     * If this is set, then timeout monitoring start from application submission
+     * time.
+     */
+    LIFETIME;
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,10 @@ package org.apache.hadoop.ipc;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-
 /**
  * The protocol name that is used when a client and server connect.
  * By default the class name of the protocol interface is the protocol name.
- * 
+ *
  * Why override the default name (i.e. the class name)?
  * One use case overriding the default name (i.e. the class name) is when
  * there are multiple implementations of the same protocol, each with say a
@@ -32,8 +31,12 @@ import java.lang.annotation.RetentionPolicy;
  * In Hadoop this is used to allow multiple server and client adapters
  * for different versions of the same protocol service.
  */
+// TODO: 17/3/18 by zmyer
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProtocolInfo {
-  String protocolName();  // the name of the protocol (i.e. rpc service)
-  long protocolVersion() default -1; // default means not defined use old way
+    //协议名称
+    String protocolName();  // the name of the protocol (i.e. rpc service)
+
+    //协议版本
+    long protocolVersion() default -1; // default means not defined use old way
 }

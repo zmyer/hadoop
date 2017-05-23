@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,16 +19,18 @@
 package org.apache.hadoop.yarn.factories;
 
 import java.net.InetSocketAddress;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
 
-@InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
+// TODO: 17/3/25 by zmyer
+@InterfaceAudience.LimitedPrivate({"MapReduce", "YARN"})
 public interface RpcClientFactory {
-  
-  public Object getClient(Class<?> protocol, long clientVersion,
-      InetSocketAddress addr, Configuration conf);
 
-  public void stopClient(Object proxy);
+    // TODO: 17/3/25 by zmyer
+    public Object getClient(Class<?> protocol, long clientVersion,
+        InetSocketAddress addr, Configuration conf);
+
+    // TODO: 17/3/25 by zmyer
+    public void stopClient(Object proxy);
 
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,90 +18,87 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.allocator;
 
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
+import java.util.List;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.NodeType;
-import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaSchedulerNode;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
-import java.util.List;
-
+// TODO: 17/4/6 by zmyer
 public class ContainerAllocation {
-  /**
-   * Skip the locality (e.g. node-local, rack-local, any), and look at other
-   * localities of the same priority
-   */
-  public static final ContainerAllocation LOCALITY_SKIPPED =
-      new ContainerAllocation(null, null, AllocationState.LOCALITY_SKIPPED);
+    /**
+     * Skip the locality (e.g. node-local, rack-local, any), and look at other
+     * localities of the same priority
+     */
+    public static final ContainerAllocation LOCALITY_SKIPPED =
+        new ContainerAllocation(null, null, AllocationState.LOCALITY_SKIPPED);
 
-  /**
-   * Skip the priority, and look at other priorities of the same application
-   */
-  public static final ContainerAllocation PRIORITY_SKIPPED =
-      new ContainerAllocation(null, null, AllocationState.PRIORITY_SKIPPED);
+    /**
+     * Skip the priority, and look at other priorities of the same application
+     */
+    public static final ContainerAllocation PRIORITY_SKIPPED =
+        new ContainerAllocation(null, null, AllocationState.PRIORITY_SKIPPED);
 
-  /**
-   * Skip the application, and look at other applications of the same queue
-   */
-  public static final ContainerAllocation APP_SKIPPED =
-      new ContainerAllocation(null, null, AllocationState.APP_SKIPPED);
+    /**
+     * Skip the application, and look at other applications of the same queue
+     */
+    public static final ContainerAllocation APP_SKIPPED =
+        new ContainerAllocation(null, null, AllocationState.APP_SKIPPED);
 
-  /**
-   * Skip the leaf-queue, and look at other queues of the same parent queue
-   */
-  public static final ContainerAllocation QUEUE_SKIPPED =
-      new ContainerAllocation(null, null, AllocationState.QUEUE_SKIPPED);
+    /**
+     * Skip the leaf-queue, and look at other queues of the same parent queue
+     */
+    public static final ContainerAllocation QUEUE_SKIPPED =
+        new ContainerAllocation(null, null, AllocationState.QUEUE_SKIPPED);
 
-  RMContainer containerToBeUnreserved;
-  private Resource resourceToBeAllocated = Resources.none();
-  AllocationState state;
-  NodeType containerNodeType = NodeType.NODE_LOCAL;
-  NodeType requestLocalityType = null;
+    RMContainer containerToBeUnreserved;
+    private Resource resourceToBeAllocated = Resources.none();
+    AllocationState state;
+    NodeType containerNodeType = NodeType.NODE_LOCAL;
+    NodeType requestLocalityType = null;
 
-  /**
-   * When some (new) container allocated/reserved or some increase container
-   * request allocated/reserved, updatedContainer will be set.
-   */
-  RMContainer updatedContainer;
-  private List<RMContainer> toKillContainers;
+    /**
+     * When some (new) container allocated/reserved or some increase container
+     * request allocated/reserved, updatedContainer will be set.
+     */
+    RMContainer updatedContainer;
+    private List<RMContainer> toKillContainers;
 
-  public ContainerAllocation(RMContainer containerToBeUnreserved,
-      Resource resourceToBeAllocated, AllocationState state) {
-    this.containerToBeUnreserved = containerToBeUnreserved;
-    this.resourceToBeAllocated = resourceToBeAllocated;
-    this.state = state;
-  }
-
-  public RMContainer getContainerToBeUnreserved() {
-    return containerToBeUnreserved;
-  }
-
-  public Resource getResourceToBeAllocated() {
-    if (resourceToBeAllocated == null) {
-      return Resources.none();
+    public ContainerAllocation(RMContainer containerToBeUnreserved,
+        Resource resourceToBeAllocated, AllocationState state) {
+        this.containerToBeUnreserved = containerToBeUnreserved;
+        this.resourceToBeAllocated = resourceToBeAllocated;
+        this.state = state;
     }
-    return resourceToBeAllocated;
-  }
 
-  public AllocationState getAllocationState() {
-    return state;
-  }
+    public RMContainer getContainerToBeUnreserved() {
+        return containerToBeUnreserved;
+    }
 
-  public NodeType getContainerNodeType() {
-    return containerNodeType;
-  }
+    public Resource getResourceToBeAllocated() {
+        if (resourceToBeAllocated == null) {
+            return Resources.none();
+        }
+        return resourceToBeAllocated;
+    }
 
-  public RMContainer getUpdatedContainer() {
-    return updatedContainer;
-  }
+    public AllocationState getAllocationState() {
+        return state;
+    }
 
-  public void setToKillContainers(List<RMContainer> toKillContainers) {
-    this.toKillContainers = toKillContainers;
-  }
+    public NodeType getContainerNodeType() {
+        return containerNodeType;
+    }
 
-  public List<RMContainer> getToKillContainers() {
-    return toKillContainers;
-  }
+    public RMContainer getUpdatedContainer() {
+        return updatedContainer;
+    }
+
+    public void setToKillContainers(List<RMContainer> toKillContainers) {
+        this.toKillContainers = toKillContainers;
+    }
+
+    public List<RMContainer> getToKillContainers() {
+        return toKillContainers;
+    }
 }

@@ -209,7 +209,6 @@ public final class ContainerStartContext {
   }
 
   public List<String> getContainerLogDirs() {
-    return Collections.unmodifiableList(this
-        .containerLogDirs);
+    return Collections.unmodifiableList(this.containerLogDirs);
   }
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,36 +28,37 @@ import org.apache.hadoop.yarn.util.Records;
  * The response sent by the <code>ResourceManager</code> to a client requesting
  * a container report.
  * </p>
- * 
+ *
  * <p>
  * The response includes a {@link ContainerReport} which has details of a
  * container.
  * </p>
- * 
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class GetContainerReportResponse {
-  @Public
-  @Unstable
-  public static GetContainerReportResponse newInstance(
-      ContainerReport containerReport) {
-    GetContainerReportResponse response =
-        Records.newRecord(GetContainerReportResponse.class);
-    response.setContainerReport(containerReport);
-    return response;
-  }
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public static GetContainerReportResponse newInstance(ContainerReport containerReport) {
+        GetContainerReportResponse response = Records.newRecord(GetContainerReportResponse.class);
+        response.setContainerReport(containerReport);
+        return response;
+    }
 
-  /**
-   * Get the <code>ContainerReport</code> for the container.
-   * 
-   * @return <code>ContainerReport</code> for the container
-   */
-  @Public
-  @Unstable
-  public abstract ContainerReport getContainerReport();
+    /**
+     * Get the <code>ContainerReport</code> for the container.
+     *
+     * @return <code>ContainerReport</code> for the container
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract ContainerReport getContainerReport();
 
-  @Public
-  @Unstable
-  public abstract void setContainerReport(ContainerReport containerReport);
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setContainerReport(ContainerReport containerReport);
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,25 +24,26 @@ import org.apache.hadoop.yarn.api.records.ResourceBlacklistRequest;
 /**
  * Tracks blacklists based on failures reported on nodes.
  */
+// TODO: 17/4/4 by zmyer
 @Private
 public interface BlacklistManager {
 
-  /**
-   * Report failure of a container on node.
-   * @param node that has a container failure
-   */
-  void addNode(String node);
+    /**
+     * Report failure of a container on node.
+     * @param node that has a container failure
+     */
+    void addNode(String node);
 
-  /**
-   * Get {@link ResourceBlacklistRequest} that indicate which nodes should be
-   * added or to removed from the blacklist.
-   * @return {@link ResourceBlacklistRequest}
-   */
-  ResourceBlacklistRequest getBlacklistUpdates();
+    /**
+     * Get {@link ResourceBlacklistRequest} that indicate which nodes should be
+     * added or to removed from the blacklist.
+     * @return {@link ResourceBlacklistRequest}
+     */
+    ResourceBlacklistRequest getBlacklistUpdates();
 
-  /**
-   * Refresh the number of NodeManagers available for scheduling.
-   * @param nodeHostCount is the number of node hosts.
-   */
-  void refreshNodeHostCount(int nodeHostCount);
+    /**
+     * Refresh the number of NodeManagers available for scheduling.
+     * @param nodeHostCount is the number of node hosts.
+     */
+    void refreshNodeHostCount(int nodeHostCount);
 }

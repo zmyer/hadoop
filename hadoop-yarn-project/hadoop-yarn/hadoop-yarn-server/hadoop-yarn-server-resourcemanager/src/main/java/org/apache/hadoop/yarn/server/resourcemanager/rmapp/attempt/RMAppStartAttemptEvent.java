@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,17 +20,20 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt;
 
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 
+// TODO: 17/4/4 by zmyer
 public class RMAppStartAttemptEvent extends RMAppAttemptEvent {
+    //是否从前一个执行对象转移
+    private final boolean transferStateFromPreviousAttempt;
 
-  private final boolean transferStateFromPreviousAttempt;
+    // TODO: 17/4/4 by zmyer
+    public RMAppStartAttemptEvent(ApplicationAttemptId appAttemptId,
+        boolean transferStateFromPreviousAttempt) {
+        super(appAttemptId, RMAppAttemptEventType.START);
+        this.transferStateFromPreviousAttempt = transferStateFromPreviousAttempt;
+    }
 
-  public RMAppStartAttemptEvent(ApplicationAttemptId appAttemptId,
-      boolean transferStateFromPreviousAttempt) {
-    super(appAttemptId, RMAppAttemptEventType.START);
-    this.transferStateFromPreviousAttempt = transferStateFromPreviousAttempt;
-  }
-
-  public boolean getTransferStateFromPreviousAttempt() {
-    return transferStateFromPreviousAttempt;
-  }
+    // TODO: 17/4/4 by zmyer
+    public boolean getTransferStateFromPreviousAttempt() {
+        return transferStateFromPreviousAttempt;
+    }
 }

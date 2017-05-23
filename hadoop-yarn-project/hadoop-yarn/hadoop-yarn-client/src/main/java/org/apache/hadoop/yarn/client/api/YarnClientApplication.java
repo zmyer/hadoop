@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,22 +31,27 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
  * ApplicationSubmissionContext} objects created via {@link org.apache.hadoop
  * .yarn.client.api.YarnClient#createApplication()}
  */
-public  class YarnClientApplication {
-  private final GetNewApplicationResponse newAppResponse;
-  private final ApplicationSubmissionContext appSubmissionContext;
+// TODO: 17/3/25 by zmyer
+public class YarnClientApplication {
+    //新的应用应答请求对象
+    private final GetNewApplicationResponse newAppResponse;
+    //应用提交上下文对象
+    private final ApplicationSubmissionContext appSubmissionContext;
 
-  public YarnClientApplication(GetNewApplicationResponse newAppResponse,
-                               ApplicationSubmissionContext appContext) {
-    this.newAppResponse = newAppResponse;
-    this.appSubmissionContext = appContext;
-  }
+    // TODO: 17/3/25 by zmyer
+    public YarnClientApplication(GetNewApplicationResponse newAppResponse, ApplicationSubmissionContext appContext) {
+        this.newAppResponse = newAppResponse;
+        this.appSubmissionContext = appContext;
+    }
 
-  public GetNewApplicationResponse getNewApplicationResponse() {
-    return newAppResponse;
-  }
+    // TODO: 17/3/25 by zmyer
+    public GetNewApplicationResponse getNewApplicationResponse() {
+        return newAppResponse;
+    }
 
-  public ApplicationSubmissionContext getApplicationSubmissionContext() {
-    return appSubmissionContext;
-  }
+    // TODO: 17/3/25 by zmyer
+    public ApplicationSubmissionContext getApplicationSubmissionContext() {
+        return appSubmissionContext;
+    }
 }
 

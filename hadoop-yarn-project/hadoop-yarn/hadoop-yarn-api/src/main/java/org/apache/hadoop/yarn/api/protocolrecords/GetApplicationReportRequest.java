@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,42 +26,47 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The request sent by a client to the <code>ResourceManager</code> to 
+ * <p>The request sent by a client to the <code>ResourceManager</code> to
  * get an {@link ApplicationReport} for an application.</p>
- * 
- * <p>The request should include the {@link ApplicationId} of the 
+ *
+ * <p>The request should include the {@link ApplicationId} of the
  * application.</p>
- * 
+ *
  * @see ApplicationClientProtocol#getApplicationReport(GetApplicationReportRequest)
  * @see ApplicationReport
  */
 @Public
 @Stable
+// TODO: 17/3/25 by zmyer
 public abstract class GetApplicationReportRequest {
 
-  @Public
-  @Stable
-  public static GetApplicationReportRequest newInstance(
-      ApplicationId applicationId) {
-    GetApplicationReportRequest request =
-        Records.newRecord(GetApplicationReportRequest.class);
-    request.setApplicationId(applicationId);
-    return request;
-  }
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public static GetApplicationReportRequest newInstance(
+        ApplicationId applicationId) {
+        GetApplicationReportRequest request = Records.newRecord(GetApplicationReportRequest.class);
+        request.setApplicationId(applicationId);
+        return request;
+    }
 
-  /**
-   * Get the <code>ApplicationId</code> of the application.
-   * @return <code>ApplicationId</code> of the application
-   */
-  @Public
-  @Stable
-  public abstract ApplicationId getApplicationId();
-  
-  /**
-   * Set the <code>ApplicationId</code> of the application
-   * @param applicationId <code>ApplicationId</code> of the application
-   */
-  @Public
-  @Stable
-  public abstract void setApplicationId(ApplicationId applicationId);
+    /**
+     * Get the <code>ApplicationId</code> of the application.
+     *
+     * @return <code>ApplicationId</code> of the application
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract ApplicationId getApplicationId();
+
+    /**
+     * Set the <code>ApplicationId</code> of the application
+     *
+     * @param applicationId <code>ApplicationId</code> of the application
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setApplicationId(ApplicationId applicationId);
 }

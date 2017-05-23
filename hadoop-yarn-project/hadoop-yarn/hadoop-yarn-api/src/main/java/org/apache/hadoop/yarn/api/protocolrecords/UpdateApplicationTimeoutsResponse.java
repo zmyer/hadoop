@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,6 @@
  */
 
 package org.apache.hadoop.yarn.api.protocolrecords;
-
-import java.util.Map;
 
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
@@ -36,11 +34,12 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class UpdateApplicationTimeoutsResponse {
 
-  public static UpdateApplicationTimeoutsResponse newInstance() {
-    UpdateApplicationTimeoutsResponse response =
-        Records.newRecord(UpdateApplicationTimeoutsResponse.class);
-    return response;
-  }
+    public static UpdateApplicationTimeoutsResponse newInstance() {
+        UpdateApplicationTimeoutsResponse response =
+            Records.newRecord(UpdateApplicationTimeoutsResponse.class);
+        return response;
+    }
 }

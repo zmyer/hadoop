@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,13 @@ import org.apache.hadoop.ipc.protobuf.ProtocolInfoProtos.ProtocolInfoService;
 /**
  * Protocol to get versions and signatures for supported protocols from the
  * server.
- * 
+ *
  * Note: This extends the protocolbuffer service based interface to
  * add annotations.
  */
+// TODO: 17/3/19 by zmyer
 @ProtocolInfo(
-    protocolName = "org.apache.hadoop.ipc.ProtocolMetaInfoPB", 
+    protocolName = "org.apache.hadoop.ipc.ProtocolMetaInfoPB",
     protocolVersion = 1)
 public interface ProtocolMetaInfoPB extends
     ProtocolInfoService.BlockingInterface {

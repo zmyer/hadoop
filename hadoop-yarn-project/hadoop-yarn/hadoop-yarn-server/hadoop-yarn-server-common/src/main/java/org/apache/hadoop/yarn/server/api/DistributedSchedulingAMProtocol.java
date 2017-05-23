@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,16 @@
 
 package org.apache.hadoop.yarn.server.api;
 
+import java.io.IOException;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.io.retry.Idempotent;
 import org.apache.hadoop.yarn.api.ApplicationMasterProtocol;
+import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterRequest;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.api.protocolrecords.DistributedSchedulingAllocateRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.DistributedSchedulingAllocateResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RegisterDistributedSchedulingAMResponse;
-import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterRequest;
-import org.apache.hadoop.yarn.exceptions.YarnException;
-
-import java.io.IOException;
 
 /**
  * <p>
@@ -42,46 +41,46 @@ import java.io.IOException;
 public interface DistributedSchedulingAMProtocol
     extends ApplicationMasterProtocol {
 
-  /**
-   * <p>
-   * Extends the <code>registerApplicationMaster</code> to wrap the response
-   * with additional metadata.
-   * </p>
-   *
-   * @param request
-   *          ApplicationMaster registration request
-   * @return A <code>RegisterDistributedSchedulingAMResponse</code> that
-   *         contains a standard AM registration response along with additional
-   *         information required for distributed scheduling
-   * @throws YarnException YarnException
-   * @throws IOException IOException
-   */
-  @Public
-  @Unstable
-  @Idempotent
-  RegisterDistributedSchedulingAMResponse
-      registerApplicationMasterForDistributedScheduling(
-            RegisterApplicationMasterRequest request)
-            throws YarnException, IOException;
+    /**
+     * <p>
+     * Extends the <code>registerApplicationMaster</code> to wrap the response
+     * with additional metadata.
+     * </p>
+     *
+     * @param request
+     *          ApplicationMaster registration request
+     * @return A <code>RegisterDistributedSchedulingAMResponse</code> that
+     *         contains a standard AM registration response along with additional
+     *         information required for distributed scheduling
+     * @throws YarnException YarnException
+     * @throws IOException IOException
+     */
+    @Public
+    @Unstable
+    @Idempotent
+    RegisterDistributedSchedulingAMResponse
+    registerApplicationMasterForDistributedScheduling(
+        RegisterApplicationMasterRequest request)
+        throws YarnException, IOException;
 
-  /**
-   * <p>
-   * Extends the <code>allocate</code> to wrap the response with additional
-   * metadata.
-   * </p>
-   *
-   * @param request
-   *          ApplicationMaster allocate request
-   * @return A <code>DistributedSchedulingAllocateResponse</code> that contains
-   *         a standard AM allocate response along with additional information
-   *         required for distributed scheduling
-   * @throws YarnException YarnException
-   * @throws IOException IOException
-   */
-  @Public
-  @Unstable
-  @Idempotent
-  DistributedSchedulingAllocateResponse allocateForDistributedScheduling(
-      DistributedSchedulingAllocateRequest request)
-      throws YarnException, IOException;
+    /**
+     * <p>
+     * Extends the <code>allocate</code> to wrap the response with additional
+     * metadata.
+     * </p>
+     *
+     * @param request
+     *          ApplicationMaster allocate request
+     * @return A <code>DistributedSchedulingAllocateResponse</code> that contains
+     *         a standard AM allocate response along with additional information
+     *         required for distributed scheduling
+     * @throws YarnException YarnException
+     * @throws IOException IOException
+     */
+    @Public
+    @Unstable
+    @Idempotent
+    DistributedSchedulingAllocateResponse allocateForDistributedScheduling(
+        DistributedSchedulingAllocateRequest request)
+        throws YarnException, IOException;
 }

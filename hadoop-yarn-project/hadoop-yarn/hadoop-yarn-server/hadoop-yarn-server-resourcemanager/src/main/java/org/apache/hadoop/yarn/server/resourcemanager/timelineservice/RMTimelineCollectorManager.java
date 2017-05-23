@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,70 +35,72 @@ import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
  * This class extends TimelineCollectorManager to provide RM specific
  * implementations.
  */
+// TODO: 17/3/22 by zmyer
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class RMTimelineCollectorManager extends TimelineCollectorManager {
-  private static final Log LOG =
-      LogFactory.getLog(RMTimelineCollectorManager.class);
+    private static final Log LOG = LogFactory.getLog(RMTimelineCollectorManager.class);
 
-  private RMContext rmContext;
+    private RMContext rmContext;
 
-  public RMTimelineCollectorManager(RMContext rmContext) {
-    super(RMTimelineCollectorManager.class.getName());
-    this.rmContext = rmContext;
-  }
-
-  @Override
-  protected void doPostPut(ApplicationId appId, TimelineCollector collector) {
-    RMApp app = rmContext.getRMApps().get(appId);
-    if (app == null) {
-      throw new YarnRuntimeException(
-          "Unable to get the timeline collector context info for a " +
-          "non-existing app " + appId);
-    }
-    String userId = app.getUser();
-    TimelineCollectorContext context = collector.getTimelineEntityContext();
-    if (userId != null && !userId.isEmpty()) {
-      context.setUserId(userId);
+    // TODO: 17/3/24 by zmyer
+    public RMTimelineCollectorManager(RMContext rmContext) {
+        super(RMTimelineCollectorManager.class.getName());
+        this.rmContext = rmContext;
     }
 
-    // initialize the flow in the environment with default values for those
-    // that do not specify the flow tags
-    // flow name: app name (or app id if app name is missing),
-    // flow version: "1", flow run id: start time
-    context.setFlowName(TimelineUtils.generateDefaultFlowName(
-        app.getName(), appId));
-    context.setFlowVersion(TimelineUtils.DEFAULT_FLOW_VERSION);
-    context.setFlowRunId(app.getStartTime());
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected void doPostPut(ApplicationId appId, TimelineCollector collector) {
+        RMApp app = rmContext.getRMApps().get(appId);
+        if (app == null) {
+            throw new YarnRuntimeException(
+                "Unable to get the timeline collector context info for a " +
+                    "non-existing app " + appId);
+        }
+        String userId = app.getUser();
+        TimelineCollectorContext context = collector.getTimelineEntityContext();
+        if (userId != null && !userId.isEmpty()) {
+            context.setUserId(userId);
+        }
 
-    // the flow context is received via the application tags
-    for (String tag : app.getApplicationTags()) {
-      String[] parts = tag.split(":", 2);
-      if (parts.length != 2 || parts[1].isEmpty()) {
-        continue;
-      }
-      switch (parts[0].toUpperCase()) {
-      case TimelineUtils.FLOW_NAME_TAG_PREFIX:
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Setting the flow name: " + parts[1]);
+        // initialize the flow in the environment with default values for those
+        // that do not specify the flow tags
+        // flow name: app name (or app id if app name is missing),
+        // flow version: "1", flow run id: start time
+        context.setFlowName(TimelineUtils.generateDefaultFlowName(
+            app.getName(), appId));
+        context.setFlowVersion(TimelineUtils.DEFAULT_FLOW_VERSION);
+        context.setFlowRunId(app.getStartTime());
+
+        // the flow context is received via the application tags
+        for (String tag : app.getApplicationTags()) {
+            String[] parts = tag.split(":", 2);
+            if (parts.length != 2 || parts[1].isEmpty()) {
+                continue;
+            }
+            switch (parts[0].toUpperCase()) {
+                case TimelineUtils.FLOW_NAME_TAG_PREFIX:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Setting the flow name: " + parts[1]);
+                    }
+                    context.setFlowName(parts[1]);
+                    break;
+                case TimelineUtils.FLOW_VERSION_TAG_PREFIX:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Setting the flow version: " + parts[1]);
+                    }
+                    context.setFlowVersion(parts[1]);
+                    break;
+                case TimelineUtils.FLOW_RUN_ID_TAG_PREFIX:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Setting the flow run id: " + parts[1]);
+                    }
+                    context.setFlowRunId(Long.parseLong(parts[1]));
+                    break;
+                default:
+                    break;
+            }
         }
-        context.setFlowName(parts[1]);
-        break;
-      case TimelineUtils.FLOW_VERSION_TAG_PREFIX:
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Setting the flow version: " + parts[1]);
-        }
-        context.setFlowVersion(parts[1]);
-        break;
-      case TimelineUtils.FLOW_RUN_ID_TAG_PREFIX:
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Setting the flow run id: " + parts[1]);
-        }
-        context.setFlowRunId(Long.parseLong(parts[1]));
-        break;
-      default:
-        break;
-      }
     }
-  }
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,19 +28,18 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to a client on
  * application submission.</p>
- * 
+ *
  * <p>Currently, this is empty.</p>
- * 
+ *
  * @see ApplicationClientProtocol#submitApplication(SubmitApplicationRequest)
  */
+// TODO: 17/4/3 by zmyer
 @Public
 @Stable
 public abstract class SubmitApplicationResponse {
-  @Private
-  @Unstable
-  public static SubmitApplicationResponse newInstance() {
-    SubmitApplicationResponse response =
-        Records.newRecord(SubmitApplicationResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static SubmitApplicationResponse newInstance() {
+        return Records.newRecord(SubmitApplicationResponse.class);
+    }
 }

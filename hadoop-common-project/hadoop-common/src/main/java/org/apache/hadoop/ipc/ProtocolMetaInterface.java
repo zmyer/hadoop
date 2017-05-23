@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hadoop.ipc;
 
 import java.io.IOException;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -27,16 +26,18 @@ import org.apache.hadoop.classification.InterfaceStability;
  * to obtain information about underlying protocol e.g. to check if a method is
  * supported on the server side.
  */
+// TODO: 17/3/19 by zmyer
 @InterfaceAudience.Private
 @InterfaceStability.Stable
 public interface ProtocolMetaInterface {
-  
-  /**
-   * Checks whether the given method name is supported by the server.
-   * It is assumed that all method names are unique for a protocol.
-   * @param methodName The name of the method
-   * @return true if method is supported, otherwise false.
-   * @throws IOException
-   */
-  public boolean isMethodSupported(String methodName) throws IOException;
+
+    /**
+     * Checks whether the given method name is supported by the server.
+     * It is assumed that all method names are unique for a protocol.
+     *
+     * @param methodName The name of the method
+     * @return true if method is supported, otherwise false.
+     * @throws IOException
+     */
+    public boolean isMethodSupported(String methodName) throws IOException;
 }

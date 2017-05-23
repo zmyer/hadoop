@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,11 +22,12 @@ package org.apache.hadoop.ipc;
  * Implement this interface to make a pluggable multiplexer in the
  * FairCallQueue.
  */
+// TODO: 17/3/19 by zmyer
 public interface RpcMultiplexer {
-  /**
-   * Should get current index and optionally perform whatever is needed
-   * to prepare the next index.
-   * @return current index
-   */
-  int getAndAdvanceCurrentIndex();
+    /**
+     * Should get current index and optionally perform whatever is needed
+     * to prepare the next index.
+     * @return current index
+     */
+    int getAndAdvanceCurrentIndex();
 }

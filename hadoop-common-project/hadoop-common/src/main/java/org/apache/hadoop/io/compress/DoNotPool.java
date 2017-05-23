@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This is a marker annotation that marks a compressor or decompressor 
+ * This is a marker annotation that marks a compressor or decompressor
  * type as not to be pooled.
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,74 +37,84 @@ import org.slf4j.LoggerFactory;
  * This is the implementation of {@link ReservationSystem} based on the
  * {@link CapacityScheduler}
  */
+// TODO: 17/3/24 by zmyer
 @LimitedPrivate("yarn")
 @Unstable
 public class CapacityReservationSystem extends AbstractReservationSystem {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(CapacityReservationSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CapacityReservationSystem.class);
 
-  private CapacityScheduler capScheduler;
+    //容量调度对象
+    private CapacityScheduler capScheduler;
 
-  public CapacityReservationSystem() {
-    super(CapacityReservationSystem.class.getName());
-  }
-
-  @Override
-  public void reinitialize(Configuration conf, RMContext rmContext)
-      throws YarnException {
-    // Validate if the scheduler is capacity based
-    ResourceScheduler scheduler = rmContext.getScheduler();
-    if (!(scheduler instanceof CapacityScheduler)) {
-      throw new YarnRuntimeException("Class "
-          + scheduler.getClass().getCanonicalName() + " not instance of "
-          + CapacityScheduler.class.getCanonicalName());
+    // TODO: 17/3/24 by zmyer
+    public CapacityReservationSystem() {
+        super(CapacityReservationSystem.class.getName());
     }
-    capScheduler = (CapacityScheduler) scheduler;
-    this.conf = conf;
-    super.reinitialize(conf, rmContext);
-  }
 
-  @Override
-  protected Resource getMinAllocation() {
-    return capScheduler.getMinimumResourceCapability();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    public void reinitialize(Configuration conf, RMContext rmContext)
+        throws YarnException {
+        // Validate if the scheduler is capacity based
+        //读取资源调度对象
+        ResourceScheduler scheduler = rmContext.getScheduler();
+        if (!(scheduler instanceof CapacityScheduler)) {
+            throw new YarnRuntimeException("Class "
+                + scheduler.getClass().getCanonicalName() + " not instance of "
+                + CapacityScheduler.class.getCanonicalName());
+        }
+        capScheduler = (CapacityScheduler) scheduler;
+        this.conf = conf;
+        //父类初始化
+        super.reinitialize(conf, rmContext);
+    }
 
-  @Override
-  protected Resource getMaxAllocation() {
-    return capScheduler.getMaximumResourceCapability();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected Resource getMinAllocation() {
+        return capScheduler.getMinimumResourceCapability();
+    }
 
-  @Override
-  protected ResourceCalculator getResourceCalculator() {
-    return capScheduler.getResourceCalculator();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected Resource getMaxAllocation() {
+        return capScheduler.getMaximumResourceCapability();
+    }
 
-  @Override
-  protected QueueMetrics getRootQueueMetrics() {
-    return capScheduler.getRootQueueMetrics();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected ResourceCalculator getResourceCalculator() {
+        return capScheduler.getResourceCalculator();
+    }
 
-  @Override
-  protected String getPlanQueuePath(String planQueueName) {
-    return capScheduler.getQueue(planQueueName).getQueuePath();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected QueueMetrics getRootQueueMetrics() {
+        return capScheduler.getRootQueueMetrics();
+    }
 
-  @Override
-  protected Resource getPlanQueueCapacity(String planQueueName) {
-    Resource minAllocation = getMinAllocation();
-    ResourceCalculator rescCalc = getResourceCalculator();
-    CSQueue planQueue = capScheduler.getQueue(planQueueName);
-    return rescCalc.multiplyAndNormalizeDown(capScheduler.getClusterResource(),
-        planQueue.getAbsoluteCapacity(), minAllocation);
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected String getPlanQueuePath(String planQueueName) {
+        return capScheduler.getQueue(planQueueName).getQueuePath();
+    }
 
-  @Override
-  protected ReservationSchedulerConfiguration
-      getReservationSchedulerConfiguration() {
-    return capScheduler.getConfiguration();
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected Resource getPlanQueueCapacity(String planQueueName) {
+        Resource minAllocation = getMinAllocation();
+        ResourceCalculator rescCalc = getResourceCalculator();
+        CSQueue planQueue = capScheduler.getQueue(planQueueName);
+        return rescCalc.multiplyAndNormalizeDown(capScheduler.getClusterResource(),
+            planQueue.getAbsoluteCapacity(), minAllocation);
+    }
+
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected ReservationSchedulerConfiguration
+    getReservationSchedulerConfiguration() {
+        return capScheduler.getConfiguration();
+    }
 
 }
-
-

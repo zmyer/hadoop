@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,22 +26,22 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Cont
  * request the initialization of a container. This is funneled through
  * the Application so that the application life-cycle can be checked, and container
  * launches can be delayed until the application is fully initialized.
- * 
+ *
  * Once the application is initialized,
  * {@link ApplicationImpl.InitContainerTransition} simply passes this event on as a
  * {@link ContainerInitEvent}.
- *  
  */
+// TODO: 17/4/7 by zmyer
 public class ApplicationContainerInitEvent extends ApplicationEvent {
-  final Container container;
-  
-  public ApplicationContainerInitEvent(Container container) {
-    super(container.getContainerId().getApplicationAttemptId()
-        .getApplicationId(), ApplicationEventType.INIT_CONTAINER);
-    this.container = container;
-  }
+    final Container container;
 
-  Container getContainer() {
-    return container;
-  }
+    public ApplicationContainerInitEvent(Container container) {
+        super(container.getContainerId().getApplicationAttemptId()
+            .getApplicationId(), ApplicationEventType.INIT_CONTAINER);
+        this.container = container;
+    }
+
+    Container getContainer() {
+        return container;
+    }
 }

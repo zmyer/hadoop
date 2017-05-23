@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,12 +27,14 @@ import org.apache.hadoop.classification.InterfaceAudience;
  * Implementers will be able to change how schedulers treat
  * Schedulables.
  */
+// TODO: 17/3/19 by zmyer
 @InterfaceAudience.Private
 public interface IdentityProvider {
-  /**
-   * Return the string used for scheduling.
-   * @param obj the schedulable to use.
-   * @return string identity, or null if no identity could be made.
-   */
-  public String makeIdentity(Schedulable obj);
+    /**
+     * Return the string used for scheduling.
+     * @param obj the schedulable to use.
+     * @return string identity, or null if no identity could be made.
+     */
+    //创建唯一编号
+    public String makeIdentity(Schedulable obj);
 }

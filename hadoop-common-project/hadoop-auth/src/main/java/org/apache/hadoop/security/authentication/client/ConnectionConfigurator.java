@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  */
 package org.apache.hadoop.security.authentication.client;
 
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -21,16 +20,16 @@ import java.net.HttpURLConnection;
  * Interface to configure  {@link HttpURLConnection} created by
  * {@link AuthenticatedURL} instances.
  */
+// TODO: 17/3/25 by zmyer
 public interface ConnectionConfigurator {
 
-  /**
-   * Configures the given {@link HttpURLConnection} instance.
-   *
-   * @param conn the {@link HttpURLConnection} instance to configure.
-   * @return the configured {@link HttpURLConnection} instance.
-   * 
-   * @throws IOException if an IO error occurred.
-   */
-  public HttpURLConnection configure(HttpURLConnection conn) throws IOException;
+    /**
+     * Configures the given {@link HttpURLConnection} instance.
+     *
+     * @param conn the {@link HttpURLConnection} instance to configure.
+     * @return the configured {@link HttpURLConnection} instance.
+     * @throws IOException if an IO error occurred.
+     */
+    HttpURLConnection configure(HttpURLConnection conn) throws IOException;
 
 }

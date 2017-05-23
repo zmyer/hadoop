@@ -67,14 +67,11 @@ import java.util.Map;
  */
 public final class DistributedScheduler extends AbstractRequestInterceptor {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(DistributedScheduler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DistributedScheduler.class);
 
-  private final static RecordFactory RECORD_FACTORY =
-      RecordFactoryProvider.getRecordFactory(null);
+  private final static RecordFactory RECORD_FACTORY = RecordFactoryProvider.getRecordFactory(null);
 
-  private OpportunisticContainerContext oppContainerContext =
-      new OpportunisticContainerContext();
+  private OpportunisticContainerContext oppContainerContext = new OpportunisticContainerContext();
 
   // Mapping of NodeId to NodeTokens. Populated either from RM response or
   // generated locally if required.

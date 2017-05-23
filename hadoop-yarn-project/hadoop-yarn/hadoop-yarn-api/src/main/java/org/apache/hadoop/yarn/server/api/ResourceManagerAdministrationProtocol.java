@@ -1,25 +1,24 @@
 /**
-* Licensed to the Apache Software Foundation (ASF) under one
-* or more contributor license agreements.  See the NOTICE file
-* distributed with this work for additional information
-* regarding copyright ownership.  The ASF licenses this file
-* to you under the Apache License, Version 2.0 (the
-* "License"); you may not use this file except in compliance
-* with the License.  You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.apache.hadoop.yarn.server.api;
 
 import java.io.IOException;
-
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.io.retry.Idempotent;
@@ -37,6 +36,8 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshAdminAclsRespons
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshClusterMaxPriorityRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshClusterMaxPriorityResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesRequest;
+import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshQueuesResponse;
@@ -52,96 +53,95 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.ReplaceLabelsOnNodeRequ
 import org.apache.hadoop.yarn.server.api.protocolrecords.ReplaceLabelsOnNodeResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceResponse;
-import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesRequest;
-import org.apache.hadoop.yarn.server.api.protocolrecords.RefreshNodesResourcesResponse;
 
+// TODO: 17/3/24 by zmyer
 @Private
 public interface ResourceManagerAdministrationProtocol extends GetUserMappingsProtocol {
 
-  @Private
-  @Idempotent
-  public RefreshQueuesResponse refreshQueues(RefreshQueuesRequest request) 
-  throws StandbyException, YarnException, IOException;
+    @Private
+    @Idempotent
+    public RefreshQueuesResponse refreshQueues(RefreshQueuesRequest request)
+        throws StandbyException, YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public RefreshNodesResponse refreshNodes(RefreshNodesRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Private
+    @Idempotent
+    public RefreshNodesResponse refreshNodes(RefreshNodesRequest request)
+        throws StandbyException, YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public RefreshSuperUserGroupsConfigurationResponse 
-  refreshSuperUserGroupsConfiguration(
-      RefreshSuperUserGroupsConfigurationRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Private
+    @Idempotent
+    public RefreshSuperUserGroupsConfigurationResponse
+    refreshSuperUserGroupsConfiguration(
+        RefreshSuperUserGroupsConfigurationRequest request)
+        throws StandbyException, YarnException, IOException;
 
-  @Private
-  @Idempotent
-  RefreshUserToGroupsMappingsResponse refreshUserToGroupsMappings(
-      RefreshUserToGroupsMappingsRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Private
+    @Idempotent
+    RefreshUserToGroupsMappingsResponse refreshUserToGroupsMappings(
+        RefreshUserToGroupsMappingsRequest request)
+        throws StandbyException, YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public RefreshAdminAclsResponse refreshAdminAcls(
-      RefreshAdminAclsRequest request)
-  throws YarnException, IOException;
+    @Private
+    @Idempotent
+    public RefreshAdminAclsResponse refreshAdminAcls(
+        RefreshAdminAclsRequest request)
+        throws YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public RefreshServiceAclsResponse refreshServiceAcls(
-      RefreshServiceAclsRequest request)
-  throws YarnException, IOException;
-  
-  /**
-   * <p>The interface used by admin to update nodes' resources to the
-   * <code>ResourceManager</code> </p>.
-   * 
-   * <p>The admin client is required to provide details such as a map from 
-   * {@link NodeId} to {@link ResourceOption} required to update resources on 
-   * a list of <code>RMNode</code> in <code>ResourceManager</code> etc.
-   * via the {@link UpdateNodeResourceRequest}.</p>
-   * 
-   * @param request request to update resource for a node in cluster.
-   * @return (empty) response on accepting update.
-   * @throws YarnException
-   * @throws IOException
-   */
-  @Private
-  @Idempotent
-  public UpdateNodeResourceResponse updateNodeResource(
-      UpdateNodeResourceRequest request) throws YarnException, IOException;
+    @Private
+    @Idempotent
+    public RefreshServiceAclsResponse refreshServiceAcls(
+        RefreshServiceAclsRequest request)
+        throws YarnException, IOException;
 
-  @Private
-  @Evolving
-  @Idempotent
-  public RefreshNodesResourcesResponse refreshNodesResources(
-      RefreshNodesResourcesRequest request) throws YarnException, IOException;
+    /**
+     * <p>The interface used by admin to update nodes' resources to the
+     * <code>ResourceManager</code> </p>.
+     *
+     * <p>The admin client is required to provide details such as a map from
+     * {@link NodeId} to {@link ResourceOption} required to update resources on
+     * a list of <code>RMNode</code> in <code>ResourceManager</code> etc.
+     * via the {@link UpdateNodeResourceRequest}.</p>
+     *
+     * @param request request to update resource for a node in cluster.
+     * @return (empty) response on accepting update.
+     * @throws YarnException
+     * @throws IOException
+     */
+    @Private
+    @Idempotent
+    public UpdateNodeResourceResponse updateNodeResource(
+        UpdateNodeResourceRequest request) throws YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public AddToClusterNodeLabelsResponse addToClusterNodeLabels(
-      AddToClusterNodeLabelsRequest request) throws YarnException, IOException;
-   
-  @Private
-  @Idempotent
-  public RemoveFromClusterNodeLabelsResponse removeFromClusterNodeLabels(
-      RemoveFromClusterNodeLabelsRequest request) throws YarnException, IOException;
-  
-  @Private
-  @Idempotent
-  public ReplaceLabelsOnNodeResponse replaceLabelsOnNode(
-      ReplaceLabelsOnNodeRequest request) throws YarnException, IOException;
-  
-  @Private
-  @Idempotent
-  public CheckForDecommissioningNodesResponse checkForDecommissioningNodes(
-      CheckForDecommissioningNodesRequest checkForDecommissioningNodesRequest)
-      throws YarnException, IOException;
+    @Private
+    @Evolving
+    @Idempotent
+    public RefreshNodesResourcesResponse refreshNodesResources(
+        RefreshNodesResourcesRequest request) throws YarnException, IOException;
 
-  @Private
-  @Idempotent
-  public RefreshClusterMaxPriorityResponse refreshClusterMaxPriority(
-      RefreshClusterMaxPriorityRequest request) throws YarnException,
-      IOException;
+    @Private
+    @Idempotent
+    public AddToClusterNodeLabelsResponse addToClusterNodeLabels(
+        AddToClusterNodeLabelsRequest request) throws YarnException, IOException;
+
+    @Private
+    @Idempotent
+    public RemoveFromClusterNodeLabelsResponse removeFromClusterNodeLabels(
+        RemoveFromClusterNodeLabelsRequest request) throws YarnException, IOException;
+
+    @Private
+    @Idempotent
+    public ReplaceLabelsOnNodeResponse replaceLabelsOnNode(
+        ReplaceLabelsOnNodeRequest request) throws YarnException, IOException;
+
+    @Private
+    @Idempotent
+    public CheckForDecommissioningNodesResponse checkForDecommissioningNodes(
+        CheckForDecommissioningNodesRequest checkForDecommissioningNodesRequest)
+        throws YarnException, IOException;
+
+    @Private
+    @Idempotent
+    public RefreshClusterMaxPriorityResponse refreshClusterMaxPriority(
+        RefreshClusterMaxPriorityRequest request) throws YarnException,
+        IOException;
 }

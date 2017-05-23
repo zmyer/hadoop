@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,27 +29,30 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class UseSharedCacheResourceResponse {
 
-  /**
-   * Get the <code>Path</code> corresponding to the requested resource in the
-   * shared cache.
-   *
-   * @return String A <code>Path</code> if the resource exists in the shared
-   *         cache, <code>null</code> otherwise
-   */
-  @Public
-  @Unstable
-  public abstract String getPath();
+    /**
+     * Get the <code>Path</code> corresponding to the requested resource in the
+     * shared cache.
+     *
+     * @return String A <code>Path</code> if the resource exists in the shared
+     *         cache, <code>null</code> otherwise
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract String getPath();
 
-  /**
-   * Set the <code>Path</code> corresponding to a resource in the shared cache.
-   *
-   * @param p A <code>Path</code> corresponding to a resource in the shared
-   *          cache
-   */
-  @Public
-  @Unstable
-  public abstract void setPath(String p);
+    /**
+     * Set the <code>Path</code> corresponding to a resource in the shared cache.
+     *
+     * @param p A <code>Path</code> corresponding to a resource in the shared
+     *          cache
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setPath(String p);
 
 }

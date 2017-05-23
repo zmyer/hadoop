@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,26 +28,27 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeEventType;
 import org.apache.hadoop.yarn.util.AbstractLivelinessMonitor;
 
+// TODO: 17/3/22 by zmyer
 public class NMLivelinessMonitor extends AbstractLivelinessMonitor<NodeId> {
 
-  private EventHandler<Event> dispatcher;
-  
-  public NMLivelinessMonitor(Dispatcher d) {
-    super("NMLivelinessMonitor");
-    this.dispatcher = d.getEventHandler();
-  }
+    private EventHandler<Event> dispatcher;
+    public NMLivelinessMonitor(Dispatcher d) {
+        super("NMLivelinessMonitor");
+        this.dispatcher = d.getEventHandler();
+    }
 
-  public void serviceInit(Configuration conf) throws Exception {
-    int expireIntvl = conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
+    // TODO: 17/3/24 by zmyer
+    public void serviceInit(Configuration conf) throws Exception {
+        int expireIntvl = conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
             YarnConfiguration.DEFAULT_RM_NM_EXPIRY_INTERVAL_MS);
-    setExpireInterval(expireIntvl);
-    setMonitorInterval(expireIntvl/3);
-    super.serviceInit(conf);
-  }
+        setExpireInterval(expireIntvl);
+        setMonitorInterval(expireIntvl / 3);
+        super.serviceInit(conf);
+    }
 
-  @Override
-  protected void expire(NodeId id) {
-    dispatcher.handle(
-        new RMNodeEvent(id, RMNodeEventType.EXPIRE)); 
-  }
+    // TODO: 17/3/24 by zmyer
+    @Override
+    protected void expire(NodeId id) {
+        dispatcher.handle(new RMNodeEvent(id, RMNodeEventType.EXPIRE));
+    }
 }

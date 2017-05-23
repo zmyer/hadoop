@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,30 +23,34 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAlloca
 
 /**
  * The {@link SchedulerEvent} which notifies that a {@link ContainerId}
- * has expired, sent by {@link ContainerAllocationExpirer} 
- *
+ * has expired, sent by {@link ContainerAllocationExpirer}
  */
+// TODO: 17/4/3 by zmyer
 public class ContainerExpiredSchedulerEvent extends SchedulerEvent {
+    //容器id
+    private final ContainerId containerId;
+    //是否增加资源
+    private final boolean increase;
 
-  private final ContainerId containerId;
-  private final boolean increase;
+    // TODO: 17/4/3 by zmyer
+    public ContainerExpiredSchedulerEvent(ContainerId containerId) {
+        this(containerId, false);
+    }
 
-  public ContainerExpiredSchedulerEvent(ContainerId containerId) {
-    this(containerId, false);
-  }
+    // TODO: 17/4/3 by zmyer
+    public ContainerExpiredSchedulerEvent(ContainerId containerId, boolean increase) {
+        super(SchedulerEventType.CONTAINER_EXPIRED);
+        this.containerId = containerId;
+        this.increase = increase;
+    }
 
-  public ContainerExpiredSchedulerEvent(
-      ContainerId containerId, boolean increase) {
-    super(SchedulerEventType.CONTAINER_EXPIRED);
-    this.containerId = containerId;
-    this.increase = increase;
-  }
+    // TODO: 17/4/3 by zmyer
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
-
-  public boolean isIncrease() {
-    return increase;
-  }
+    // TODO: 17/4/3 by zmyer
+    public boolean isIncrease() {
+        return increase;
+    }
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hadoop.yarn.server.timelineservice.storage;
 
 import java.io.IOException;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.service.Service;
@@ -29,59 +28,60 @@ import org.apache.hadoop.yarn.api.records.timelineservice.TimelineWriteResponse;
 /**
  * This interface is for storing application timeline information.
  */
+// TODO: 17/3/24 by zmyer
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public interface TimelineWriter extends Service {
 
-  /**
-   * Stores the entire information in {@link TimelineEntities} to the
-   * timeline store. Any errors occurring for individual write request objects
-   * will be reported in the response.
-   *
-   * @param clusterId context cluster ID
-   * @param userId context user ID
-   * @param flowName context flow name
-   * @param flowVersion context flow version
-   * @param flowRunId run id for the flow.
-   * @param appId context app ID.
-   * @param data
-   *          a {@link TimelineEntities} object.
-   * @return a {@link TimelineWriteResponse} object.
-   * @throws IOException if there is any exception encountered while storing
-   *     or writing entities to the backend storage.
-   */
-  TimelineWriteResponse write(String clusterId, String userId,
-      String flowName, String flowVersion, long flowRunId, String appId,
-      TimelineEntities data) throws IOException;
+    /**
+     * Stores the entire information in {@link TimelineEntities} to the
+     * timeline store. Any errors occurring for individual write request objects
+     * will be reported in the response.
+     *
+     * @param clusterId context cluster ID
+     * @param userId context user ID
+     * @param flowName context flow name
+     * @param flowVersion context flow version
+     * @param flowRunId run id for the flow.
+     * @param appId context app ID.
+     * @param data
+     *          a {@link TimelineEntities} object.
+     * @return a {@link TimelineWriteResponse} object.
+     * @throws IOException if there is any exception encountered while storing
+     *     or writing entities to the backend storage.
+     */
+    TimelineWriteResponse write(String clusterId, String userId,
+        String flowName, String flowVersion, long flowRunId, String appId,
+        TimelineEntities data) throws IOException;
 
-  /**
-   * Aggregates the entity information to the timeline store based on which
-   * track this entity is to be rolled up to The tracks along which aggregations
-   * are to be done are given by {@link TimelineAggregationTrack}
-   *
-   * Any errors occurring for individual write request objects will be reported
-   * in the response.
-   *
-   * @param data
-   *          a {@link TimelineEntity} object
-   *          a {@link TimelineAggregationTrack} enum
-   *          value.
-   * @param track Specifies the track or dimension along which aggregation would
-   *     occur. Includes USER, FLOW, QUEUE, etc.
-   * @return a {@link TimelineWriteResponse} object.
-   * @throws IOException if there is any exception encountered while aggregating
-   *     entities to the backend storage.
-   */
-  TimelineWriteResponse aggregate(TimelineEntity data,
-      TimelineAggregationTrack track) throws IOException;
+    /**
+     * Aggregates the entity information to the timeline store based on which
+     * track this entity is to be rolled up to The tracks along which aggregations
+     * are to be done are given by {@link TimelineAggregationTrack}
+     *
+     * Any errors occurring for individual write request objects will be reported
+     * in the response.
+     *
+     * @param data
+     *          a {@link TimelineEntity} object
+     *          a {@link TimelineAggregationTrack} enum
+     *          value.
+     * @param track Specifies the track or dimension along which aggregation would
+     *     occur. Includes USER, FLOW, QUEUE, etc.
+     * @return a {@link TimelineWriteResponse} object.
+     * @throws IOException if there is any exception encountered while aggregating
+     *     entities to the backend storage.
+     */
+    TimelineWriteResponse aggregate(TimelineEntity data,
+        TimelineAggregationTrack track) throws IOException;
 
-  /**
-   * Flushes the data to the backend storage. Whatever may be buffered will be
-   * written to the storage when the method returns. This may be a potentially
-   * time-consuming operation, and should be used judiciously.
-   *
-   * @throws IOException if there is any exception encountered while flushing
-   *     entities to the backend storage.
-   */
-  void flush() throws IOException;
+    /**
+     * Flushes the data to the backend storage. Whatever may be buffered will be
+     * written to the storage when the method returns. This may be a potentially
+     * time-consuming operation, and should be used judiciously.
+     *
+     * @throws IOException if there is any exception encountered while flushing
+     *     entities to the backend storage.
+     */
+    void flush() throws IOException;
 }

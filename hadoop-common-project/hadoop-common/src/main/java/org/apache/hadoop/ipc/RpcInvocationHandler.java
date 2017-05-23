@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,18 +19,18 @@ package org.apache.hadoop.ipc;
 
 import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
-
 import org.apache.hadoop.ipc.Client.ConnectionId;
 
 /**
  * This interface must be implemented by all InvocationHandler
  * implementations.
  */
+// TODO: 17/3/18 by zmyer
 public interface RpcInvocationHandler extends InvocationHandler, Closeable {
-  
-  /**
-   * Returns the connection id associated with the InvocationHandler instance.
-   * @return ConnectionId
-   */
-  ConnectionId getConnectionId();
+
+    /**
+     * Returns the connection id associated with the InvocationHandler instance.
+     * @return ConnectionId
+     */
+    ConnectionId getConnectionId();
 }

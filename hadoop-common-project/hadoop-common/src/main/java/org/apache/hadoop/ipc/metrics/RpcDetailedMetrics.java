@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,57 +30,61 @@ import org.apache.hadoop.metrics2.lib.MutableRatesWithAggregation;
  * This class is for maintaining RPC method related statistics
  * and publishing them through the metrics interfaces.
  */
+// TODO: 17/3/19 by zmyer
 @InterfaceAudience.Private
-@Metrics(about="Per method RPC metrics", context="rpcdetailed")
+@Metrics(about = "Per method RPC metrics", context = "rpcdetailed")
 public class RpcDetailedMetrics {
 
-  @Metric MutableRatesWithAggregation rates;
-  @Metric MutableRatesWithAggregation deferredRpcRates;
+    @Metric MutableRatesWithAggregation rates;
+    @Metric MutableRatesWithAggregation deferredRpcRates;
 
-  static final Log LOG = LogFactory.getLog(RpcDetailedMetrics.class);
-  final MetricsRegistry registry;
-  final String name;
+    static final Log LOG = LogFactory.getLog(RpcDetailedMetrics.class);
+    final MetricsRegistry registry;
+    final String name;
 
-  RpcDetailedMetrics(int port) {
-    name = "RpcDetailedActivityForPort"+ port;
-    registry = new MetricsRegistry("rpcdetailed")
-        .tag("port", "RPC port", String.valueOf(port));
-    LOG.debug(registry.info());
-  }
+    RpcDetailedMetrics(int port) {
+        name = "RpcDetailedActivityForPort" + port;
+        registry = new MetricsRegistry("rpcdetailed")
+            .tag("port", "RPC port", String.valueOf(port));
+        LOG.debug(registry.info());
+    }
 
-  public String name() { return name; }
+    public String name() {
+        return name;
+    }
 
-  public static RpcDetailedMetrics create(int port) {
-    RpcDetailedMetrics m = new RpcDetailedMetrics(port);
-    return DefaultMetricsSystem.instance().register(m.name, null, m);
-  }
+    public static RpcDetailedMetrics create(int port) {
+        RpcDetailedMetrics m = new RpcDetailedMetrics(port);
+        return DefaultMetricsSystem.instance().register(m.name, null, m);
+    }
 
-  /**
-   * Initialize the metrics for JMX with protocol methods
-   * @param protocol the protocol class
-   */
-  public void init(Class<?> protocol) {
-    rates.init(protocol);
-    deferredRpcRates.init(protocol);
-  }
+    /**
+     * Initialize the metrics for JMX with protocol methods
+     * @param protocol the protocol class
+     */
+    public void init(Class<?> protocol) {
+        rates.init(protocol);
+        deferredRpcRates.init(protocol);
+    }
 
-  /**
-   * Add an RPC processing time sample
-   * @param name  of the RPC call
-   * @param processingTime  the processing time
-   */
-  //@Override // some instrumentation interface
-  public void addProcessingTime(String name, int processingTime) {
-    rates.add(name, processingTime);
-  }
+    /**
+     * Add an RPC processing time sample
+     * @param name  of the RPC call
+     * @param processingTime  the processing time
+     */
+    //@Override // some instrumentation interface
+    public void addProcessingTime(String name, int processingTime) {
+        rates.add(name, processingTime);
+    }
 
-  public void addDeferredProcessingTime(String name, long processingTime) {
-    deferredRpcRates.add(name, processingTime);
-  }
+    public void addDeferredProcessingTime(String name, long processingTime) {
+        deferredRpcRates.add(name, processingTime);
+    }
 
-  /**
-   * Shutdown the instrumentation for the process
-   */
-  //@Override // some instrumentation interface
-  public void shutdown() {}
+    /**
+     * Shutdown the instrumentation for the process
+     */
+    //@Override // some instrumentation interface
+    public void shutdown() {
+    }
 }

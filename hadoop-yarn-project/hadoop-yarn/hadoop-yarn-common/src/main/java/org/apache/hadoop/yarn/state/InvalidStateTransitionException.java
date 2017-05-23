@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,17 +23,17 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 /**
  * The exception that happens when you call invalid state transition.
- *
  */
+// TODO: 17/3/25 by zmyer
 @Public
 @Evolving
 @SuppressWarnings("deprecation")
-public class InvalidStateTransitionException extends
-    InvalidStateTransitonException {
+public class InvalidStateTransitionException extends InvalidStateTransitonException {
 
-  private static final long serialVersionUID = 8610511635996283691L;
+    private static final long serialVersionUID = 8610511635996283691L;
 
-  public InvalidStateTransitionException(Enum<?> currentState, Enum<?> event) {
-    super(currentState, event);
-  }
+    // TODO: 17/3/25 by zmyer
+    public InvalidStateTransitionException(Enum<?> currentState, Enum<?> event) {
+        super(currentState, event);
+    }
 }

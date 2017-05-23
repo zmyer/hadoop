@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@
 package org.apache.hadoop.yarn.api.protocolrecords;
 
 import java.util.List;
-
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
@@ -41,26 +40,29 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Stable
+// TODO: 17/3/25 by zmyer
 public abstract class GetApplicationsResponse {
-  @Private
-  @Unstable
-  public static GetApplicationsResponse newInstance(
-      List<ApplicationReport> applications) {
-    GetApplicationsResponse response =
-        Records.newRecord(GetApplicationsResponse.class);
-    response.setApplicationList(applications);
-    return response;
-  }
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public static GetApplicationsResponse newInstance(List<ApplicationReport> applications) {
+        GetApplicationsResponse response = Records.newRecord(GetApplicationsResponse.class);
+        response.setApplicationList(applications);
+        return response;
+    }
 
-  /**
-   * Get <code>ApplicationReport</code> for applications.
-   * @return <code>ApplicationReport</code> for applications
-   */
-  @Public
-  @Stable
-  public abstract List<ApplicationReport> getApplicationList();
+    /**
+     * Get <code>ApplicationReport</code> for applications.
+     *
+     * @return <code>ApplicationReport</code> for applications
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract List<ApplicationReport> getApplicationList();
 
-  @Private
-  @Unstable
-  public abstract void setApplicationList(List<ApplicationReport> applications);
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setApplicationList(List<ApplicationReport> applications);
 }

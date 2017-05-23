@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,20 +29,20 @@ import org.apache.hadoop.yarn.util.Records;
  * control system in the {@code ResourceManager} to a reservation update
  * operation. Currently response is empty if the operation was successful, if
  * not an exception reporting reason for a failure.
- * 
+ *
  * @see ReservationDefinition
- * 
  */
+// TODO: 17/3/25 by zmyer
 @Public
 @Unstable
 public abstract class ReservationUpdateResponse {
 
-  @Private
-  @Unstable
-  public static ReservationUpdateResponse newInstance() {
-    ReservationUpdateResponse response =
-        Records.newRecord(ReservationUpdateResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static ReservationUpdateResponse newInstance() {
+        ReservationUpdateResponse response =
+            Records.newRecord(ReservationUpdateResponse.class);
+        return response;
+    }
 
 }

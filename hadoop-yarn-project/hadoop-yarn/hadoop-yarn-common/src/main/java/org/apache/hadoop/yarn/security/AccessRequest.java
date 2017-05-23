@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,10 @@
 
 package org.apache.hadoop.yarn.security;
 
+import java.util.List;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.security.UserGroupInformation;
-
-import java.util.List;
 
 /**
  * This request object contains all the context information to determine whether
@@ -40,56 +39,55 @@ import java.util.List;
  *                    server through an HTTP proxy or load balancer. This
  *                    parameter is null, if it's a RPC request.
  */
+// TODO: 17/4/4 by zmyer
 @Public
 @Unstable
 public class AccessRequest {
+    private PrivilegedEntity entity;
+    private UserGroupInformation user;
+    private AccessType accessType;
+    private String appId;
+    private String appName;
+    private String remoteAddress;
+    private List<String> forwardedAddresses;
 
-  private PrivilegedEntity entity;
-  private UserGroupInformation user;
-  private AccessType accessType;
-  private String appId;
-  private String appName;
-  private String remoteAddress;
-  private List<String> forwardedAddresses;
+    public AccessRequest(PrivilegedEntity entity, UserGroupInformation user,
+        AccessType accessType, String appId, String appName, String remoteAddress,
+        List<String> forwardedAddresses) {
+        this.entity = entity;
+        this.user = user;
+        this.accessType = accessType;
+        this.appId = appId;
+        this.appName = appName;
+        this.remoteAddress = remoteAddress;
+        this.forwardedAddresses = forwardedAddresses;
+    }
 
-  public AccessRequest(PrivilegedEntity entity, UserGroupInformation user,
-      AccessType accessType, String appId, String appName, String remoteAddress,
-      List<String> forwardedAddresses) {
-    this.entity = entity;
-    this.user = user;
-    this.accessType = accessType;
-    this.appId = appId;
-    this.appName = appName;
-    this.remoteAddress = remoteAddress;
-    this.forwardedAddresses = forwardedAddresses;
-  }
+    public UserGroupInformation getUser() {
+        return user;
+    }
 
-  public UserGroupInformation getUser() {
-    return user;
-  }
+    public AccessType getAccessType() {
+        return accessType;
+    }
 
-  public AccessType getAccessType() {
-    return accessType;
-  }
+    public String getAppId() {
+        return appId;
+    }
 
-  public String getAppId() {
-    return appId;
-  }
+    public String getAppName() {
+        return appName;
+    }
 
-  public String getAppName() {
-    return appName;
-  }
+    public PrivilegedEntity getEntity() {
+        return entity;
+    }
 
-  public PrivilegedEntity getEntity() {
-    return entity;
-  }
+    public List<String> getForwardedAddresses() {
+        return forwardedAddresses;
+    }
 
-
-  public List<String> getForwardedAddresses() {
-    return forwardedAddresses;
-  }
-
-  public String getRemoteAddress() {
-    return remoteAddress;
-  }
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
 }

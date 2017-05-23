@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,12 +35,13 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Stable
+// TODO: 17/3/25 by zmyer
 public abstract class FailApplicationAttemptResponse {
-  @Private
-  @Unstable
-  public static FailApplicationAttemptResponse newInstance() {
-    FailApplicationAttemptResponse response =
-        Records.newRecord(FailApplicationAttemptResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static FailApplicationAttemptResponse newInstance() {
+        FailApplicationAttemptResponse response =
+            Records.newRecord(FailApplicationAttemptResponse.class);
+        return response;
+    }
 }

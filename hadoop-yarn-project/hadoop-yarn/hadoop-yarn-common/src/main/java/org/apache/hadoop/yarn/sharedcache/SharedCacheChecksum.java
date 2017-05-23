@@ -30,6 +30,7 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
  * An interface to calculate a checksum for a resource in the shared cache. The
  * checksum implementation should be thread safe.
  */
+// TODO: 17/3/25 by zmyer
 public interface SharedCacheChecksum {
 
   /**

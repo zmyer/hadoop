@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,40 +30,41 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
  */
 @SuppressWarnings("rawtypes")
 @LimitedPrivate("yarn")
+// TODO: 17/4/3 by zmyer
 public interface SchedulerQueue<T extends SchedulerQueue> extends Queue {
 
-  /**
-   * Get list of child queues.
-   * @return a list of child queues
-   */
-  List<T> getChildQueues();
+    /**
+     * Get list of child queues.
+     * @return a list of child queues
+     */
+    List<T> getChildQueues();
 
-  /**
-   * Get the parent queue.
-   * @return the parent queue
-   */
-  T getParent();
+    /**
+     * Get the parent queue.
+     * @return the parent queue
+     */
+    T getParent();
 
-  /**
-   * Get current queue state.
-   * @return the queue state
-   */
-  QueueState getState();
+    /**
+     * Get current queue state.
+     * @return the queue state
+     */
+    QueueState getState();
 
-  /**
-   * Update the queue state.
-   * @param state the queue state
-   */
-  void updateQueueState(QueueState state);
+    /**
+     * Update the queue state.
+     * @param state the queue state
+     */
+    void updateQueueState(QueueState state);
 
-  /**
-   * Stop the queue.
-   */
-  void stopQueue();
+    /**
+     * Stop the queue.
+     */
+    void stopQueue();
 
-  /**
-   * Active the queue.
-   * @throws YarnException if the queue can not be activated.
-   */
-  void activeQueue() throws YarnException;
+    /**
+     * Active the queue.
+     * @throws YarnException if the queue can not be activated.
+     */
+    void activeQueue() throws YarnException;
 }

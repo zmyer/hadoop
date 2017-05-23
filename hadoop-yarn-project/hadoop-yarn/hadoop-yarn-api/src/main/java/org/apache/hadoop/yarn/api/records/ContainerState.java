@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,16 +26,17 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
  */
 @Public
 @Stable
+// TODO: 17/3/26 by zmyer
 public enum ContainerState {
-  /** New container */
-  NEW, 
-  
-  /** Running container */
-  RUNNING, 
-  
-  /** Completed container */
-  COMPLETE,
+    /** New container */
+    NEW,
 
-  /** Scheduled (awaiting resources) at the NM. */
-  SCHEDULED
+    /** Running container */
+    RUNNING,
+
+    /** Completed container */
+    COMPLETE,
+
+    /** Scheduled (awaiting resources) at the NM. */
+    SCHEDULED
 }

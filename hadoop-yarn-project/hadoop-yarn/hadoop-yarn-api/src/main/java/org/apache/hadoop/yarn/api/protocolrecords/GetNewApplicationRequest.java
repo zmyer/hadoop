@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,19 +27,21 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The request sent by clients to get a new {@link ApplicationId} for
  * submitting an application.</p>
- * 
+ *
  * <p>Currently, this is empty.</p>
- * 
+ *
  * @see ApplicationClientProtocol#getNewApplication(GetNewApplicationRequest)
  */
 @Public
 @Stable
+// TODO: 17/3/25 by zmyer
 public abstract class GetNewApplicationRequest {
-  @Public
-  @Stable
-  public static GetNewApplicationRequest newInstance() {
-    GetNewApplicationRequest request =
-        Records.newRecord(GetNewApplicationRequest.class);
-    return request;
-  }
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public static GetNewApplicationRequest newInstance() {
+        GetNewApplicationRequest request =
+            Records.newRecord(GetNewApplicationRequest.class);
+        return request;
+    }
 }

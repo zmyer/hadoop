@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,51 +24,51 @@ import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.proto.YarnProtos.PriorityProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.PriorityProtoOrBuilder;
 
+// TODO: 17/3/25 by zmyer
 @Private
 @Unstable
 public class PriorityPBImpl extends Priority {
-  PriorityProto proto = PriorityProto.getDefaultInstance();
-  PriorityProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public PriorityPBImpl() {
-    builder = PriorityProto.newBuilder();
-  }
+    PriorityProto proto = PriorityProto.getDefaultInstance();
+    PriorityProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public PriorityPBImpl(PriorityProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public PriorityProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = PriorityProto.newBuilder(proto);
+    public PriorityPBImpl() {
+        builder = PriorityProto.newBuilder();
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public int getPriority() {
-    PriorityProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getPriority());
-  }
 
-  @Override
-  public void setPriority(int priority) {
-    maybeInitBuilder();
-    builder.setPriority((priority));
-  }
-  
-  @Override
-  public String toString() {
-    return Integer.toString(getPriority());
-  }
+    public PriorityPBImpl(PriorityProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public PriorityProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = PriorityProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public int getPriority() {
+        PriorityProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getPriority());
+    }
+
+    @Override
+    public void setPriority(int priority) {
+        maybeInitBuilder();
+        builder.setPriority((priority));
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(getPriority());
+    }
 
 }  

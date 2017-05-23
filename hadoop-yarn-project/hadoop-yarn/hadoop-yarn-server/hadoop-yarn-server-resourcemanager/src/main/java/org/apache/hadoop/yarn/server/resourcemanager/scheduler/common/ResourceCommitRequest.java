@@ -129,9 +129,9 @@ public class ResourceCommitRequest<A extends SchedulerApplicationAttempt,
   /*
    * Util functions to make your life easier
    */
+  // TODO: 17/4/7 by zmyer
   public boolean anythingAllocatedOrReserved() {
-    return (!containersToAllocate.isEmpty()) || (!containersToReserve
-        .isEmpty());
+    return (!containersToAllocate.isEmpty()) || (!containersToReserve.isEmpty());
   }
 
   public ContainerAllocationProposal<A, N> getFirstAllocatedOrReservedContainer() {

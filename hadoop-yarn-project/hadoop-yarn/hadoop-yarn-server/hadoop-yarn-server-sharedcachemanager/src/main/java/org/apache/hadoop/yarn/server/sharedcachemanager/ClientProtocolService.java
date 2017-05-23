@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.sharedcachemanager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -52,141 +51,140 @@ import org.apache.hadoop.yarn.server.sharedcachemanager.store.SharedCacheResourc
  */
 @Private
 @Evolving
+// TODO: 17/3/25 by zmyer
 public class ClientProtocolService extends AbstractService implements
     ClientSCMProtocol {
 
-  private static final Log LOG = LogFactory.getLog(ClientProtocolService.class);
+    private static final Log LOG = LogFactory.getLog(ClientProtocolService.class);
 
-  private final RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    private final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
 
-  private Server server;
-  InetSocketAddress clientBindAddress;
-  private final SCMStore store;
-  private int cacheDepth;
-  private String cacheRoot;
-  private ClientSCMMetrics metrics;
+    private Server server;
+    InetSocketAddress clientBindAddress;
+    private final SCMStore store;
+    private int cacheDepth;
+    private String cacheRoot;
+    private ClientSCMMetrics metrics;
 
-  public ClientProtocolService(SCMStore store) {
-    super(ClientProtocolService.class.getName());
-    this.store = store;
-  }
+    public ClientProtocolService(SCMStore store) {
+        super(ClientProtocolService.class.getName());
+        this.store = store;
+    }
 
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    this.clientBindAddress = getBindAddress(conf);
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        this.clientBindAddress = getBindAddress(conf);
 
-    this.cacheDepth = SharedCacheUtil.getCacheDepth(conf);
+        this.cacheDepth = SharedCacheUtil.getCacheDepth(conf);
 
-    this.cacheRoot =
-        conf.get(YarnConfiguration.SHARED_CACHE_ROOT,
-            YarnConfiguration.DEFAULT_SHARED_CACHE_ROOT);
+        this.cacheRoot =
+            conf.get(YarnConfiguration.SHARED_CACHE_ROOT,
+                YarnConfiguration.DEFAULT_SHARED_CACHE_ROOT);
 
-    super.serviceInit(conf);
-  }
+        super.serviceInit(conf);
+    }
 
-  InetSocketAddress getBindAddress(Configuration conf) {
-    return conf.getSocketAddr(YarnConfiguration.SCM_CLIENT_SERVER_ADDRESS,
-        YarnConfiguration.DEFAULT_SCM_CLIENT_SERVER_ADDRESS,
-        YarnConfiguration.DEFAULT_SCM_CLIENT_SERVER_PORT);
-  }
+    InetSocketAddress getBindAddress(Configuration conf) {
+        return conf.getSocketAddr(YarnConfiguration.SCM_CLIENT_SERVER_ADDRESS,
+            YarnConfiguration.DEFAULT_SCM_CLIENT_SERVER_ADDRESS,
+            YarnConfiguration.DEFAULT_SCM_CLIENT_SERVER_PORT);
+    }
 
-  @Override
-  protected void serviceStart() throws Exception {
-    Configuration conf = getConfig();
-    this.metrics = ClientSCMMetrics.getInstance();
+    @Override
+    protected void serviceStart() throws Exception {
+        Configuration conf = getConfig();
+        this.metrics = ClientSCMMetrics.getInstance();
 
-    YarnRPC rpc = YarnRPC.create(conf);
-    this.server =
-        rpc.getServer(ClientSCMProtocol.class, this,
+        YarnRPC rpc = YarnRPC.create(conf);
+        this.server = rpc.getServer(ClientSCMProtocol.class, this,
             clientBindAddress,
             conf, null, // Secret manager null for now (security not supported)
             conf.getInt(YarnConfiguration.SCM_CLIENT_SERVER_THREAD_COUNT,
                 YarnConfiguration.DEFAULT_SCM_CLIENT_SERVER_THREAD_COUNT));
 
-    // TODO (YARN-2774): Enable service authorization
+        // TODO (YARN-2774): Enable service authorization
 
-    this.server.start();
-    clientBindAddress =
-        conf.updateConnectAddr(YarnConfiguration.SCM_CLIENT_SERVER_ADDRESS,
-            server.getListenerAddress());
+        this.server.start();
+        clientBindAddress =
+            conf.updateConnectAddr(YarnConfiguration.SCM_CLIENT_SERVER_ADDRESS,
+                server.getListenerAddress());
 
-    super.serviceStart();
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    if (this.server != null) {
-      this.server.stop();
+        super.serviceStart();
     }
 
-    super.serviceStop();
-  }
+    @Override
+    protected void serviceStop() throws Exception {
+        if (this.server != null) {
+            this.server.stop();
+        }
 
-  @Override
-  public UseSharedCacheResourceResponse use(
-      UseSharedCacheResourceRequest request) throws YarnException,
-      IOException {
-
-    UseSharedCacheResourceResponse response =
-        recordFactory.newRecordInstance(UseSharedCacheResourceResponse.class);
-
-    UserGroupInformation callerUGI;
-    try {
-      callerUGI = UserGroupInformation.getCurrentUser();
-    } catch (IOException ie) {
-      LOG.info("Error getting UGI ", ie);
-      throw RPCUtil.getRemoteException(ie);
+        super.serviceStop();
     }
 
-    String fileName =
-        this.store.addResourceReference(request.getResourceKey(),
-            new SharedCacheResourceReference(request.getAppId(),
-                callerUGI.getShortUserName()));
+    @Override
+    public UseSharedCacheResourceResponse use(
+        UseSharedCacheResourceRequest request) throws YarnException,
+        IOException {
 
-    if (fileName != null) {
-      response
-          .setPath(getCacheEntryFilePath(request.getResourceKey(), fileName));
-      this.metrics.incCacheHitCount();
-    } else {
-      this.metrics.incCacheMissCount();
+        UseSharedCacheResourceResponse response =
+            recordFactory.newRecordInstance(UseSharedCacheResourceResponse.class);
+
+        UserGroupInformation callerUGI;
+        try {
+            callerUGI = UserGroupInformation.getCurrentUser();
+        } catch (IOException ie) {
+            LOG.info("Error getting UGI ", ie);
+            throw RPCUtil.getRemoteException(ie);
+        }
+
+        String fileName =
+            this.store.addResourceReference(request.getResourceKey(),
+                new SharedCacheResourceReference(request.getAppId(),
+                    callerUGI.getShortUserName()));
+
+        if (fileName != null) {
+            response
+                .setPath(getCacheEntryFilePath(request.getResourceKey(), fileName));
+            this.metrics.incCacheHitCount();
+        } else {
+            this.metrics.incCacheMissCount();
+        }
+
+        return response;
     }
 
-    return response;
-  }
+    @Override
+    public ReleaseSharedCacheResourceResponse release(
+        ReleaseSharedCacheResourceRequest request) throws YarnException,
+        IOException {
 
-  @Override
-  public ReleaseSharedCacheResourceResponse release(
-      ReleaseSharedCacheResourceRequest request) throws YarnException,
-      IOException {
+        ReleaseSharedCacheResourceResponse response =
+            recordFactory
+                .newRecordInstance(ReleaseSharedCacheResourceResponse.class);
 
-    ReleaseSharedCacheResourceResponse response =
-        recordFactory
-            .newRecordInstance(ReleaseSharedCacheResourceResponse.class);
+        UserGroupInformation callerUGI;
+        try {
+            callerUGI = UserGroupInformation.getCurrentUser();
+        } catch (IOException ie) {
+            LOG.info("Error getting UGI ", ie);
+            throw RPCUtil.getRemoteException(ie);
+        }
 
-    UserGroupInformation callerUGI;
-    try {
-      callerUGI = UserGroupInformation.getCurrentUser();
-    } catch (IOException ie) {
-      LOG.info("Error getting UGI ", ie);
-      throw RPCUtil.getRemoteException(ie);
+        boolean removed =
+            this.store.removeResourceReference(
+                request.getResourceKey(),
+                new SharedCacheResourceReference(request.getAppId(), callerUGI
+                    .getShortUserName()), true);
+
+        if (removed) {
+            this.metrics.incCacheRelease();
+        }
+
+        return response;
     }
 
-    boolean removed =
-        this.store.removeResourceReference(
-            request.getResourceKey(),
-            new SharedCacheResourceReference(request.getAppId(), callerUGI
-                .getShortUserName()), true);
-
-    if (removed) {
-      this.metrics.incCacheRelease();
+    private String getCacheEntryFilePath(String checksum, String filename) {
+        return SharedCacheUtil.getCacheEntryPath(this.cacheDepth,
+            this.cacheRoot, checksum) + Path.SEPARATOR_CHAR + filename;
     }
-
-    return response;
-  }
-
-  private String getCacheEntryFilePath(String checksum, String filename) {
-    return SharedCacheUtil.getCacheEntryPath(this.cacheDepth,
-        this.cacheRoot, checksum) + Path.SEPARATOR_CHAR + filename;
-  }
 }

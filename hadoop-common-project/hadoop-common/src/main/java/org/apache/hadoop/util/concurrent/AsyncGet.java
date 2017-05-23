@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,35 +31,38 @@ import java.util.concurrent.TimeoutException;
  * @param <R> The type of the return value.
  * @param <E> The exception type that the underlying implementation may throw.
  */
+// TODO: 17/3/14 by zmyer
 public interface AsyncGet<R, E extends Throwable> {
-  /**
-   * Get the result.
-   *
-   * @param timeout The maximum time period to wait.
-   *                When timeout == 0, it does not wait at all.
-   *                When timeout < 0, it waits indefinitely.
-   * @param unit The unit of the timeout value
-   * @return the result, which is possibly null.
-   * @throws E an exception thrown by the underlying implementation.
-   * @throws TimeoutException if it cannot return after the given time period.
-   * @throws InterruptedException if the thread is interrupted.
-   */
-  R get(long timeout, TimeUnit unit)
-      throws E, TimeoutException, InterruptedException;
+    /**
+     * Get the result.
+     *
+     * @param timeout The maximum time period to wait.
+     *                When timeout == 0, it does not wait at all.
+     *                When timeout < 0, it waits indefinitely.
+     * @param unit The unit of the timeout value
+     * @return the result, which is possibly null.
+     * @throws E an exception thrown by the underlying implementation.
+     * @throws TimeoutException if it cannot return after the given time period.
+     * @throws InterruptedException if the thread is interrupted.
+     */
+    // TODO: 17/3/19 by zmyer
+    R get(long timeout, TimeUnit unit)
+        throws E, TimeoutException, InterruptedException;
 
-  /** @return true if the underlying computation is done; false, otherwise. */
-  boolean isDone();
+    /** @return true if the underlying computation is done; false, otherwise. */
+    boolean isDone();
 
-  /** Utility */
-  class Util {
-    /** Use {@link #get(long, TimeUnit)} timeout parameters to wait. */
-    public static void wait(Object obj, long timeout, TimeUnit unit)
-        throws InterruptedException {
-      if (timeout < 0) {
-        obj.wait();
-      } else if (timeout > 0) {
-        obj.wait(unit.toMillis(timeout));
-      }
+    /** Utility */
+    // TODO: 17/3/19 by zmyer
+    class Util {
+        /** Use {@link #get(long, TimeUnit)} timeout parameters to wait. */
+        public static void wait(Object obj, long timeout, TimeUnit unit)
+            throws InterruptedException {
+            if (timeout < 0) {
+                obj.wait();
+            } else if (timeout > 0) {
+                obj.wait(unit.toMillis(timeout));
+            }
+        }
     }
-  }
 }

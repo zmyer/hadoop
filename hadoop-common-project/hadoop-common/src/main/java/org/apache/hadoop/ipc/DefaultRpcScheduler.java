@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,23 +23,24 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * No op default RPC scheduler.
  */
+// TODO: 17/3/18 by zmyer
 public class DefaultRpcScheduler implements RpcScheduler {
-  @Override
-  public int getPriorityLevel(Schedulable obj) {
-    return 0;
-  }
+    @Override
+    public int getPriorityLevel(Schedulable obj) {
+        return 0;
+    }
 
-  @Override
-  public boolean shouldBackOff(Schedulable obj) {
-    return false;
-  }
+    @Override
+    public boolean shouldBackOff(Schedulable obj) {
+        return false;
+    }
 
-  @Override
-  public void addResponseTime(String name, int priorityLevel, int queueTime,
-      int processingTime) {
-  }
+    @Override
+    public void addResponseTime(String name, int priorityLevel, int queueTime,
+        int processingTime) {
+    }
 
-  public DefaultRpcScheduler(int priorityLevels, String namespace,
-      Configuration conf) {
-  }
+    public DefaultRpcScheduler(int priorityLevels, String namespace,
+        Configuration conf) {
+    }
 }

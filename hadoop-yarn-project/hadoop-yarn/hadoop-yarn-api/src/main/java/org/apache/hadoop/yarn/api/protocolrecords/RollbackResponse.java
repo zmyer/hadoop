@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,15 +28,17 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class RollbackResponse {
 
-  /**
-   * Create new instance of a Rollback response.
-   * @return Rollback Response.
-   */
-  @Private
-  @Unstable
-  public static RollbackResponse newInstance() {
-    return Records.newRecord(RollbackResponse.class);
-  }
+    /**
+     * Create new instance of a Rollback response.
+     * @return Rollback Response.
+     */
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public static RollbackResponse newInstance() {
+        return Records.newRecord(RollbackResponse.class);
+    }
 }

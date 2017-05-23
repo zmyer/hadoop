@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,18 +24,21 @@ import org.apache.hadoop.service.Service;
 /**
  * Interface that all embedded leader electors must implement.
  */
+// TODO: 17/3/22 by zmyer
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
-public interface EmbeddedElector extends Service{
-  /**
-   * Leave and rejoin leader election.
-   */
-  void rejoinElection();
+public interface EmbeddedElector extends Service {
+    /**
+     * Leave and rejoin leader election.
+     */
+    // TODO: 17/3/24 by zmyer
+    void rejoinElection();
 
-  /**
-   * Get information about the elector's connection to Zookeeper.
-   *
-   * @return zookeeper connection state
-   */
-  String getZookeeperConnectionState();
+    /**
+     * Get information about the elector's connection to Zookeeper.
+     *
+     * @return zookeeper connection state
+     */
+    // TODO: 17/3/24 by zmyer
+    String getZookeeperConnectionState();
 }

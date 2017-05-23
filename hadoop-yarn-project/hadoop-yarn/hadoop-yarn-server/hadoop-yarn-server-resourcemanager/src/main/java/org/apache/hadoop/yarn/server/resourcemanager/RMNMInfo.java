@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,12 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.metrics2.util.MBeans;
@@ -38,70 +35,75 @@ import org.eclipse.jetty.util.ajax.JSON;
 /**
  * JMX bean listing statuses of all node managers.
  */
+// TODO: 17/4/4 by zmyer
 public class RMNMInfo implements RMNMInfoBeans {
-  private static final Log LOG = LogFactory.getLog(RMNMInfo.class);
-  private RMContext rmContext;
-  private ResourceScheduler scheduler;
+    private static final Log LOG = LogFactory.getLog(RMNMInfo.class);
+    //rm执行上下文对象
+    private RMContext rmContext;
+    //资源调度器对象
+    private ResourceScheduler scheduler;
 
-  /**
-   * Constructor for RMNMInfo registers the bean with JMX.
-   * 
-   * @param rmc resource manager's context object
-   * @param sched resource manager's scheduler object
-   */
-  public RMNMInfo(RMContext rmc, ResourceScheduler sched) {
-    this.rmContext = rmc;
-    this.scheduler = sched;
+    /**
+     * Constructor for RMNMInfo registers the bean with JMX.
+     *
+     * @param rmc resource manager's context object
+     * @param sched resource manager's scheduler object
+     */
+    // TODO: 17/4/4 by zmyer
+    public RMNMInfo(RMContext rmc, ResourceScheduler sched) {
+        this.rmContext = rmc;
+        this.scheduler = sched;
 
-    StandardMBean bean;
-    try {
-        bean = new StandardMBean(this,RMNMInfoBeans.class);
-        MBeans.register("ResourceManager", "RMNMInfo", bean);
-    } catch (NotCompliantMBeanException e) {
-        LOG.warn("Error registering RMNMInfo MBean", e);
+        StandardMBean bean;
+        try {
+            bean = new StandardMBean(this, RMNMInfoBeans.class);
+            MBeans.register("ResourceManager", "RMNMInfo", bean);
+        } catch (NotCompliantMBeanException e) {
+            LOG.warn("Error registering RMNMInfo MBean", e);
+        }
+        LOG.info("Registered RMNMInfo MBean");
     }
-    LOG.info("Registered RMNMInfo MBean");
-  }
 
+    // TODO: 17/4/4 by zmyer
+    static class InfoMap extends LinkedHashMap<String, Object> {
+        private static final long serialVersionUID = 1L;
+    }
 
-  static class InfoMap extends LinkedHashMap<String, Object> {
-    private static final long serialVersionUID = 1L;
-  }
+    /**
+     * Implements getLiveNodeManagers()
+     *
+     * @return JSON formatted string containing statuses of all node managers
+     */
+    // TODO: 17/4/4 by zmyer
+    @Override // RMNMInfoBeans
+    public String getLiveNodeManagers() {
+        Collection<RMNode> nodes = this.rmContext.getRMNodes().values();
+        List<InfoMap> nodesInfo = new ArrayList<InfoMap>();
 
-  /**
-   * Implements getLiveNodeManagers()
-   * 
-   * @return JSON formatted string containing statuses of all node managers
-   */
-  @Override // RMNMInfoBeans
-  public String getLiveNodeManagers() {
-    Collection<RMNode> nodes = this.rmContext.getRMNodes().values();
-    List<InfoMap> nodesInfo = new ArrayList<InfoMap>();
-
-    for (final RMNode ni : nodes) {
-        SchedulerNodeReport report = scheduler.getNodeReport(ni.getNodeID());
-        InfoMap info = new InfoMap();
-        info.put("HostName", ni.getHostName());
-        info.put("Rack", ni.getRackName());
-        info.put("State", ni.getState().toString());
-        info.put("NodeId", ni.getNodeID());
-        info.put("NodeHTTPAddress", ni.getHttpAddress());
-        info.put("LastHealthUpdate",
-                        ni.getLastHealthReportTime());
-        info.put("HealthReport",
-                        ni.getHealthReport());
-        info.put("NodeManagerVersion",
+        for (final RMNode ni : nodes) {
+            SchedulerNodeReport report = scheduler.getNodeReport(ni.getNodeID());
+            InfoMap info = new InfoMap();
+            info.put("HostName", ni.getHostName());
+            info.put("Rack", ni.getRackName());
+            info.put("State", ni.getState().toString());
+            info.put("NodeId", ni.getNodeID());
+            info.put("NodeHTTPAddress", ni.getHttpAddress());
+            info.put("LastHealthUpdate",
+                ni.getLastHealthReportTime());
+            info.put("HealthReport",
+                ni.getHealthReport());
+            info.put("NodeManagerVersion",
                 ni.getNodeManagerVersion());
-        if(report != null) {
-          info.put("NumContainers", report.getNumContainers());
-          info.put("UsedMemoryMB", report.getUsedResource().getMemorySize());
-          info.put("AvailableMemoryMB",
-              report.getAvailableResource().getMemorySize());
+            if (report != null) {
+                info.put("NumContainers", report.getNumContainers());
+                info.put("UsedMemoryMB", report.getUsedResource().getMemorySize());
+                info.put("AvailableMemoryMB",
+                    report.getAvailableResource().getMemorySize());
+            }
+
+            nodesInfo.add(info);
         }
 
-        nodesInfo.add(info);
+        return JSON.toString(nodesInfo);
     }
-
-    return JSON.toString(nodesInfo);
-  }
 }

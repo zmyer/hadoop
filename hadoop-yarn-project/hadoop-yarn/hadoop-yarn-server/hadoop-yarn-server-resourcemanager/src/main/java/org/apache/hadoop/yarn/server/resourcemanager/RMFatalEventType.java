@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,16 @@ package org.apache.hadoop.yarn.server.resourcemanager;
 
 import org.apache.hadoop.classification.InterfaceAudience;
 
+// TODO: 17/3/23 by zmyer
 @InterfaceAudience.Private
 public enum RMFatalEventType {
-  // Source <- Store
-  STATE_STORE_OP_FAILED,
+    //
+    // Source <- Store
+    STATE_STORE_OP_FAILED,
 
-  // Source <- Embedded Elector
-  EMBEDDED_ELECTOR_FAILED,
+    // Source <- Embedded Elector
+    EMBEDDED_ELECTOR_FAILED,
 
-  // Source <- Admin Service
-  TRANSITION_TO_ACTIVE_FAILED
+    // Source <- Admin Service
+    TRANSITION_TO_ACTIVE_FAILED
 }

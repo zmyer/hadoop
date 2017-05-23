@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,182 +17,181 @@
  */
 package org.apache.hadoop.yarn.api.records.impl.pb;
 
+import com.google.protobuf.TextFormat;
 import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 import org.apache.hadoop.yarn.proto.YarnProtos.LogAggregationContextProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.LogAggregationContextProtoOrBuilder;
 
-import com.google.protobuf.TextFormat;
+// TODO: 17/3/25 by zmyer
+public class LogAggregationContextPBImpl extends LogAggregationContext {
 
-public class LogAggregationContextPBImpl extends LogAggregationContext{
+    LogAggregationContextProto proto = LogAggregationContextProto.getDefaultInstance();
+    LogAggregationContextProto.Builder builder = null;
+    boolean viaProto = false;
 
-  LogAggregationContextProto proto = LogAggregationContextProto.getDefaultInstance();
-  LogAggregationContextProto.Builder builder = null;
-  boolean viaProto = false;
-
-  public LogAggregationContextPBImpl() {
-    builder = LogAggregationContextProto.newBuilder();
-  }
-
-  public LogAggregationContextPBImpl(LogAggregationContextProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public LogAggregationContextProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public LogAggregationContextPBImpl() {
+        builder = LogAggregationContextProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = LogAggregationContextProto.newBuilder(proto);
+    public LogAggregationContextPBImpl(LogAggregationContextProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-
-  @Override
-  public String getIncludePattern() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasIncludePattern()) {
-      return null;
+    public LogAggregationContextProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return p.getIncludePattern();
-  }
 
-  @Override
-  public void setIncludePattern(String includePattern) {
-    maybeInitBuilder();
-    if (includePattern == null) {
-      builder.clearIncludePattern();
-      return;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    builder.setIncludePattern(includePattern);
-  }
 
-  @Override
-  public String getExcludePattern() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasExcludePattern()) {
-      return null;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    return p.getExcludePattern();
-  }
 
-  @Override
-  public void setExcludePattern(String excludePattern) {
-    maybeInitBuilder();
-    if (excludePattern == null) {
-      builder.clearExcludePattern();
-      return;
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    builder.setExcludePattern(excludePattern);
-  }
 
-  @Override
-  public String getRolledLogsIncludePattern() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasRolledLogsIncludePattern()) {
-      return null;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return p.getRolledLogsIncludePattern();
-  }
 
-  @Override
-  public void setRolledLogsIncludePattern(String rolledLogsIncludePattern) {
-    maybeInitBuilder();
-    if (rolledLogsIncludePattern == null) {
-      builder.clearRolledLogsIncludePattern();
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = LogAggregationContextProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    builder.setRolledLogsIncludePattern(rolledLogsIncludePattern);
-  }
 
-  @Override
-  public String getRolledLogsExcludePattern() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasRolledLogsExcludePattern()) {
-      return null;
+    @Override
+    public String getIncludePattern() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasIncludePattern()) {
+            return null;
+        }
+        return p.getIncludePattern();
     }
-    return p.getRolledLogsExcludePattern();
-  }
 
-  @Override
-  public void setRolledLogsExcludePattern(String rolledLogsExcludePattern) {
-    maybeInitBuilder();
-    if (rolledLogsExcludePattern == null) {
-      builder.clearRolledLogsExcludePattern();
-      return;
+    @Override
+    public void setIncludePattern(String includePattern) {
+        maybeInitBuilder();
+        if (includePattern == null) {
+            builder.clearIncludePattern();
+            return;
+        }
+        builder.setIncludePattern(includePattern);
     }
-    builder.setRolledLogsExcludePattern(rolledLogsExcludePattern);
-  }
 
-  @Override
-  public String getLogAggregationPolicyClassName() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasLogAggregationPolicyClassName()) {
-      return null;
+    @Override
+    public String getExcludePattern() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasExcludePattern()) {
+            return null;
+        }
+        return p.getExcludePattern();
     }
-    return p.getLogAggregationPolicyClassName();
-  }
 
-  @Override
-  public void setLogAggregationPolicyClassName(
-      String className) {
-    maybeInitBuilder();
-    if (className == null) {
-      builder.clearLogAggregationPolicyClassName();
-      return;
+    @Override
+    public void setExcludePattern(String excludePattern) {
+        maybeInitBuilder();
+        if (excludePattern == null) {
+            builder.clearExcludePattern();
+            return;
+        }
+        builder.setExcludePattern(excludePattern);
     }
-    builder.setLogAggregationPolicyClassName(className);
-  }
 
-  @Override
-  public String getLogAggregationPolicyParameters() {
-    LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
-    if (! p.hasLogAggregationPolicyParameters()) {
-      return null;
+    @Override
+    public String getRolledLogsIncludePattern() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasRolledLogsIncludePattern()) {
+            return null;
+        }
+        return p.getRolledLogsIncludePattern();
     }
-    return p.getLogAggregationPolicyParameters();
-  }
 
-  @Override
-  public void setLogAggregationPolicyParameters(
-      String config) {
-    maybeInitBuilder();
-    if (config == null) {
-      builder.clearLogAggregationPolicyParameters();
-      return;
+    @Override
+    public void setRolledLogsIncludePattern(String rolledLogsIncludePattern) {
+        maybeInitBuilder();
+        if (rolledLogsIncludePattern == null) {
+            builder.clearRolledLogsIncludePattern();
+            return;
+        }
+        builder.setRolledLogsIncludePattern(rolledLogsIncludePattern);
     }
-    builder.setLogAggregationPolicyParameters(config);
-  }
+
+    @Override
+    public String getRolledLogsExcludePattern() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasRolledLogsExcludePattern()) {
+            return null;
+        }
+        return p.getRolledLogsExcludePattern();
+    }
+
+    @Override
+    public void setRolledLogsExcludePattern(String rolledLogsExcludePattern) {
+        maybeInitBuilder();
+        if (rolledLogsExcludePattern == null) {
+            builder.clearRolledLogsExcludePattern();
+            return;
+        }
+        builder.setRolledLogsExcludePattern(rolledLogsExcludePattern);
+    }
+
+    @Override
+    public String getLogAggregationPolicyClassName() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasLogAggregationPolicyClassName()) {
+            return null;
+        }
+        return p.getLogAggregationPolicyClassName();
+    }
+
+    @Override
+    public void setLogAggregationPolicyClassName(
+        String className) {
+        maybeInitBuilder();
+        if (className == null) {
+            builder.clearLogAggregationPolicyClassName();
+            return;
+        }
+        builder.setLogAggregationPolicyClassName(className);
+    }
+
+    @Override
+    public String getLogAggregationPolicyParameters() {
+        LogAggregationContextProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasLogAggregationPolicyParameters()) {
+            return null;
+        }
+        return p.getLogAggregationPolicyParameters();
+    }
+
+    @Override
+    public void setLogAggregationPolicyParameters(
+        String config) {
+        maybeInitBuilder();
+        if (config == null) {
+            builder.clearLogAggregationPolicyParameters();
+            return;
+        }
+        builder.setLogAggregationPolicyParameters(config);
+    }
 }

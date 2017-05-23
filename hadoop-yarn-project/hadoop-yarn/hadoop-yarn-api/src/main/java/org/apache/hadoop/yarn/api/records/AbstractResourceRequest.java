@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,28 +28,33 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
  * <p>
  * It includes:
  * <ul>
- *   <li>{@link Resource} capability required for each request.</li>
+ * <li>{@link Resource} capability required for each request.</li>
  * </ul>
  *
  * @see Resource
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class AbstractResourceRequest {
 
-  /**
-   * Set the <code>Resource</code> capability of the request
-   * @param capability <code>Resource</code> capability of the request
-   */
-  @Public
-  @Stable
-  public abstract void setCapability(Resource capability);
+    /**
+     * Set the <code>Resource</code> capability of the request
+     *
+     * @param capability <code>Resource</code> capability of the request
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setCapability(Resource capability);
 
-  /**
-   * Get the <code>Resource</code> capability of the request.
-   * @return <code>Resource</code> capability of the request
-   */
-  @Public
-  @Stable
-  public abstract Resource getCapability();
+    /**
+     * Get the <code>Resource</code> capability of the request.
+     *
+     * @return <code>Resource</code> capability of the request
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract Resource getCapability();
 }

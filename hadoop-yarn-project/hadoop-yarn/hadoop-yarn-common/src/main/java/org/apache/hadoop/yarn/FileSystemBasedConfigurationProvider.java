@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -32,53 +31,58 @@ import org.apache.hadoop.yarn.conf.ConfigurationProvider;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 
+// TODO: 17/3/23 by zmyer
 @Private
 @Unstable
-public class FileSystemBasedConfigurationProvider
-    extends ConfigurationProvider {
+public class FileSystemBasedConfigurationProvider extends ConfigurationProvider {
 
-  private static final Log LOG = LogFactory
-      .getLog(FileSystemBasedConfigurationProvider.class);
-  private FileSystem fs;
-  private Path configDir;
+    private static final Log LOG = LogFactory.getLog(FileSystemBasedConfigurationProvider.class);
+    //文件系统对象
+    private FileSystem fs;
+    //配置所在目录
+    private Path configDir;
 
-  @Override
-  public synchronized InputStream getConfigurationInputStream(
-      Configuration bootstrapConf, String name) throws IOException,
-      YarnException {
-    if (name == null || name.isEmpty()) {
-      throw new YarnException(
-          "Illegal argument! The parameter should not be null or empty");
+    // TODO: 17/3/23 by zmyer
+    @Override
+    public synchronized InputStream getConfigurationInputStream(Configuration bootstrapConf, String name) throws IOException,
+        YarnException {
+        if (name == null || name.isEmpty()) {
+            throw new YarnException(
+                "Illegal argument! The parameter should not be null or empty");
+        }
+        Path filePath;
+        if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
+            filePath = new Path(this.configDir, name);
+            if (!fs.exists(filePath)) {
+                LOG.info(filePath + " not found");
+                return null;
+            }
+        } else {
+            filePath = new Path(name);
+            if (!fs.exists(filePath)) {
+                LOG.info(filePath + " not found");
+                return null;
+            }
+        }
+        return fs.open(filePath);
     }
-    Path filePath;
-    if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
-      filePath = new Path(this.configDir, name);
-      if (!fs.exists(filePath)) {
-        LOG.info(filePath + " not found");
-        return null;
-      }
-    } else {
-      filePath = new Path(name);
-      if (!fs.exists(filePath)) {
-        LOG.info(filePath + " not found");
-        return null;
-      }
+
+    // TODO: 17/3/23 by zmyer
+    @Override
+    public synchronized void initInternal(Configuration bootstrapConf)
+        throws Exception {
+        //读取yarn配置路径
+        configDir = new Path(bootstrapConf.get(YarnConfiguration.FS_BASED_RM_CONF_STORE,
+                YarnConfiguration.DEFAULT_FS_BASED_RM_CONF_STORE));
+        //读取文件系统对象
+        fs = configDir.getFileSystem(bootstrapConf);
+        //创建配置存放路径
+        fs.mkdirs(configDir);
     }
-    return fs.open(filePath);
-  }
 
-  @Override
-  public synchronized void initInternal(Configuration bootstrapConf)
-      throws Exception {
-    configDir =
-        new Path(bootstrapConf.get(YarnConfiguration.FS_BASED_RM_CONF_STORE,
-            YarnConfiguration.DEFAULT_FS_BASED_RM_CONF_STORE));
-    fs = configDir.getFileSystem(bootstrapConf);
-    fs.mkdirs(configDir);
-  }
-
-  @Override
-  public synchronized void closeInternal() throws Exception {
-    fs.close();
-  }
+    // TODO: 17/3/23 by zmyer
+    @Override
+    public synchronized void closeInternal() throws Exception {
+        fs.close();
+    }
 }

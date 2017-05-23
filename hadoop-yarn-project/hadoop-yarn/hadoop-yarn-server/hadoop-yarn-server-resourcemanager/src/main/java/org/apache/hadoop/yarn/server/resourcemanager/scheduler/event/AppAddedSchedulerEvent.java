@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,66 +23,75 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.ReservationId;
 
+// TODO: 17/4/4 by zmyer
 public class AppAddedSchedulerEvent extends SchedulerEvent {
+    //应用id
+    private final ApplicationId applicationId;
+    //队列名称
+    private final String queue;
+    private final String user;
+    private final ReservationId reservationID;
+    private final boolean isAppRecovering;
+    private final Priority appPriority;
 
-  private final ApplicationId applicationId;
-  private final String queue;
-  private final String user;
-  private final ReservationId reservationID;
-  private final boolean isAppRecovering;
-  private final Priority appPriority;
+    // TODO: 17/4/4 by zmyer
+    public AppAddedSchedulerEvent(ApplicationId applicationId, String queue, String user) {
+        this(applicationId, queue, user, false, null, Priority.newInstance(0));
+    }
 
-  public AppAddedSchedulerEvent(ApplicationId applicationId, String queue,
-      String user) {
-    this(applicationId, queue, user, false, null, Priority.newInstance(0));
-  }
+    // TODO: 17/4/4 by zmyer
+    public AppAddedSchedulerEvent(ApplicationId applicationId, String queue,
+        String user, ReservationId reservationID, Priority appPriority) {
+        this(applicationId, queue, user, false, reservationID, appPriority);
+    }
 
-  public AppAddedSchedulerEvent(ApplicationId applicationId, String queue,
-      String user, ReservationId reservationID, Priority appPriority) {
-    this(applicationId, queue, user, false, reservationID, appPriority);
-  }
+    // TODO: 17/4/4 by zmyer
+    public AppAddedSchedulerEvent(String user, ApplicationSubmissionContext submissionContext,
+        boolean isAppRecovering, Priority appPriority) {
+        this(submissionContext.getApplicationId(), submissionContext.getQueue(),
+            user, isAppRecovering, submissionContext.getReservationID(),
+            appPriority);
+    }
 
-  public AppAddedSchedulerEvent(String user,
-      ApplicationSubmissionContext submissionContext, boolean isAppRecovering,
-      Priority appPriority) {
-    this(submissionContext.getApplicationId(), submissionContext.getQueue(),
-        user, isAppRecovering, submissionContext.getReservationID(),
-        appPriority);
-  }
+    // TODO: 17/4/4 by zmyer
+    public AppAddedSchedulerEvent(ApplicationId applicationId, String queue,
+        String user, boolean isAppRecovering, ReservationId reservationID, Priority appPriority) {
+        super(SchedulerEventType.APP_ADDED);
+        this.applicationId = applicationId;
+        this.queue = queue;
+        this.user = user;
+        this.reservationID = reservationID;
+        this.isAppRecovering = isAppRecovering;
+        this.appPriority = appPriority;
+    }
 
-  public AppAddedSchedulerEvent(ApplicationId applicationId, String queue,
-      String user, boolean isAppRecovering, ReservationId reservationID,
-      Priority appPriority) {
-    super(SchedulerEventType.APP_ADDED);
-    this.applicationId = applicationId;
-    this.queue = queue;
-    this.user = user;
-    this.reservationID = reservationID;
-    this.isAppRecovering = isAppRecovering;
-    this.appPriority = appPriority;
-  }
+    // TODO: 17/4/4 by zmyer
+    public ApplicationId getApplicationId() {
+        return applicationId;
+    }
 
-  public ApplicationId getApplicationId() {
-    return applicationId;
-  }
+    // TODO: 17/4/4 by zmyer
+    public String getQueue() {
+        return queue;
+    }
 
-  public String getQueue() {
-    return queue;
-  }
+    // TODO: 17/4/4 by zmyer
+    public String getUser() {
+        return user;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    // TODO: 17/4/4 by zmyer
+    public boolean getIsAppRecovering() {
+        return isAppRecovering;
+    }
 
-  public boolean getIsAppRecovering() {
-    return isAppRecovering;
-  }
+    // TODO: 17/4/4 by zmyer
+    public ReservationId getReservationID() {
+        return reservationID;
+    }
 
-  public ReservationId getReservationID() {
-    return reservationID;
-  }
-
-  public Priority getApplicatonPriority() {
-    return appPriority;
-  }
+    // TODO: 17/4/4 by zmyer
+    public Priority getApplicatonPriority() {
+        return appPriority;
+    }
 }

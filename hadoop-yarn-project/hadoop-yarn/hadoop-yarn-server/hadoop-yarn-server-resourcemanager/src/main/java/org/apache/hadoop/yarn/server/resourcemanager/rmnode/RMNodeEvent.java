@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,16 +21,19 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmnode;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
+// TODO: 17/3/24 by zmyer
 public class RMNodeEvent extends AbstractEvent<RMNodeEventType> {
 
-  private final NodeId nodeId;
+    private final NodeId nodeId;
 
-  public RMNodeEvent(NodeId nodeId, RMNodeEventType type) {
-    super(type);
-    this.nodeId = nodeId;
-  }
+    // TODO: 17/3/24 by zmyer
+    public RMNodeEvent(NodeId nodeId, RMNodeEventType type) {
+        super(type);
+        this.nodeId = nodeId;
+    }
 
-  public NodeId getNodeId() {
-    return this.nodeId;
-  }
+    // TODO: 17/3/24 by zmyer
+    public NodeId getNodeId() {
+        return this.nodeId;
+    }
 }

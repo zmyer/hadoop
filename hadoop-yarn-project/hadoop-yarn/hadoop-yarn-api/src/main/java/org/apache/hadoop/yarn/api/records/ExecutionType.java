@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,17 +27,18 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
  * <p>
  * The execution types are the following:
  * <ul>
- *   <li>{@link #GUARANTEED} - this container is guaranteed to start its
- *   execution, once the corresponding start container request is received by
- *   an NM.
- *   <li>{@link #OPPORTUNISTIC} - the execution of this container may not start
- *   immediately at the NM that receives the corresponding start container
- *   request (depending on the NM's available resources). Moreover, it may be
- *   preempted if it blocks a GUARANTEED container from being executed.
+ * <li>{@link #GUARANTEED} - this container is guaranteed to start its
+ * execution, once the corresponding start container request is received by
+ * an NM.
+ * <li>{@link #OPPORTUNISTIC} - the execution of this container may not start
+ * immediately at the NM that receives the corresponding start container
+ * request (depending on the NM's available resources). Moreover, it may be
+ * preempted if it blocks a GUARANTEED container from being executed.
  * </ul>
  */
 @Public
 @Evolving
+// TODO: 17/3/26 by zmyer
 public enum ExecutionType {
-  GUARANTEED, OPPORTUNISTIC
+    GUARANTEED, OPPORTUNISTIC
 }

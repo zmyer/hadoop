@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,54 +28,63 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The response sent by the <code>ResourceManager</code> to the client for 
+ * <p>The response sent by the <code>ResourceManager</code> to the client for
  * a request to get a new {@link ApplicationId} for submitting applications.</p>
- * 
+ *
  * <p>Clients can submit an application with the returned
  * {@link ApplicationId}.</p>
  *
  * @see ApplicationClientProtocol#getNewApplication(GetNewApplicationRequest)
  */
+// TODO: 17/3/25 by zmyer
 @Public
 @Stable
 public abstract class GetNewApplicationResponse {
 
-  @Private
-  @Unstable
-  public static GetNewApplicationResponse newInstance(
-      ApplicationId applicationId, Resource minCapability,
-      Resource maxCapability) {
-    GetNewApplicationResponse response =
-        Records.newRecord(GetNewApplicationResponse.class);
-    response.setApplicationId(applicationId);
-    response.setMaximumResourceCapability(maxCapability);
-    return response;
-  }
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public static GetNewApplicationResponse newInstance(
+        ApplicationId applicationId, Resource minCapability, Resource maxCapability) {
+        //创建新应用应答
+        GetNewApplicationResponse response = Records.newRecord(GetNewApplicationResponse.class);
+        //设置新的应用id
+        response.setApplicationId(applicationId);
+        //设置资源管理器可以分配的最大的资源容量大小
+        response.setMaximumResourceCapability(maxCapability);
+        //返回应答请求
+        return response;
+    }
 
-  /**
-   * Get the <em>new</em> <code>ApplicationId</code> allocated by the 
-   * <code>ResourceManager</code>.
-   * @return <em>new</em> <code>ApplicationId</code> allocated by the 
-   *          <code>ResourceManager</code>
-   */
-  @Public
-  @Stable
-  public abstract ApplicationId getApplicationId();
+    /**
+     * Get the <em>new</em> <code>ApplicationId</code> allocated by the
+     * <code>ResourceManager</code>.
+     *
+     * @return <em>new</em> <code>ApplicationId</code> allocated by the <code>ResourceManager</code>
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract ApplicationId getApplicationId();
 
-  @Private
-  @Unstable
-  public abstract void setApplicationId(ApplicationId applicationId);
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setApplicationId(ApplicationId applicationId);
 
-  /**
-   * Get the maximum capability for any {@link Resource} allocated by the 
-   * <code>ResourceManager</code> in the cluster.
-   * @return maximum capability of allocated resources in the cluster
-   */
-  @Public
-  @Stable
-  public abstract Resource getMaximumResourceCapability();
-  
-  @Private
-  @Unstable
-  public abstract void setMaximumResourceCapability(Resource capability); 
+    /**
+     * Get the maximum capability for any {@link Resource} allocated by the
+     * <code>ResourceManager</code> in the cluster.
+     *
+     * @return maximum capability of allocated resources in the cluster
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/25 by zmyer
+    public abstract Resource getMaximumResourceCapability();
+
+    @Private
+    @Unstable
+    // TODO: 17/3/25 by zmyer
+    public abstract void setMaximumResourceCapability(Resource capability);
 }

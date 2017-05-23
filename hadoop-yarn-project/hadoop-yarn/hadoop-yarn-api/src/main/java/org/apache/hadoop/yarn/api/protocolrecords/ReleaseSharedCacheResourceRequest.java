@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,41 +27,42 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
  */
 @Public
 @Unstable
+// TODO: 17/3/25 by zmyer
 public abstract class ReleaseSharedCacheResourceRequest {
 
-  /**
-   * Get the <code>ApplicationId</code> of the resource to be released.
-   *
-   * @return <code>ApplicationId</code>
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationId getAppId();
+    /**
+     * Get the <code>ApplicationId</code> of the resource to be released.
+     *
+     * @return <code>ApplicationId</code>
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationId getAppId();
 
-  /**
-   * Set the <code>ApplicationId</code> of the resource to be released.
-   *
-   * @param id <code>ApplicationId</code>
-   */
-  @Public
-  @Unstable
-  public abstract void setAppId(ApplicationId id);
+    /**
+     * Set the <code>ApplicationId</code> of the resource to be released.
+     *
+     * @param id <code>ApplicationId</code>
+     */
+    @Public
+    @Unstable
+    public abstract void setAppId(ApplicationId id);
 
-  /**
-   * Get the <code>key</code> of the resource to be released.
-   *
-   * @return <code>key</code>
-   */
-  @Public
-  @Unstable
-  public abstract String getResourceKey();
+    /**
+     * Get the <code>key</code> of the resource to be released.
+     *
+     * @return <code>key</code>
+     */
+    @Public
+    @Unstable
+    public abstract String getResourceKey();
 
-  /**
-   * Set the <code>key</code> of the resource to be released.
-   *
-   * @param key unique identifier for the resource
-   */
-  @Public
-  @Unstable
-  public abstract void setResourceKey(String key);
+    /**
+     * Set the <code>key</code> of the resource to be released.
+     *
+     * @param key unique identifier for the resource
+     */
+    @Public
+    @Unstable
+    public abstract void setResourceKey(String key);
 }

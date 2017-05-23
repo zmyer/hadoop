@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,42 +34,46 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Unstable
+// TODO: 17/3/27 by zmyer
 public abstract class IncreaseContainersResourceRequest {
-  @Public
-  @Unstable
-  public static IncreaseContainersResourceRequest newInstance(
-      List<Token> containersToIncrease) {
-    IncreaseContainersResourceRequest request =
-        Records.newRecord(IncreaseContainersResourceRequest.class);
-    request.setContainersToIncrease(containersToIncrease);
-    return request;
-  }
+    @Public
+    @Unstable
+    // TODO: 17/3/27 by zmyer
+    public static IncreaseContainersResourceRequest newInstance(
+        List<Token> containersToIncrease) {
+        IncreaseContainersResourceRequest request =
+            Records.newRecord(IncreaseContainersResourceRequest.class);
+        request.setContainersToIncrease(containersToIncrease);
+        return request;
+    }
 
-  /**
-   * Get a list of container tokens to be used for authorization during
-   * container resource increase.
-   * <p>
-   * Note: {@link NMToken} will be used for authenticating communication with
-   * {@code NodeManager}.
-   * @return the list of container tokens to be used for authorization during
-   * container resource increase.
-   * @see NMToken
-   */
-  @Public
-  @Unstable
-  public abstract List<Token> getContainersToIncrease();
+    /**
+     * Get a list of container tokens to be used for authorization during
+     * container resource increase.
+     * <p>
+     * Note: {@link NMToken} will be used for authenticating communication with
+     * {@code NodeManager}.
+     * @return the list of container tokens to be used for authorization during
+     * container resource increase.
+     * @see NMToken
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/27 by zmyer
+    public abstract List<Token> getContainersToIncrease();
 
-  /**
-   * Set container tokens to be used during container resource increase.
-   * The token is acquired from
-   * <code>AllocateResponse.getIncreasedContainers</code>.
-   * The token contains the container id and resource capability required for
-   * container resource increase.
-   * @param containersToIncrease the list of container tokens to be used
-   *                             for container resource increase.
-   */
-  @Public
-  @Unstable
-  public abstract void setContainersToIncrease(
-      List<Token> containersToIncrease);
+    /**
+     * Set container tokens to be used during container resource increase.
+     * The token is acquired from
+     * <code>AllocateResponse.getIncreasedContainers</code>.
+     * The token contains the container id and resource capability required for
+     * container resource increase.
+     * @param containersToIncrease the list of container tokens to be used
+     *                             for container resource increase.
+     */
+    @Public
+    @Unstable
+    // TODO: 17/3/27 by zmyer
+    public abstract void setContainersToIncrease(
+        List<Token> containersToIncrease);
 }

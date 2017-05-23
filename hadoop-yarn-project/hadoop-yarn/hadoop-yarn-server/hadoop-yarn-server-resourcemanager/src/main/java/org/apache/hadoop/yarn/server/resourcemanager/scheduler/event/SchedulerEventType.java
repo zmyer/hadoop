@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,35 +18,35 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.event;
 
+// TODO: 17/4/3 by zmyer
 public enum SchedulerEventType {
+    // Source: Node
+    NODE_ADDED,
+    NODE_REMOVED,
+    NODE_UPDATE,
+    NODE_RESOURCE_UPDATE,
+    NODE_LABELS_UPDATE,
 
-  // Source: Node
-  NODE_ADDED,
-  NODE_REMOVED,
-  NODE_UPDATE,
-  NODE_RESOURCE_UPDATE,
-  NODE_LABELS_UPDATE,
+    // Source: RMApp
+    APP_ADDED,
+    APP_REMOVED,
 
-  // Source: RMApp
-  APP_ADDED,
-  APP_REMOVED,
+    // Source: RMAppAttempt
+    APP_ATTEMPT_ADDED,
+    APP_ATTEMPT_REMOVED,
 
-  // Source: RMAppAttempt
-  APP_ATTEMPT_ADDED,
-  APP_ATTEMPT_REMOVED,
+    // Source: ContainerAllocationExpirer
+    CONTAINER_EXPIRED,
 
-  // Source: ContainerAllocationExpirer
-  CONTAINER_EXPIRED,
+    /* Source: SchedulingEditPolicy */
+    KILL_RESERVED_CONTAINER,
 
-  /* Source: SchedulingEditPolicy */
-  KILL_RESERVED_CONTAINER,
+    // Mark a container for preemption
+    MARK_CONTAINER_FOR_PREEMPTION,
 
-  // Mark a container for preemption
-  MARK_CONTAINER_FOR_PREEMPTION,
+    // Mark a for-preemption container killable
+    MARK_CONTAINER_FOR_KILLABLE,
 
-  // Mark a for-preemption container killable
-  MARK_CONTAINER_FOR_KILLABLE,
-
-  // Cancel a killable container
-  MARK_CONTAINER_FOR_NONKILLABLE
+    // Cancel a killable container
+    MARK_CONTAINER_FOR_NONKILLABLE
 }

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,13 +18,13 @@
 
 package org.apache.hadoop.yarn.server.api;
 
-import java.io.IOException;
-
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RunSharedCacheCleanerTaskRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RunSharedCacheCleanerTaskResponse;
-import org.apache.hadoop.yarn.exceptions.YarnException;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -34,20 +34,20 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 @Public
 @Unstable
 public interface SCMAdminProtocol {
-  /**
-   * <p>
-   * The method used by administrators to ask SCM to run cleaner task right away
-   * </p>
-   *
-   * @param request request <code>SharedCacheManager</code> to run a cleaner task
-   * @return <code>SharedCacheManager</code> returns an empty response
-   *         on success and throws an exception on rejecting the request
-   * @throws YarnException
-   * @throws IOException
-   */
-  @Public
-  @Unstable
-  public RunSharedCacheCleanerTaskResponse runCleanerTask(
-      RunSharedCacheCleanerTaskRequest request) throws YarnException, IOException;
-  
+    /**
+     * <p>
+     * The method used by administrators to ask SCM to run cleaner task right away
+     * </p>
+     *
+     * @param request request <code>SharedCacheManager</code> to run a cleaner task
+     * @return <code>SharedCacheManager</code> returns an empty response
+     * on success and throws an exception on rejecting the request
+     * @throws YarnException
+     * @throws IOException
+     */
+    @Public
+    @Unstable
+    public RunSharedCacheCleanerTaskResponse runCleanerTask(
+            RunSharedCacheCleanerTaskRequest request) throws YarnException, IOException;
+
 }

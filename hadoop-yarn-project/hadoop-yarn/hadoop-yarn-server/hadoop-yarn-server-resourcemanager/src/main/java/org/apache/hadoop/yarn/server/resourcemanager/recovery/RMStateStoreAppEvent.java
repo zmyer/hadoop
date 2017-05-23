@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,16 +20,19 @@ package org.apache.hadoop.yarn.server.resourcemanager.recovery;
 
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.ApplicationStateData;
 
+// TODO: 17/4/3 by zmyer
 public class RMStateStoreAppEvent extends RMStateStoreEvent {
+    //应用状态数据
+    private final ApplicationStateData appState;
 
-  private final ApplicationStateData appState;
+    // TODO: 17/4/4 by zmyer
+    public RMStateStoreAppEvent(ApplicationStateData appState) {
+        super(RMStateStoreEventType.STORE_APP);
+        this.appState = appState;
+    }
 
-  public RMStateStoreAppEvent(ApplicationStateData appState) {
-    super(RMStateStoreEventType.STORE_APP);
-    this.appState = appState;
-  }
-
-  public ApplicationStateData getAppState() {
-    return appState;
-  }
+    // TODO: 17/4/4 by zmye
+    public ApplicationStateData getAppState() {
+        return appState;
+    }
 }

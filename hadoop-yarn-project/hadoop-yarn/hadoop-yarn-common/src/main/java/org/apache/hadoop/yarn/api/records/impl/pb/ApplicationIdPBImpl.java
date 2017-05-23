@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,58 +18,58 @@
 
 package org.apache.hadoop.yarn.api.records.impl.pb;
 
-
+import com.google.common.base.Preconditions;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
 
-import com.google.common.base.Preconditions;
-
 @Private
 @Unstable
+// TODO: 17/3/25 by zmyer
 public class ApplicationIdPBImpl extends ApplicationId {
-  ApplicationIdProto proto = null;
-  ApplicationIdProto.Builder builder = null;
+    ApplicationIdProto proto = null;
+    ApplicationIdProto.Builder builder = null;
 
-  public ApplicationIdPBImpl() {
-    builder = ApplicationIdProto.newBuilder();
-  }
+    public ApplicationIdPBImpl() {
+        builder = ApplicationIdProto.newBuilder();
+    }
 
-  public ApplicationIdPBImpl(ApplicationIdProto proto) {
-    this.proto = proto;
-  }
+    public ApplicationIdPBImpl(ApplicationIdProto proto) {
+        this.proto = proto;
+    }
 
-  public ApplicationIdProto getProto() {
-    return proto;
-  }
+    public ApplicationIdProto getProto() {
+        return proto;
+    }
 
-  @Override
-  public int getId() {
-    Preconditions.checkNotNull(proto);
-    return proto.getId();
-  }
+    @Override
+    public int getId() {
+        Preconditions.checkNotNull(proto);
+        return proto.getId();
+    }
 
-  @Override
-  protected void setId(int id) {
-    Preconditions.checkNotNull(builder);
-    builder.setId(id);
-  }
-  @Override
-  public long getClusterTimestamp() {
-    Preconditions.checkNotNull(proto);
-    return proto.getClusterTimestamp();
-  }
+    @Override
+    protected void setId(int id) {
+        Preconditions.checkNotNull(builder);
+        builder.setId(id);
+    }
 
-  @Override
-  protected void setClusterTimestamp(long clusterTimestamp) {
-    Preconditions.checkNotNull(builder);
-    builder.setClusterTimestamp((clusterTimestamp));
-  }
+    @Override
+    public long getClusterTimestamp() {
+        Preconditions.checkNotNull(proto);
+        return proto.getClusterTimestamp();
+    }
 
-  @Override
-  protected void build() {
-    proto = builder.build();
-    builder = null;
-  }
+    @Override
+    protected void setClusterTimestamp(long clusterTimestamp) {
+        Preconditions.checkNotNull(builder);
+        builder.setClusterTimestamp((clusterTimestamp));
+    }
+
+    @Override
+    protected void build() {
+        proto = builder.build();
+        builder = null;
+    }
 }

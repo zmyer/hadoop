@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,94 +30,105 @@ import org.apache.hadoop.yarn.util.Records;
  * <p>
  * The final request includes details such:
  * <ul>
- *   <li>Final state of the {@code ApplicationMaster}</li>
- *   <li>
- *     Diagnostic information in case of failure of the
- *     {@code ApplicationMaster}
- *   </li>
- *   <li>Tracking URL</li>
+ * <li>Final state of the {@code ApplicationMaster}</li>
+ * <li>
+ * Diagnostic information in case of failure of the
+ * {@code ApplicationMaster}
+ * </li>
+ * <li>Tracking URL</li>
  * </ul>
  *
  * @see ApplicationMasterProtocol#finishApplicationMaster(FinishApplicationMasterRequest)
  */
 @Public
 @Stable
+// TODO: 17/3/26 by zmyer
 public abstract class FinishApplicationMasterRequest {
 
-  @Public
-  @Stable
-  public static FinishApplicationMasterRequest newInstance(
-      FinalApplicationStatus finalAppStatus, String diagnostics, String url) {
-    FinishApplicationMasterRequest request =
-        Records.newRecord(FinishApplicationMasterRequest.class);
-    request.setFinalApplicationStatus(finalAppStatus);
-    request.setDiagnostics(diagnostics);
-    request.setTrackingUrl(url);
-    return request;
-  }
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public static FinishApplicationMasterRequest newInstance(
+        FinalApplicationStatus finalAppStatus, String diagnostics, String url) {
+        FinishApplicationMasterRequest request = Records.newRecord(FinishApplicationMasterRequest.class);
+        request.setFinalApplicationStatus(finalAppStatus);
+        request.setDiagnostics(diagnostics);
+        request.setTrackingUrl(url);
+        return request;
+    }
 
-  /**
-   * Get <em>final state</em> of the <code>ApplicationMaster</code>.
-   * @return <em>final state</em> of the <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract FinalApplicationStatus getFinalApplicationStatus();
+    /**
+     * Get <em>final state</em> of the <code>ApplicationMaster</code>.
+     *
+     * @return <em>final state</em> of the <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract FinalApplicationStatus getFinalApplicationStatus();
 
-  /**
-   * Set the <em>final state</em> of the <code>ApplicationMaster</code>
-   * @param finalState <em>final state</em> of the <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract void setFinalApplicationStatus(FinalApplicationStatus finalState);
+    /**
+     * Set the <em>final state</em> of the <code>ApplicationMaster</code>
+     *
+     * @param finalState <em>final state</em> of the <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract void setFinalApplicationStatus(FinalApplicationStatus finalState);
 
-  /**
-   * Get <em>diagnostic information</em> on application failure.
-   * @return <em>diagnostic information</em> on application failure
-   */
-  @Public
-  @Stable
-  public abstract String getDiagnostics();
+    /**
+     * Get <em>diagnostic information</em> on application failure.
+     *
+     * @return <em>diagnostic information</em> on application failure
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract String getDiagnostics();
 
-  /**
-   * Set <em>diagnostic information</em> on application failure.
-   * @param diagnostics <em>diagnostic information</em> on application failure
-   */
-  @Public
-  @Stable
-  public abstract void setDiagnostics(String diagnostics);
+    /**
+     * Set <em>diagnostic information</em> on application failure.
+     *
+     * @param diagnostics <em>diagnostic information</em> on application failure
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract void setDiagnostics(String diagnostics);
 
-  /**
-   * Get the <em>tracking URL</em> for the <code>ApplicationMaster</code>.
-   * This url if contains scheme then that will be used by resource manager
-   * web application proxy otherwise it will default to http.
-   * @return <em>tracking URL</em>for the <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract String getTrackingUrl();
+    /**
+     * Get the <em>tracking URL</em> for the <code>ApplicationMaster</code>.
+     * This url if contains scheme then that will be used by resource manager
+     * web application proxy otherwise it will default to http.
+     *
+     * @return <em>tracking URL</em>for the <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract String getTrackingUrl();
 
-  /**
-   * Set the <em>final tracking URL</em>for the <code>ApplicationMaster</code>.
-   * This is the web-URL to which ResourceManager or web-application proxy will
-   * redirect client/users once the application is finished and the
-   * <code>ApplicationMaster</code> is gone.
-   * <p>
-   * If the passed url has a scheme then that will be used by the
-   * ResourceManager and web-application proxy, otherwise the scheme will
-   * default to http.
-   * </p>
-   * <p>
-   * Empty, null, "N/A" strings are all valid besides a real URL. In case an url
-   * isn't explicitly passed, it defaults to "N/A" on the ResourceManager.
-   * <p>
-   *
-   * @param url
-   *          <em>tracking URL</em>for the <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract void setTrackingUrl(String url);
+    /**
+     * Set the <em>final tracking URL</em>for the <code>ApplicationMaster</code>.
+     * This is the web-URL to which ResourceManager or web-application proxy will
+     * redirect client/users once the application is finished and the
+     * <code>ApplicationMaster</code> is gone.
+     * <p>
+     * If the passed url has a scheme then that will be used by the
+     * ResourceManager and web-application proxy, otherwise the scheme will
+     * default to http.
+     * </p>
+     * <p>
+     * Empty, null, "N/A" strings are all valid besides a real URL. In case an url
+     * isn't explicitly passed, it defaults to "N/A" on the ResourceManager.
+     * <p>
+     *
+     * @param url <em>tracking URL</em>for the <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    // TODO: 17/3/26 by zmyer
+    public abstract void setTrackingUrl(String url);
 
 }

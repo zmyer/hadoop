@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,10 @@
 
 package org.apache.hadoop.yarn.api.impl.pb.client;
 
+import com.google.protobuf.ServiceException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.ProtobufRpcEngine;
@@ -46,68 +46,66 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.AllocateRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServiceProtos.FinishApplicationMasterRequestProto;
 import org.apache.hadoop.yarn.proto.YarnServiceProtos.RegisterApplicationMasterRequestProto;
 
-import com.google.protobuf.ServiceException;
-
 @Private
 public class ApplicationMasterProtocolPBClientImpl implements ApplicationMasterProtocol, Closeable {
 
-  private ApplicationMasterProtocolPB proxy;
+    private ApplicationMasterProtocolPB proxy;
 
-  public ApplicationMasterProtocolPBClientImpl(long clientVersion, InetSocketAddress addr,
-      Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, ApplicationMasterProtocolPB.class, ProtobufRpcEngine.class);
-    proxy =
-        (ApplicationMasterProtocolPB) RPC.getProxy(ApplicationMasterProtocolPB.class, clientVersion,
-          addr, conf);
-  }
-
-  @Override
-  public void close() {
-    if (this.proxy != null) {
-      RPC.stopProxy(this.proxy);
+    public ApplicationMasterProtocolPBClientImpl(long clientVersion, InetSocketAddress addr,
+        Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, ApplicationMasterProtocolPB.class, ProtobufRpcEngine.class);
+        proxy =
+            (ApplicationMasterProtocolPB) RPC.getProxy(ApplicationMasterProtocolPB.class, clientVersion,
+                addr, conf);
     }
-  }
 
-  @Override
-  public AllocateResponse allocate(AllocateRequest request)
-      throws YarnException, IOException {
-    AllocateRequestProto requestProto =
-        ((AllocateRequestPBImpl) request).getProto();
-    try {
-      return new AllocateResponsePBImpl(proxy.allocate(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public void close() {
+        if (this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
     }
-  }
 
-  @Override
-  public FinishApplicationMasterResponse finishApplicationMaster(
-      FinishApplicationMasterRequest request) throws YarnException,
-      IOException {
-    FinishApplicationMasterRequestProto requestProto =
-        ((FinishApplicationMasterRequestPBImpl) request).getProto();
-    try {
-      return new FinishApplicationMasterResponsePBImpl(
-        proxy.finishApplicationMaster(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public AllocateResponse allocate(AllocateRequest request)
+        throws YarnException, IOException {
+        AllocateRequestProto requestProto =
+            ((AllocateRequestPBImpl) request).getProto();
+        try {
+            return new AllocateResponsePBImpl(proxy.allocate(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public RegisterApplicationMasterResponse registerApplicationMaster(
-      RegisterApplicationMasterRequest request) throws YarnException,
-      IOException {
-    RegisterApplicationMasterRequestProto requestProto =
-        ((RegisterApplicationMasterRequestPBImpl) request).getProto();
-    try {
-      return new RegisterApplicationMasterResponsePBImpl(
-        proxy.registerApplicationMaster(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public FinishApplicationMasterResponse finishApplicationMaster(
+        FinishApplicationMasterRequest request) throws YarnException,
+        IOException {
+        FinishApplicationMasterRequestProto requestProto =
+            ((FinishApplicationMasterRequestPBImpl) request).getProto();
+        try {
+            return new FinishApplicationMasterResponsePBImpl(
+                proxy.finishApplicationMaster(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
+
+    @Override
+    public RegisterApplicationMasterResponse registerApplicationMaster(
+        RegisterApplicationMasterRequest request) throws YarnException,
+        IOException {
+        RegisterApplicationMasterRequestProto requestProto =
+            ((RegisterApplicationMasterRequestPBImpl) request).getProto();
+        try {
+            return new RegisterApplicationMasterResponsePBImpl(
+                proxy.registerApplicationMaster(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
+    }
 }

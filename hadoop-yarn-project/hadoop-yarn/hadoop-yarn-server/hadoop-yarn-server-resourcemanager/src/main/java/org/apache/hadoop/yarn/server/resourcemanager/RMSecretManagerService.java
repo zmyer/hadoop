@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.server.resourcemanager;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -29,115 +30,111 @@ import org.apache.hadoop.yarn.server.resourcemanager.security.NMTokenSecretManag
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMContainerTokenSecretManager;
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMDelegationTokenSecretManager;
 
-import java.io.IOException;
-
+// TODO: 17/3/23 by zmyer
 public class RMSecretManagerService extends AbstractService {
+    AMRMTokenSecretManager amRmTokenSecretManager;
+    NMTokenSecretManagerInRM nmTokenSecretManager;
+    ClientToAMTokenSecretManagerInRM clientToAMSecretManager;
+    RMContainerTokenSecretManager containerTokenSecretManager;
+    RMDelegationTokenSecretManager rmDTSecretManager;
+    RMContextImpl rmContext;
 
-  AMRMTokenSecretManager amRmTokenSecretManager;
-  NMTokenSecretManagerInRM nmTokenSecretManager;
-  ClientToAMTokenSecretManagerInRM clientToAMSecretManager;
-  RMContainerTokenSecretManager containerTokenSecretManager;
-  RMDelegationTokenSecretManager rmDTSecretManager;
+    /**
+     * Construct the service.
+     */
+    public RMSecretManagerService(Configuration conf, RMContextImpl rmContext) {
+        super(RMSecretManagerService.class.getName());
+        this.rmContext = rmContext;
 
-  RMContextImpl rmContext;
+        // To initialize correctly, these managers should be created before
+        // being called serviceInit().
+        nmTokenSecretManager = createNMTokenSecretManager(conf);
+        rmContext.setNMTokenSecretManager(nmTokenSecretManager);
 
-  /**
-   * Construct the service.
-   *
-   */
-  public RMSecretManagerService(Configuration conf, RMContextImpl rmContext) {
-    super(RMSecretManagerService.class.getName());
-    this.rmContext = rmContext;
+        containerTokenSecretManager = createContainerTokenSecretManager(conf);
+        rmContext.setContainerTokenSecretManager(containerTokenSecretManager);
 
-    // To initialize correctly, these managers should be created before
-    // being called serviceInit().
-    nmTokenSecretManager = createNMTokenSecretManager(conf);
-    rmContext.setNMTokenSecretManager(nmTokenSecretManager);
+        clientToAMSecretManager = createClientToAMTokenSecretManager();
+        rmContext.setClientToAMTokenSecretManager(clientToAMSecretManager);
 
-    containerTokenSecretManager = createContainerTokenSecretManager(conf);
-    rmContext.setContainerTokenSecretManager(containerTokenSecretManager);
+        amRmTokenSecretManager = createAMRMTokenSecretManager(conf, this.rmContext);
+        rmContext.setAMRMTokenSecretManager(amRmTokenSecretManager);
 
-    clientToAMSecretManager = createClientToAMTokenSecretManager();
-    rmContext.setClientToAMTokenSecretManager(clientToAMSecretManager);
-
-    amRmTokenSecretManager = createAMRMTokenSecretManager(conf, this.rmContext);
-    rmContext.setAMRMTokenSecretManager(amRmTokenSecretManager);
-
-    rmDTSecretManager =
-        createRMDelegationTokenSecretManager(conf, rmContext);
-    rmContext.setRMDelegationTokenSecretManager(rmDTSecretManager);
-  }
-
-  @Override
-  public void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
-  }
-
-  @Override
-  public void serviceStart() throws Exception {
-    amRmTokenSecretManager.start();
-    containerTokenSecretManager.start();
-    nmTokenSecretManager.start();
-
-    try {
-      rmDTSecretManager.startThreads();
-    } catch(IOException ie) {
-      throw new YarnRuntimeException("Failed to start secret manager threads", ie);
+        rmDTSecretManager =
+            createRMDelegationTokenSecretManager(conf, rmContext);
+        rmContext.setRMDelegationTokenSecretManager(rmDTSecretManager);
     }
-    super.serviceStart();
-  }
 
-  @Override
-  public void serviceStop() throws Exception {
-    if (rmDTSecretManager != null) {
-      rmDTSecretManager.stopThreads();
+    @Override
+    public void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
     }
-    if (amRmTokenSecretManager != null) {
-      amRmTokenSecretManager.stop();
+
+    @Override
+    public void serviceStart() throws Exception {
+        amRmTokenSecretManager.start();
+        containerTokenSecretManager.start();
+        nmTokenSecretManager.start();
+
+        try {
+            rmDTSecretManager.startThreads();
+        } catch (IOException ie) {
+            throw new YarnRuntimeException("Failed to start secret manager threads", ie);
+        }
+        super.serviceStart();
     }
-    if (containerTokenSecretManager != null) {
-      containerTokenSecretManager.stop();
+
+    @Override
+    public void serviceStop() throws Exception {
+        if (rmDTSecretManager != null) {
+            rmDTSecretManager.stopThreads();
+        }
+        if (amRmTokenSecretManager != null) {
+            amRmTokenSecretManager.stop();
+        }
+        if (containerTokenSecretManager != null) {
+            containerTokenSecretManager.stop();
+        }
+        if (nmTokenSecretManager != null) {
+            nmTokenSecretManager.stop();
+        }
+        super.serviceStop();
     }
-    if(nmTokenSecretManager != null) {
-      nmTokenSecretManager.stop();
+
+    protected RMContainerTokenSecretManager createContainerTokenSecretManager(
+        Configuration conf) {
+        return new RMContainerTokenSecretManager(conf);
     }
-    super.serviceStop();
-  }
 
-  protected RMContainerTokenSecretManager createContainerTokenSecretManager(
-      Configuration conf) {
-    return new RMContainerTokenSecretManager(conf);
-  }
+    protected NMTokenSecretManagerInRM createNMTokenSecretManager(
+        Configuration conf) {
+        return new NMTokenSecretManagerInRM(conf);
+    }
 
-  protected NMTokenSecretManagerInRM createNMTokenSecretManager(
-      Configuration conf) {
-    return new NMTokenSecretManagerInRM(conf);
-  }
+    protected AMRMTokenSecretManager createAMRMTokenSecretManager(
+        Configuration conf, RMContext rmContext) {
+        return new AMRMTokenSecretManager(conf, rmContext);
+    }
 
-  protected AMRMTokenSecretManager createAMRMTokenSecretManager(
-      Configuration conf, RMContext rmContext) {
-    return new AMRMTokenSecretManager(conf, rmContext);
-  }
+    protected ClientToAMTokenSecretManagerInRM createClientToAMTokenSecretManager() {
+        return new ClientToAMTokenSecretManagerInRM();
+    }
 
-  protected ClientToAMTokenSecretManagerInRM createClientToAMTokenSecretManager() {
-    return new ClientToAMTokenSecretManagerInRM();
-  }
+    @VisibleForTesting
+    protected RMDelegationTokenSecretManager createRMDelegationTokenSecretManager(
+        Configuration conf, RMContext rmContext) {
+        long secretKeyInterval =
+            conf.getLong(YarnConfiguration.RM_DELEGATION_KEY_UPDATE_INTERVAL_KEY,
+                YarnConfiguration.RM_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
+        long tokenMaxLifetime =
+            conf.getLong(YarnConfiguration.RM_DELEGATION_TOKEN_MAX_LIFETIME_KEY,
+                YarnConfiguration.RM_DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
+        long tokenRenewInterval =
+            conf.getLong(YarnConfiguration.RM_DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
+                YarnConfiguration.RM_DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
 
-  @VisibleForTesting
-  protected RMDelegationTokenSecretManager createRMDelegationTokenSecretManager(
-      Configuration conf, RMContext rmContext) {
-    long secretKeyInterval =
-        conf.getLong(YarnConfiguration.RM_DELEGATION_KEY_UPDATE_INTERVAL_KEY,
-            YarnConfiguration.RM_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
-    long tokenMaxLifetime =
-        conf.getLong(YarnConfiguration.RM_DELEGATION_TOKEN_MAX_LIFETIME_KEY,
-            YarnConfiguration.RM_DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
-    long tokenRenewInterval =
-        conf.getLong(YarnConfiguration.RM_DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
-            YarnConfiguration.RM_DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
-
-    return new RMDelegationTokenSecretManager(secretKeyInterval,
-        tokenMaxLifetime, tokenRenewInterval, 3600000, rmContext);
-  }
+        return new RMDelegationTokenSecretManager(secretKeyInterval,
+            tokenMaxLifetime, tokenRenewInterval, 3600000, rmContext);
+    }
 
 }

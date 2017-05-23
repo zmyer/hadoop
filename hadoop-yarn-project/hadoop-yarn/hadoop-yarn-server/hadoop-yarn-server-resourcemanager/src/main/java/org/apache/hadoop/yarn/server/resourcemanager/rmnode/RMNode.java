@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,8 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.rmnode;
 
-
 import java.util.List;
 import java.util.Set;
-
 import org.apache.hadoop.net.Node;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
@@ -34,157 +32,171 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.api.records.OpportunisticContainersStatus;
 
 /**
- * Node managers information on available resources 
+ * Node managers information on available resources
  * and other static information.
- *
  */
+// TODO: 17/3/25 by zmyer
 public interface RMNode {
 
-  /**
-   * the node id of of this node.
-   * @return the node id of this node.
-   */
-  public NodeId getNodeID();
-  
-  /**
-   * the hostname of this node
-   * @return hostname of this node
-   */
-  public String getHostName();
-  
-  /**
-   * the command port for this node
-   * @return command port for this node
-   */
-  public int getCommandPort();
-  
-  /**
-   * the http port for this node
-   * @return http port for this node
-   */
-  public int getHttpPort();
+    /**
+     * the node id of of this node.
+     *
+     * @return the node id of this node.
+     */
+    NodeId getNodeID();
 
+    /**
+     * the hostname of this node
+     *
+     * @return hostname of this node
+     */
+    String getHostName();
 
-  /**
-   * the ContainerManager address for this node.
-   * @return the ContainerManager address for this node.
-   */
-  public String getNodeAddress();
-  
-  /**
-   * the http-Address for this node.
-   * @return the http-url address for this node
-   */
-  public String getHttpAddress();
-  
-  /**
-   * the latest health report received from this node.
-   * @return the latest health report received from this node.
-   */
-  public String getHealthReport();
-  
-  /**
-   * the time of the latest health report received from this node.
-   * @return the time of the latest health report received from this node.
-   */
-  public long getLastHealthReportTime();
+    /**
+     * the command port for this node
+     *
+     * @return command port for this node
+     */
+    int getCommandPort();
 
-  /**
-   * the node manager version of the node received as part of the
-   * registration with the resource manager
-   */
-  public String getNodeManagerVersion();
+    /**
+     * the http port for this node
+     *
+     * @return http port for this node
+     */
+    int getHttpPort();
 
-  /**
-   * the total available resource.
-   * @return the total available resource.
-   */
-  public Resource getTotalCapability();
+    /**
+     * the ContainerManager address for this node.
+     *
+     * @return the ContainerManager address for this node.
+     */
+    String getNodeAddress();
 
-  /**
-   * the aggregated resource utilization of the containers.
-   * @return the aggregated resource utilization of the containers.
-   */
-  public ResourceUtilization getAggregatedContainersUtilization();
+    /**
+     * the http-Address for this node.
+     *
+     * @return the http-url address for this node
+     */
+    String getHttpAddress();
 
-  /**
-   * the total resource utilization of the node.
-   * @return the total resource utilization of the node.
-   */
-  public ResourceUtilization getNodeUtilization();
+    /**
+     * the latest health report received from this node.
+     *
+     * @return the latest health report received from this node.
+     */
+    String getHealthReport();
 
-  /**
-   * the physical resources in the node.
-   * @return the physical resources in the node.
-   */
-  Resource getPhysicalResource();
+    /**
+     * the time of the latest health report received from this node.
+     *
+     * @return the time of the latest health report received from this node.
+     */
+    long getLastHealthReportTime();
 
-  /**
-   * The rack name for this node manager.
-   * @return the rack name.
-   */
-  public String getRackName();
-  
-  /**
-   * the {@link Node} information for this node.
-   * @return {@link Node} information for this node.
-   */
-  public Node getNode();
-  
-  public NodeState getState();
+    /**
+     * the node manager version of the node received as part of the
+     * registration with the resource manager
+     */
+    String getNodeManagerVersion();
 
-  public List<ContainerId> getContainersToCleanUp();
+    /**
+     * the total available resource.
+     *
+     * @return the total available resource.
+     */
+    Resource getTotalCapability();
 
-  public List<ApplicationId> getAppsToCleanup();
+    /**
+     * the aggregated resource utilization of the containers.
+     *
+     * @return the aggregated resource utilization of the containers.
+     */
+    ResourceUtilization getAggregatedContainersUtilization();
 
-  List<ApplicationId> getRunningApps();
+    /**
+     * the total resource utilization of the node.
+     *
+     * @return the total resource utilization of the node.
+     */
+    ResourceUtilization getNodeUtilization();
 
-  /**
-   * Update a {@link NodeHeartbeatResponse} with the list of containers and
-   * applications to clean up for this node.
-   * @param response the {@link NodeHeartbeatResponse} to update
-   */
-  public void updateNodeHeartbeatResponseForCleanup(NodeHeartbeatResponse response);
+    /**
+     * the physical resources in the node.
+     *
+     * @return the physical resources in the node.
+     */
+    Resource getPhysicalResource();
 
-  public NodeHeartbeatResponse getLastNodeHeartBeatResponse();
+    /**
+     * The rack name for this node manager.
+     *
+     * @return the rack name.
+     */
+    String getRackName();
 
-  /**
-   * Reset lastNodeHeartbeatResponse's ID to 0.
-   */
-  void resetLastNodeHeartBeatResponse();
+    /**
+     * the {@link Node} information for this node.
+     *
+     * @return {@link Node} information for this node.
+     */
+    Node getNode();
 
-  /**
-   * Get and clear the list of containerUpdates accumulated across NM
-   * heartbeats.
-   * 
-   * @return containerUpdates accumulated across NM heartbeats.
-   */
-  public List<UpdatedContainerInfo> pullContainerUpdates();
-  
-  /**
-   * Get set of labels in this node
-   * 
-   * @return labels in this node
-   */
-  public Set<String> getNodeLabels();
-  
-  /**
-   * Update containers to be decreased
-   */
-  public void updateNodeHeartbeatResponseForContainersDecreasing(
-      NodeHeartbeatResponse response);
-  
-  public List<Container> pullNewlyIncreasedContainers();
+    NodeState getState();
 
-  OpportunisticContainersStatus getOpportunisticContainersStatus();
+    List<ContainerId> getContainersToCleanUp();
 
-  long getUntrackedTimeStamp();
+    List<ApplicationId> getAppsToCleanup();
 
-  void setUntrackedTimeStamp(long timeStamp);
-  /*
-   * Optional decommissioning timeout in second
-   * (null indicates default timeout).
-   * @return the decommissioning timeout in second.
-   */
-  Integer getDecommissioningTimeout();
+    List<ApplicationId> getRunningApps();
+
+    /**
+     * Update a {@link NodeHeartbeatResponse} with the list of containers and
+     * applications to clean up for this node.
+     *
+     * @param response the {@link NodeHeartbeatResponse} to update
+     */
+    void updateNodeHeartbeatResponseForCleanup(NodeHeartbeatResponse response);
+
+    NodeHeartbeatResponse getLastNodeHeartBeatResponse();
+
+    /**
+     * Reset lastNodeHeartbeatResponse's ID to 0.
+     */
+    void resetLastNodeHeartBeatResponse();
+
+    /**
+     * Get and clear the list of containerUpdates accumulated across NM
+     * heartbeats.
+     *
+     * @return containerUpdates accumulated across NM heartbeats.
+     */
+    List<UpdatedContainerInfo> pullContainerUpdates();
+
+    /**
+     * Get set of labels in this node
+     *
+     * @return labels in this node
+     */
+    Set<String> getNodeLabels();
+
+    /**
+     * Update containers to be decreased
+     */
+    void updateNodeHeartbeatResponseForContainersDecreasing(NodeHeartbeatResponse response);
+
+    List<Container> pullNewlyIncreasedContainers();
+
+    OpportunisticContainersStatus getOpportunisticContainersStatus();
+
+    long getUntrackedTimeStamp();
+
+    void setUntrackedTimeStamp(long timeStamp);
+
+    /*
+     * Optional decommissioning timeout in second
+     * (null indicates default timeout).
+     * @return the decommissioning timeout in second.
+     */
+    Integer getDecommissioningTimeout();
 }

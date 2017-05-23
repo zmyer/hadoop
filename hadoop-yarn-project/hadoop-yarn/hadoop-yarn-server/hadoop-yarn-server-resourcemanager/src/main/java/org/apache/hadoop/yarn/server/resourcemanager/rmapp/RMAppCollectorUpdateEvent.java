@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,18 +23,21 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 /**
  * Event used for updating collector address in RMApp on node heartbeat.
  */
+// TODO: 17/4/3 by zmyer
 public class RMAppCollectorUpdateEvent extends RMAppEvent {
 
-  private final String appCollectorAddr;
+    private final String appCollectorAddr;
 
-  public RMAppCollectorUpdateEvent(ApplicationId appId,
-      String appCollectorAddr) {
-    super(appId, RMAppEventType.COLLECTOR_UPDATE);
-    this.appCollectorAddr = appCollectorAddr;
-  }
+    // TODO: 17/4/3 by zmyer
+    public RMAppCollectorUpdateEvent(ApplicationId appId,
+        String appCollectorAddr) {
+        super(appId, RMAppEventType.COLLECTOR_UPDATE);
+        this.appCollectorAddr = appCollectorAddr;
+    }
 
-  public String getAppCollectorAddr(){
-    return this.appCollectorAddr;
-  }
+    // TODO: 17/4/3 by zmyer
+    public String getAppCollectorAddr() {
+        return this.appCollectorAddr;
+    }
 
 }

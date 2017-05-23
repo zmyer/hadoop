@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,22 +18,23 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.recovery;
 
+// TODO: 17/4/4 by zmyer
 public enum RMStateStoreEventType {
-  STORE_APP_ATTEMPT,
-  STORE_APP,
-  UPDATE_APP,
-  UPDATE_APP_ATTEMPT,
-  REMOVE_APP,
-  REMOVE_APP_ATTEMPT,
-  FENCED,
+    STORE_APP_ATTEMPT,
+    STORE_APP,
+    UPDATE_APP,
+    UPDATE_APP_ATTEMPT,
+    REMOVE_APP,
+    REMOVE_APP_ATTEMPT,
+    FENCED,
 
-  // Below events should be called synchronously
-  STORE_MASTERKEY,
-  REMOVE_MASTERKEY,
-  STORE_DELEGATION_TOKEN,
-  REMOVE_DELEGATION_TOKEN,
-  UPDATE_DELEGATION_TOKEN,
-  UPDATE_AMRM_TOKEN,
-  STORE_RESERVATION,
-  REMOVE_RESERVATION,
+    // Below events should be called synchronously
+    STORE_MASTERKEY,
+    REMOVE_MASTERKEY,
+    STORE_DELEGATION_TOKEN,
+    REMOVE_DELEGATION_TOKEN,
+    UPDATE_DELEGATION_TOKEN,
+    UPDATE_AMRM_TOKEN,
+    STORE_RESERVATION,
+    REMOVE_RESERVATION,
 }

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,101 +31,110 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 @Evolving
-public abstract class ExecutionTypeRequest
-    implements Comparable<ExecutionTypeRequest> {
+// TODO: 17/3/26 by zmyer
+public abstract class ExecutionTypeRequest implements Comparable<ExecutionTypeRequest> {
 
-  @Public
-  @Evolving
-  public static ExecutionTypeRequest newInstance() {
-    return newInstance(ExecutionType.GUARANTEED, false);
-  }
+    @Public
+    @Evolving
+    // TODO: 17/3/26 by zmyer
 
-  @Public
-  @Evolving
-  public static ExecutionTypeRequest newInstance(ExecutionType execType) {
-    return newInstance(execType, false);
-  }
-
-  @Public
-  @Evolving
-  public static ExecutionTypeRequest newInstance(ExecutionType execType,
-      boolean ensureExecutionType) {
-    ExecutionTypeRequest executionTypeRequest =
-        Records.newRecord(ExecutionTypeRequest.class);
-    executionTypeRequest.setExecutionType(execType);
-    executionTypeRequest.setEnforceExecutionType(ensureExecutionType);
-    return executionTypeRequest;
-  }
-
-  /**
-   * Set the <code>ExecutionType</code> of the requested container.
-   *
-   * @param execType
-   *          ExecutionType of the requested container
-   */
-  @Public
-  public abstract void setExecutionType(ExecutionType execType);
-
-  /**
-   * Get <code>ExecutionType</code>.
-   *
-   * @return <code>ExecutionType</code>.
-   */
-  @Public
-  public abstract ExecutionType getExecutionType();
-
-  /**
-   * Set to true to explicitly ask that the Scheduling Authority return
-   * Containers of exactly the Execution Type requested.
-   * @param enforceExecutionType whether ExecutionType request should be
-   *                            strictly honored.
-   */
-  @Public
-  public abstract void setEnforceExecutionType(boolean enforceExecutionType);
-
-
-  /**
-   * Get whether Scheduling Authority should return Containers of exactly the
-   * Execution Type requested for this <code>ResourceRequest</code>.
-   * Defaults to false.
-   * @return whether ExecutionType request should be strictly honored
-   */
-  @Public
-  public abstract boolean getEnforceExecutionType();
-
-  @Override
-  public int hashCode() {
-    final int prime = 2153;
-    int result = 2459;
-    ExecutionType executionType = getExecutionType();
-    boolean ensureExecutionType = getEnforceExecutionType();
-    result = prime * result + ((executionType == null) ? 0 :
-        executionType.hashCode());
-    result = prime * result + (ensureExecutionType ? 0 : 1);
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    public static ExecutionTypeRequest newInstance() {
+        return newInstance(ExecutionType.GUARANTEED, false);
     }
-    if (obj == null) {
-      return false;
+
+    @Public
+    @Evolving
+    // TODO: 17/3/26 by zmyer
+    public static ExecutionTypeRequest newInstance(ExecutionType execType) {
+        return newInstance(execType, false);
     }
-    if (getClass() != obj.getClass()) {
-      return false;
+
+    @Public
+    @Evolving
+    // TODO: 17/3/26 by zmyer
+    public static ExecutionTypeRequest newInstance(ExecutionType execType,
+        boolean ensureExecutionType) {
+        ExecutionTypeRequest executionTypeRequest =
+            Records.newRecord(ExecutionTypeRequest.class);
+        executionTypeRequest.setExecutionType(execType);
+        executionTypeRequest.setEnforceExecutionType(ensureExecutionType);
+        return executionTypeRequest;
     }
-    ExecutionTypeRequest other = (ExecutionTypeRequest) obj;
-    ExecutionType executionType = getExecutionType();
-    if (executionType == null) {
-      if (other.getExecutionType() != null) {
-        return false;
-      }
-    } else if (executionType != other.getExecutionType()) {
-      return false;
+
+    /**
+     * Set the <code>ExecutionType</code> of the requested container.
+     *
+     * @param execType ExecutionType of the requested container
+     */
+    @Public
+    // TODO: 17/3/26 by zmyer
+    public abstract void setExecutionType(ExecutionType execType);
+
+    /**
+     * Get <code>ExecutionType</code>.
+     *
+     * @return <code>ExecutionType</code>.
+     */
+    @Public
+    // TODO: 17/3/26 by zmyer
+    public abstract ExecutionType getExecutionType();
+
+    /**
+     * Set to true to explicitly ask that the Scheduling Authority return
+     * Containers of exactly the Execution Type requested.
+     *
+     * @param enforceExecutionType whether ExecutionType request should be strictly honored.
+     */
+    @Public
+    // TODO: 17/3/26 by zmyer
+    public abstract void setEnforceExecutionType(boolean enforceExecutionType);
+
+    /**
+     * Get whether Scheduling Authority should return Containers of exactly the
+     * Execution Type requested for this <code>ResourceRequest</code>.
+     * Defaults to false.
+     *
+     * @return whether ExecutionType request should be strictly honored
+     */
+    @Public
+    // TODO: 17/3/26 by zmyer
+    public abstract boolean getEnforceExecutionType();
+
+    // TODO: 17/3/26 by zmyer
+    @Override
+    public int hashCode() {
+        final int prime = 2153;
+        int result = 2459;
+        ExecutionType executionType = getExecutionType();
+        boolean ensureExecutionType = getEnforceExecutionType();
+        result = prime * result + ((executionType == null) ? 0 :
+            executionType.hashCode());
+        result = prime * result + (ensureExecutionType ? 0 : 1);
+        return result;
     }
-    boolean enforceExecutionType = getEnforceExecutionType();
-    return enforceExecutionType == other.getEnforceExecutionType();
-  }
+
+    // TODO: 17/3/26 by zmyer
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ExecutionTypeRequest other = (ExecutionTypeRequest) obj;
+        ExecutionType executionType = getExecutionType();
+        if (executionType == null) {
+            if (other.getExecutionType() != null) {
+                return false;
+            }
+        } else if (executionType != other.getExecutionType()) {
+            return false;
+        }
+        boolean enforceExecutionType = getEnforceExecutionType();
+        return enforceExecutionType == other.getEnforceExecutionType();
+    }
 }

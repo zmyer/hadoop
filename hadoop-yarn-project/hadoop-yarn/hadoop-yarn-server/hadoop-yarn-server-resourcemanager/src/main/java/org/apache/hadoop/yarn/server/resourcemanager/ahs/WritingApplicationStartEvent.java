@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,30 +21,35 @@ package org.apache.hadoop.yarn.server.resourcemanager.ahs;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.server.applicationhistoryservice.records.ApplicationStartData;
 
-public class WritingApplicationStartEvent extends
-    WritingApplicationHistoryEvent {
+// TODO: 17/4/3 by zmyer
+public class WritingApplicationStartEvent extends WritingApplicationHistoryEvent {
+    //应用id
+    private ApplicationId appId;
+    //应用启动数据
+    private ApplicationStartData appStart;
 
-  private ApplicationId appId;
-  private ApplicationStartData appStart;
+    // TODO: 17/4/3 by zmyer
+    public WritingApplicationStartEvent(ApplicationId appId,
+        ApplicationStartData appStart) {
+        super(WritingHistoryEventType.APP_START);
+        this.appId = appId;
+        this.appStart = appStart;
+    }
 
-  public WritingApplicationStartEvent(ApplicationId appId,
-      ApplicationStartData appStart) {
-    super(WritingHistoryEventType.APP_START);
-    this.appId = appId;
-    this.appStart = appStart;
-  }
+    // TODO: 17/4/3 by zmyer
+    @Override
+    public int hashCode() {
+        return appId.hashCode();
+    }
 
-  @Override
-  public int hashCode() {
-    return appId.hashCode();
-  }
+    // TODO: 17/4/3 by zmyer
+    public ApplicationId getApplicationId() {
+        return appId;
+    }
 
-  public ApplicationId getApplicationId() {
-    return appId;
-  }
-
-  public ApplicationStartData getApplicationStartData() {
-    return appStart;
-  }
+    // TODO: 17/4/3 by zmyer
+    public ApplicationStartData getApplicationStartData() {
+        return appStart;
+    }
 
 }

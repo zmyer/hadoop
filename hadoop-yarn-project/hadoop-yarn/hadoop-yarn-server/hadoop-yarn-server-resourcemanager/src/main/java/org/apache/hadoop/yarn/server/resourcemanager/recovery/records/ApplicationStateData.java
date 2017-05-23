@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.resourcemanager.recovery.records;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
@@ -35,164 +34,178 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * Contains all the state data that needs to be stored persistently 
+ * Contains all the state data that needs to be stored persistently
  * for an Application
  */
+// TODO: 17/3/23 by zmyer
 @Public
 @Unstable
 public abstract class ApplicationStateData {
-  public Map<ApplicationAttemptId, ApplicationAttemptStateData> attempts =
-      new HashMap<ApplicationAttemptId, ApplicationAttemptStateData>();
-  
-  public static ApplicationStateData newInstance(long submitTime,
-      long startTime, String user,
-      ApplicationSubmissionContext submissionContext, RMAppState state,
-      String diagnostics, long finishTime, CallerContext callerContext) {
-    ApplicationStateData appState = Records.newRecord(ApplicationStateData.class);
-    appState.setSubmitTime(submitTime);
-    appState.setStartTime(startTime);
-    appState.setUser(user);
-    appState.setApplicationSubmissionContext(submissionContext);
-    appState.setState(state);
-    appState.setDiagnostics(diagnostics);
-    appState.setFinishTime(finishTime);
-    appState.setCallerContext(callerContext);
-    return appState;
-  }
+    public Map<ApplicationAttemptId, ApplicationAttemptStateData> attempts = new HashMap<ApplicationAttemptId, ApplicationAttemptStateData>();
 
-  public static ApplicationStateData newInstance(long submitTime,
-      long startTime, String user,
-      ApplicationSubmissionContext submissionContext, RMAppState state,
-      String diagnostics, long finishTime, CallerContext callerContext,
-      Map<ApplicationTimeoutType, Long> applicationTimeouts) {
-    ApplicationStateData appState =
-        Records.newRecord(ApplicationStateData.class);
-    appState.setSubmitTime(submitTime);
-    appState.setStartTime(startTime);
-    appState.setUser(user);
-    appState.setApplicationSubmissionContext(submissionContext);
-    appState.setState(state);
-    appState.setDiagnostics(diagnostics);
-    appState.setFinishTime(finishTime);
-    appState.setCallerContext(callerContext);
-    appState.setApplicationTimeouts(applicationTimeouts);
-    return appState;
-  }
-
-  public static ApplicationStateData newInstance(long submitTime,
-      long startTime, ApplicationSubmissionContext context, String user,
-      CallerContext callerContext) {
-    return newInstance(submitTime, startTime, user, context, null, "", 0,
-        callerContext);
-  }
-  
-  public static ApplicationStateData newInstance(long submitTime,
-      long startTime, ApplicationSubmissionContext context, String user) {
-    return newInstance(submitTime, startTime, context, user, null);
-  }
-  
-  public int getAttemptCount() {
-    return attempts.size();
-  }
-
-  public ApplicationAttemptStateData getAttempt(
-      ApplicationAttemptId  attemptId) {
-    return attempts.get(attemptId);
-  }
-
-  public int getFirstAttemptId() {
-    int min = Integer.MAX_VALUE;
-    for(ApplicationAttemptId attemptId : attempts.keySet()) {
-      if (attemptId.getAttemptId() < min) {
-        min = attemptId.getAttemptId();
-      }
+    // TODO: 17/4/3 by zmyer
+    public static ApplicationStateData newInstance(long submitTime,
+        long startTime, String user,
+        ApplicationSubmissionContext submissionContext, RMAppState state,
+        String diagnostics, long finishTime, CallerContext callerContext) {
+        ApplicationStateData appState = Records.newRecord(ApplicationStateData.class);
+        appState.setSubmitTime(submitTime);
+        appState.setStartTime(startTime);
+        appState.setUser(user);
+        appState.setApplicationSubmissionContext(submissionContext);
+        appState.setState(state);
+        appState.setDiagnostics(diagnostics);
+        appState.setFinishTime(finishTime);
+        appState.setCallerContext(callerContext);
+        return appState;
     }
-    return min == Integer.MAX_VALUE ? 1 : min;
-  }
 
-  public abstract ApplicationStateDataProto getProto();
+    // TODO: 17/4/3 by zmyer
+    public static ApplicationStateData newInstance(long submitTime,
+        long startTime, String user,
+        ApplicationSubmissionContext submissionContext, RMAppState state,
+        String diagnostics, long finishTime, CallerContext callerContext,
+        Map<ApplicationTimeoutType, Long> applicationTimeouts) {
+        ApplicationStateData appState =
+            Records.newRecord(ApplicationStateData.class);
+        appState.setSubmitTime(submitTime);
+        appState.setStartTime(startTime);
+        appState.setUser(user);
+        appState.setApplicationSubmissionContext(submissionContext);
+        appState.setState(state);
+        appState.setDiagnostics(diagnostics);
+        appState.setFinishTime(finishTime);
+        appState.setCallerContext(callerContext);
+        appState.setApplicationTimeouts(applicationTimeouts);
+        return appState;
+    }
 
-  /**
-   * The time at which the application was received by the Resource Manager
-   * @return submitTime
-   */
-  @Public
-  @Unstable
-  public abstract long getSubmitTime();
-  
-  @Public
-  @Unstable
-  public abstract void setSubmitTime(long submitTime);
+    // TODO: 17/4/3 by zmyer
+    public static ApplicationStateData newInstance(long submitTime,
+        long startTime, ApplicationSubmissionContext context, String user,
+        CallerContext callerContext) {
+        return newInstance(submitTime, startTime, user, context, null, "", 0,
+            callerContext);
+    }
 
-  /**
-   * Get the <em>start time</em> of the application.
-   * @return <em>start time</em> of the application
-   */
-  @Public
-  @Stable
-  public abstract long getStartTime();
+    // TODO: 17/4/3 by zmyer
+    public static ApplicationStateData newInstance(long submitTime,
+        long startTime, ApplicationSubmissionContext context, String user) {
+        return newInstance(submitTime, startTime, context, user, null);
+    }
 
-  @Private
-  @Unstable
-  public abstract void setStartTime(long startTime);
+    // TODO: 17/4/3 by zmyer
+    public int getAttemptCount() {
+        return attempts.size();
+    }
 
-  /**
-   * The application submitter
-   */
-  @Public
-  @Unstable
-  public abstract void setUser(String user);
-  
-  @Public
-  @Unstable
-  public abstract String getUser();
-  
-  /**
-   * The {@link ApplicationSubmissionContext} for the application
-   * {@link ApplicationId} can be obtained from the this
-   * @return ApplicationSubmissionContext
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationSubmissionContext getApplicationSubmissionContext();
-  
-  @Public
-  @Unstable
-  public abstract void setApplicationSubmissionContext(
-      ApplicationSubmissionContext context);
+    // TODO: 17/4/3 by zmyer
+    public ApplicationAttemptStateData getAttempt(ApplicationAttemptId attemptId) {
+        return attempts.get(attemptId);
+    }
 
-  /**
-   * Get the final state of the application.
-   * @return the final state of the application.
-   */
-  public abstract RMAppState getState();
+    // TODO: 17/4/3 by zmyer
+    public int getFirstAttemptId() {
+        int min = Integer.MAX_VALUE;
+        for (ApplicationAttemptId attemptId : attempts.keySet()) {
+            if (attemptId.getAttemptId() < min) {
+                min = attemptId.getAttemptId();
+            }
+        }
+        return min == Integer.MAX_VALUE ? 1 : min;
+    }
 
-  public abstract void setState(RMAppState state);
+    // TODO: 17/4/3 by zmyer
+    public abstract ApplicationStateDataProto getProto();
 
-  /**
-   * Get the diagnostics information for the application master.
-   * @return the diagnostics information for the application master.
-   */
-  public abstract String getDiagnostics();
+    /**
+     * The time at which the application was received by the Resource Manager
+     *
+     * @return submitTime
+     */
+    // TODO: 17/4/3 by zmyer
+    @Public
+    @Unstable
+    public abstract long getSubmitTime();
 
-  public abstract void setDiagnostics(String diagnostics);
+    // TODO: 17/4/3 by zmyer
+    @Public
+    @Unstable
+    public abstract void setSubmitTime(long submitTime);
 
-  /**
-   * The finish time of the application.
-   * @return the finish time of the application.,
-   */
-  public abstract long getFinishTime();
+    /**
+     * Get the <em>start time</em> of the application.
+     *
+     * @return <em>start time</em> of the application
+     */
+    @Public
+    @Stable
+    public abstract long getStartTime();
 
-  public abstract void setFinishTime(long finishTime);
-  
-  public abstract CallerContext getCallerContext();
-  
-  public abstract void setCallerContext(CallerContext callerContext);
+    @Private
+    @Unstable
+    public abstract void setStartTime(long startTime);
 
-  @Public
-  public abstract Map<ApplicationTimeoutType, Long> getApplicationTimeouts();
+    /**
+     * The application submitter
+     */
+    @Public
+    @Unstable
+    public abstract void setUser(String user);
 
-  @Public
-  public abstract void setApplicationTimeouts(
-      Map<ApplicationTimeoutType, Long> applicationTimeouts);
+    @Public
+    @Unstable
+    public abstract String getUser();
+
+    /**
+     * The {@link ApplicationSubmissionContext} for the application
+     * {@link ApplicationId} can be obtained from the this
+     *
+     * @return ApplicationSubmissionContext
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationSubmissionContext getApplicationSubmissionContext();
+
+    @Public
+    @Unstable
+    public abstract void setApplicationSubmissionContext(ApplicationSubmissionContext context);
+
+    /**
+     * Get the final state of the application.
+     *
+     * @return the final state of the application.
+     */
+    public abstract RMAppState getState();
+
+    public abstract void setState(RMAppState state);
+
+    /**
+     * Get the diagnostics information for the application master.
+     *
+     * @return the diagnostics information for the application master.
+     */
+    public abstract String getDiagnostics();
+
+    public abstract void setDiagnostics(String diagnostics);
+
+    /**
+     * The finish time of the application.
+     *
+     * @return the finish time of the application.,
+     */
+    public abstract long getFinishTime();
+
+    public abstract void setFinishTime(long finishTime);
+
+    public abstract CallerContext getCallerContext();
+
+    public abstract void setCallerContext(CallerContext callerContext);
+
+    @Public
+    public abstract Map<ApplicationTimeoutType, Long> getApplicationTimeouts();
+
+    @Public
+    public abstract void setApplicationTimeouts(
+        Map<ApplicationTimeoutType, Long> applicationTimeouts);
 }

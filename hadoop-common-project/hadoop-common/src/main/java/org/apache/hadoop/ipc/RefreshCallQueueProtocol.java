@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package org.apache.hadoop.ipc;
 
 import java.io.IOException;
-
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
@@ -28,21 +27,22 @@ import org.apache.hadoop.security.KerberosInfo;
 /**
  * Protocol which is used to refresh the call queue in use currently.
  */
+// TODO: 17/3/19 by zmyer
 @KerberosInfo(
-    serverPrincipal=CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
+    serverPrincipal = CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
 @InterfaceAudience.LimitedPrivate({"HDFS"})
 @InterfaceStability.Evolving
 public interface RefreshCallQueueProtocol {
-  
-  /**
-   * Version 1: Initial version
-   */
-  public static final long versionID = 1L;
 
-  /**
-   * Refresh the callqueue.
-   * @throws IOException
-   */
-  @Idempotent
-  void refreshCallQueue() throws IOException;
+    /**
+     * Version 1: Initial version
+     */
+    public static final long versionID = 1L;
+
+    /**
+     * Refresh the callqueue.
+     * @throws IOException
+     */
+    @Idempotent
+    void refreshCallQueue() throws IOException;
 }

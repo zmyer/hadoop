@@ -161,8 +161,8 @@ public abstract class AbstractService implements Service {
      * This invokes {@link #serviceInit}
      *
      * @param conf the configuration of the service. This must not be null
-     * @throws ServiceStateException if the configuration was null, the state change not permitted, or something else
-     * went wrong
+     * @throws ServiceStateException if the configuration was null, the state change not permitted,
+     * or something else went wrong
      */
     // TODO: 17/3/20 by zmyer
     @Override
@@ -356,7 +356,8 @@ public abstract class AbstractService implements Service {
      * a new configuration instance, and if so, updates the base class value
      *
      * @param conf configuration
-     * @throws Exception on a failure -these will be caught, possibly wrapped, and wil; trigger a service stop
+     * @throws Exception on a failure -these will be caught, possibly wrapped, and wil; trigger a
+     * service stop
      */
     // TODO: 17/3/22 by zmyer
     protected void serviceInit(Configuration conf) throws Exception {
@@ -508,7 +509,8 @@ public abstract class AbstractService implements Service {
      * and log at the info level.
      *
      * @param newState the proposed new state
-     * @return the original state it wasn't already in that state, and the state model permits state re-entrancy.
+     * @return the original state it wasn't already in that state, and the state model permits state
+     * re-entrancy.
      */
     // TODO: 17/3/22 by zmyer
     private STATE enterState(STATE newState) {

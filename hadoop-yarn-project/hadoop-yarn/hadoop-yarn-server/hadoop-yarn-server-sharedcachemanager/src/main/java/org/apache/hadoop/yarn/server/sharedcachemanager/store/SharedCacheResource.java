@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.sharedcachemanager.store;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
@@ -30,35 +29,34 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
  * ensure safe access with the only exception of the filename.
  */
 @Private
-@Evolving
-class SharedCacheResource {
-  private long accessTime;
-  private final Set<SharedCacheResourceReference> refs;
-  private final String fileName;
+@Evolving class SharedCacheResource {
+    private long accessTime;
+    private final Set<SharedCacheResourceReference> refs;
+    private final String fileName;
 
-  SharedCacheResource(String fileName) {
-    this.accessTime = System.currentTimeMillis();
-    this.refs = new HashSet<SharedCacheResourceReference>();
-    this.fileName = fileName;
-  }
+    SharedCacheResource(String fileName) {
+        this.accessTime = System.currentTimeMillis();
+        this.refs = new HashSet<SharedCacheResourceReference>();
+        this.fileName = fileName;
+    }
 
-  long getAccessTime() {
-    return accessTime;
-  }
+    long getAccessTime() {
+        return accessTime;
+    }
 
-  void updateAccessTime() {
-    accessTime = System.currentTimeMillis();
-  }
+    void updateAccessTime() {
+        accessTime = System.currentTimeMillis();
+    }
 
-  String getFileName() {
-    return this.fileName;
-  }
+    String getFileName() {
+        return this.fileName;
+    }
 
-  Set<SharedCacheResourceReference> getResourceReferences() {
-    return this.refs;
-  }
+    Set<SharedCacheResourceReference> getResourceReferences() {
+        return this.refs;
+    }
 
-  boolean addReference(SharedCacheResourceReference ref) {
-    return this.refs.add(ref);
-  }
+    boolean addReference(SharedCacheResourceReference ref) {
+        return this.refs.add(ref);
+    }
 }

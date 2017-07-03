@@ -20,8 +20,8 @@ package org.apache.hadoop.net;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
-/** A base class that implements interface Node
- *
+/**
+ * A base class that implements interface Node
  */
 
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
@@ -43,9 +43,10 @@ public class NodeBase implements Node {
     public NodeBase() {
     }
 
-    /** Construct a node from its path
-     * @param path
-     *   a concatenation of this node's location, the path seperator, and its name
+    /**
+     * Construct a node from its path
+     *
+     * @param path a concatenation of this node's location, the path seperator, and its name
      */
     public NodeBase(String path) {
         path = normalize(path);
@@ -57,7 +58,9 @@ public class NodeBase implements Node {
         }
     }
 
-    /** Construct a node from its name and its location
+    /**
+     * Construct a node from its name and its location
+     *
      * @param name this node's name (can be null, must not contain {@link #PATH_SEPARATOR})
      * @param location this node's location
      */
@@ -65,7 +68,9 @@ public class NodeBase implements Node {
         set(name, normalize(location));
     }
 
-    /** Construct a node from its name and its location
+    /**
+     * Construct a node from its name and its location
+     *
      * @param name this node's name (can be null, must not contain {@link #PATH_SEPARATOR})
      * @param location this node's location
      * @param parent this node's parent node
@@ -79,6 +84,7 @@ public class NodeBase implements Node {
 
     /**
      * set this node's name and location
+     *
      * @param name the (nullable) name -which cannot contain the {@link #PATH_SEPARATOR}
      * @param location the location
      */
@@ -102,7 +108,9 @@ public class NodeBase implements Node {
         return location;
     }
 
-    /** Set this node's network location
+    /**
+     * Set this node's network location
+     *
      * @param location the location
      */
     @Override
@@ -112,6 +120,7 @@ public class NodeBase implements Node {
 
     /**
      * Get the path of a node
+     *
      * @param node a non-null node
      * @return the path of a node
      */
@@ -121,6 +130,7 @@ public class NodeBase implements Node {
 
     /**
      * Get the path components of a node.
+     *
      * @param node a non-null node
      * @return the path of a node
      */
@@ -150,12 +160,13 @@ public class NodeBase implements Node {
         return getPath(this);
     }
 
-    /** Normalize a path by stripping off any trailing {@link #PATH_SEPARATOR}
+    /**
+     * Normalize a path by stripping off any trailing {@link #PATH_SEPARATOR}
+     *
      * @param path path to normalize.
-     * @return the normalised path
-     * If <i>path</i>is null or empty {@link #ROOT} is returned
-     * @throws IllegalArgumentException if the first character of a non empty path
-     * is not {@link #PATH_SEPARATOR}
+     * @return the normalised path If <i>path</i>is null or empty {@link #ROOT} is returned
+     * @throws IllegalArgumentException if the first character of a non empty path is not {@link
+     * #PATH_SEPARATOR}
      */
     public static String normalize(String path) {
         if (path == null) {
@@ -186,7 +197,9 @@ public class NodeBase implements Node {
         return parent;
     }
 
-    /** Set this node's parent
+    /**
+     * Set this node's parent
+     *
      * @param parent the parent
      */
     @Override
@@ -194,15 +207,18 @@ public class NodeBase implements Node {
         this.parent = parent;
     }
 
-    /** @return this node's level in the tree.
-     * E.g. the root of a tree returns 0 and its children return 1
+    /**
+     * @return this node's level in the tree. E.g. the root of a tree returns 0 and its children
+     * return 1
      */
     @Override
     public int getLevel() {
         return level;
     }
 
-    /** Set this node's level in the tree
+    /**
+     * Set this node's level in the tree
+     *
      * @param level the level
      */
     @Override

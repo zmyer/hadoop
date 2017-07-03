@@ -55,18 +55,21 @@ import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 /**
  * This interface is used by the components to talk to the
  * scheduler for allocating of resources, cleaning up resources.
- *
  */
+
+// TODO: 17/5/27 by zmyer
 public interface YarnScheduler extends EventHandler<SchedulerEvent> {
 
     /**
      * Get queue information
+     *
      * @param queueName queue name
      * @param includeChildQueues include child queues?
      * @param recursive get children queues?
      * @return queue information
      * @throws IOException
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public QueueInfo getQueueInfo(String queueName, boolean includeChildQueues,
@@ -74,53 +77,66 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
 
     /**
      * Get acls for queues for current user.
+     *
      * @return acls for queues for current user
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public List<QueueUserACLInfo> getQueueUserAclInfo();
 
     /**
      * Get the whole resource capacity of the cluster.
+     *
      * @return the whole resource capacity of the cluster.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Unstable
     public Resource getClusterResource();
 
     /**
      * Get minimum allocatable {@link Resource}.
+     *
      * @return minimum allocatable resource
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public Resource getMinimumResourceCapability();
 
     /**
      * Get maximum allocatable {@link Resource} at the cluster level.
+     *
      * @return maximum allocatable resource
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public Resource getMaximumResourceCapability();
 
     /**
      * Get maximum allocatable {@link Resource} for the queue specified.
+     *
      * @param queueName queue name
      * @return maximum allocatable resource
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public Resource getMaximumResourceCapability(String queueName);
 
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Evolving
     ResourceCalculator getResourceCalculator();
 
     /**
      * Get the number of nodes available in the cluster.
+     *
      * @return the number of available nodes.
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     public int getNumClusterNodes();
@@ -139,6 +155,7 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param decreaseRequests
      * @return the {@link Allocation} for the application
      */
+    // TODO: 17/5/27 by zmyer
     @Public
     @Stable
     Allocation allocate(ApplicationAttemptId appAttemptId,
@@ -149,28 +166,34 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
 
     /**
      * Get node resource usage report.
+     *
      * @param nodeId
-     * @return the {@link SchedulerNodeReport} for the node or null
-     * if nodeId does not point to a defined node.
+     * @return the {@link SchedulerNodeReport} for the node or null if nodeId does not point to a
+     * defined node.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Stable
     public SchedulerNodeReport getNodeReport(NodeId nodeId);
 
     /**
      * Get the Scheduler app for a given app attempt Id.
+     *
      * @param appAttemptId the id of the application attempt
      * @return SchedulerApp for this given attempt.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Stable
     SchedulerAppReport getSchedulerAppInfo(ApplicationAttemptId appAttemptId);
 
     /**
      * Get a resource usage report from a given app attempt ID.
+     *
      * @param appAttemptId the id of the application attempt
      * @return resource usage report for this given attempt
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Evolving
     ApplicationResourceUsageReport getAppResourceUsageReport(
@@ -178,8 +201,10 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
 
     /**
      * Get the root queue for the scheduler.
+     *
      * @return the root queue for the scheduler.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Evolving
     QueueMetrics getRootQueueMetrics();
@@ -188,51 +213,58 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * Check if the user has permission to perform the operation.
      * If the user has {@link QueueACL#ADMINISTER_QUEUE} permission,
      * this user can view/modify the applications in this queue
+     *
      * @param callerUGI
      * @param acl
      * @param queueName
-     * @return <code>true</code> if the user has the permission,
-     *         <code>false</code> otherwise
+     * @return <code>true</code> if the user has the permission, <code>false</code> otherwise
      */
+    // TODO: 17/5/27 by zmyer
     boolean checkAccess(UserGroupInformation callerUGI,
         QueueACL acl, String queueName);
 
     /**
      * Gets the apps under a given queue
+     *
      * @param queueName the name of the queue.
      * @return a collection of app attempt ids in the given queue.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Stable
     public List<ApplicationAttemptId> getAppsInQueue(String queueName);
 
     /**
      * Get the container for the given containerId.
+     *
      * @param containerId
      * @return the container for the given containerId.
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Unstable
     public RMContainer getRMContainer(ContainerId containerId);
 
     /**
      * Moves the given application to the given queue
+     *
      * @param appId
      * @param newQueue
      * @return the name of the queue the application was placed into
      * @throws YarnException if the move cannot be carried out
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Evolving
     public String moveApplication(ApplicationId appId, String newQueue)
         throws YarnException;
 
     /**
-     *
      * @param appId Application ID
      * @param newQueue Target QueueName
      * @throws YarnException if the pre-validation for move cannot be carried out
      */
+    // TODO: 17/5/27 by zmyer
     @LimitedPrivate("yarn")
     @Evolving
     public void preValidateMoveApplication(ApplicationId appId,
@@ -246,6 +278,7 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param destQueue
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void moveAllApps(String sourceQueue, String destQueue) throws YarnException;
 
     /**
@@ -254,6 +287,7 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param queueName the name of queue to be drained
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void killAllAppsInQueue(String queueName) throws YarnException;
 
     /**
@@ -264,6 +298,7 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param queueName name of the queue to remove
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void removeQueue(String queueName) throws YarnException;
 
     /**
@@ -274,6 +309,7 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param newQueue the queue being added.
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void addQueue(Queue newQueue) throws YarnException;
 
     /**
@@ -283,17 +319,19 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * the CapacityScheduler, etc.
      *
      * @param queue the queue for which we change entitlement
-     * @param entitlement the new entitlement for the queue (capacity,
-     *              maxCapacity, etc..)
+     * @param entitlement the new entitlement for the queue (capacity, maxCapacity, etc..)
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void setEntitlement(String queue, QueueEntitlement entitlement)
         throws YarnException;
 
     /**
      * Gets the list of names for queues managed by the Reservation System
+     *
      * @return the list of queues which support reservations
      */
+    // TODO: 17/5/27 by zmyer
     public Set<String> getPlanQueues() throws YarnException;
 
     /**
@@ -302,51 +340,44 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      *
      * @return an EnumSet containing the resource types
      */
+    // TODO: 17/5/27 by zmyer
     public EnumSet<SchedulerResourceTypes> getSchedulingResourceTypes();
 
     /**
-     *
      * Verify whether a submitted application priority is valid as per configured
      * Queue
      *
-     * @param priorityFromContext
-     *          Submitted Application priority.
-     * @param user
-     *          User who submitted the Application
-     * @param queueName
-     *          Name of the Queue
-     * @param applicationId
-     *          Application ID
+     * @param priorityFromContext Submitted Application priority.
+     * @param user User who submitted the Application
+     * @param queueName Name of the Queue
+     * @param applicationId Application ID
      * @return Updated Priority from scheduler
      */
+    // TODO: 17/5/27 by zmyer
     public Priority checkAndGetApplicationPriority(Priority priorityFromContext,
         String user, String queueName, ApplicationId applicationId)
         throws YarnException;
 
     /**
-     *
      * Change application priority of a submitted application at runtime
      *
      * @param newPriority Submitted Application priority.
-     *
      * @param applicationId Application ID
-     *
      * @param future Sets any type of exception happened from StateStore
-     *
      * @return updated priority
      */
+    // TODO: 17/5/27 by zmyer
     public Priority updateApplicationPriority(Priority newPriority,
         ApplicationId applicationId, SettableFuture<Object> future)
         throws YarnException;
 
     /**
-     *
      * Get previous attempts' live containers for work-preserving AM restart.
      *
      * @param appAttemptId the id of the application attempt
-     *
      * @return list of live containers for the given attempt
      */
+    // TODO: 17/5/27 by zmyer
     List<Container> getTransferredContainers(ApplicationAttemptId appAttemptId);
 
     /**
@@ -355,11 +386,13 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      * @param conf
      * @throws YarnException
      */
+    // TODO: 17/5/27 by zmyer
     void setClusterMaxPriority(Configuration conf) throws YarnException;
 
     /**
      * @param attemptId
      */
+    // TODO: 17/5/27 by zmyer
     List<ResourceRequest> getPendingResourceRequestsForAttempt(
         ApplicationAttemptId attemptId);
 
@@ -368,15 +401,16 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      *
      * @return maximum priority of cluster
      */
+    // TODO: 17/5/27 by zmyer
     Priority getMaxClusterLevelAppPriority();
 
     /**
      * Get SchedulerNode corresponds to nodeId.
      *
      * @param nodeId the node id of RMNode
-     *
      * @return SchedulerNode corresponds to nodeId
      */
+    // TODO: 17/5/27 by zmyer
     SchedulerNode getSchedulerNode(NodeId nodeId);
 
     /**
@@ -384,5 +418,6 @@ public interface YarnScheduler extends EventHandler<SchedulerEvent> {
      *
      * @param request the resource request to be normalized
      */
+    // TODO: 17/5/27 by zmyer
     void normalizeRequest(AbstractResourceRequest request);
 }

@@ -57,7 +57,8 @@ public class CompositeService extends AbstractService {
     /**
      * Get a cloned list of services
      *
-     * @return a list of child services at the time of invocation - added services will not be picked up.
+     * @return a list of child services at the time of invocation - added services will not be
+     * picked up.
      */
     // TODO: 17/3/22 by zmyer
     public List<Service> getServices() {
@@ -153,10 +154,10 @@ public class CompositeService extends AbstractService {
      * Stop the services in reverse order
      *
      * @param numOfServicesStarted index from where the stop should work
-     * @param stopOnlyStartedServices flag to say "only start services that are started, not those that are NOTINITED or
-     * INITED.
-     * @throws RuntimeException the first exception raised during the stop process -<i>after all services are
-     * stopped</i>
+     * @param stopOnlyStartedServices flag to say "only start services that are started, not those
+     * that are NOTINITED or INITED.
+     * @throws RuntimeException the first exception raised during the stop process -<i>after all
+     * services are stopped</i>
      */
     // TODO: 17/3/22 by zmyer
     private void stop(int numOfServicesStarted, boolean stopOnlyStartedServices) {

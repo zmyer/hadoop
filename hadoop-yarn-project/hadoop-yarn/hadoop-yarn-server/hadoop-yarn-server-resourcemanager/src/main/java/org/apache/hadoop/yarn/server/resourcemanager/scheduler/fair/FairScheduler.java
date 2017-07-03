@@ -450,7 +450,7 @@ public class FairScheduler extends AbstractYarnScheduler<FSAppAttempt, FSSchedul
         boolean isAppRecovering) {
         if (queueName == null || queueName.isEmpty()) {
             String message = "Reject application " + applicationId + " submitted by user " + user
-                    + " with an empty queue name.";
+                + " with an empty queue name.";
             LOG.info(message);
             rmContext.getDispatcher().getEventHandler().handle(
                 new RMAppEvent(applicationId, RMAppEventType.APP_REJECTED,
@@ -835,7 +835,7 @@ public class FairScheduler extends AbstractYarnScheduler<FSAppAttempt, FSSchedul
             if (!ask.isEmpty()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("allocate: pre-update" + " applicationAttemptId=" + appAttemptId
-                            + " application=" + application.getApplicationId());
+                        + " application=" + application.getApplicationId());
                 }
                 application.showRequests();
 
@@ -850,8 +850,8 @@ public class FairScheduler extends AbstractYarnScheduler<FSAppAttempt, FSSchedul
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("allocate: post-update" + " applicationAttemptId=" + appAttemptId
-                    + " #ask=" + ask.size() + " reservation= " + application
-                    .getCurrentReservation());
+                + " #ask=" + ask.size() + " reservation= " + application
+                .getCurrentReservation());
 
             LOG.debug("Preempting " + application.getPreemptionContainers().size()
                 + " container(s)");

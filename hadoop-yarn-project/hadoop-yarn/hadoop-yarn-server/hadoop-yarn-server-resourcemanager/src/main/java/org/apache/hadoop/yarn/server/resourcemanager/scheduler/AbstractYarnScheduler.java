@@ -95,8 +95,7 @@ public abstract class AbstractYarnScheduler
 
     private static final Log LOG = LogFactory.getLog(AbstractYarnScheduler.class);
 
-    protected final ClusterNodeTracker<N> nodeTracker =
-        new ClusterNodeTracker<>();
+    protected final ClusterNodeTracker<N> nodeTracker = new ClusterNodeTracker<>();
 
     protected Resource minimumAllocation;
 
@@ -117,8 +116,7 @@ public abstract class AbstractYarnScheduler
     protected ConcurrentMap<ApplicationId, SchedulerApplication<T>> applications;
     protected int nmExpireInterval;
 
-    protected final static List<Container> EMPTY_CONTAINER_LIST =
-        new ArrayList<Container>();
+    protected final static List<Container> EMPTY_CONTAINER_LIST = new ArrayList<Container>();
     protected static final Allocation EMPTY_ALLOCATION = new Allocation(
         EMPTY_CONTAINER_LIST, Resources.createResource(0), null, null, null);
 
@@ -618,7 +616,8 @@ public abstract class AbstractYarnScheduler
         ContainerStatus containerStatus, RMContainerEventType event);
 
     // TODO: 17/4/6 by zmyer
-    protected void releaseContainers(List<ContainerId> containers, SchedulerApplicationAttempt attempt) {
+    protected void releaseContainers(List<ContainerId> containers,
+        SchedulerApplicationAttempt attempt) {
         for (ContainerId containerId : containers) {
             //更加容器id,读取对应的容器对象
             RMContainer rmContainer = getRMContainer(containerId);

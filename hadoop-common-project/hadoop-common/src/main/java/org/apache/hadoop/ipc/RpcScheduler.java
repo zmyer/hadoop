@@ -20,7 +20,6 @@ package org.apache.hadoop.ipc;
 
 /**
  * Implement this interface to be used for RPC scheduling and backoff.
- *
  */
 // TODO: 17/3/19 by zmyer
 public interface RpcScheduler {

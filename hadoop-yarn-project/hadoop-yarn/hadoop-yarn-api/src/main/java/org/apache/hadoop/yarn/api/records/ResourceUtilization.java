@@ -31,14 +31,12 @@ import org.apache.hadoop.yarn.util.Records;
 // TODO: 17/3/25 by zmyer
 @Public
 @Unstable
-public abstract class ResourceUtilization implements
-    Comparable<ResourceUtilization> {
+public abstract class ResourceUtilization implements Comparable<ResourceUtilization> {
 
     @Public
     @Unstable
     public static ResourceUtilization newInstance(int pmem, int vmem, float cpu) {
-        ResourceUtilization utilization =
-            Records.newRecord(ResourceUtilization.class);
+        ResourceUtilization utilization = Records.newRecord(ResourceUtilization.class);
         utilization.setPhysicalMemory(pmem);
         utilization.setVirtualMemory(vmem);
         utilization.setCPU(cpu);
@@ -145,6 +143,7 @@ public abstract class ResourceUtilization implements
 
     /**
      * Add utilization to the current one.
+     *
      * @param pmem Physical memory used to add.
      * @param vmem Virtual memory used to add.
      * @param cpu CPU utilization to add.
@@ -159,6 +158,7 @@ public abstract class ResourceUtilization implements
 
     /**
      * Subtract utilization from the current one.
+     *
      * @param pmem Physical memory to be subtracted.
      * @param vmem Virtual memory to be subtracted.
      * @param cpu CPU utilization to be subtracted.

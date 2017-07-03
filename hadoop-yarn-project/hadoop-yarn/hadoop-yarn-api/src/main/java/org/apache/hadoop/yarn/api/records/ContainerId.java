@@ -79,7 +79,8 @@ public abstract class ContainerId implements Comparable<ContainerId> {
      * attempt's <code>ApplicationAttemptId</code>.
      * </p>
      *
-     * @return <code>ApplicationAttemptId</code> of the application to which the <code>Container</code> was assigned
+     * @return <code>ApplicationAttemptId</code> of the application to which the
+     * <code>Container</code> was assigned
      */
     @Public
     @Stable
@@ -177,8 +178,9 @@ public abstract class ContainerId implements Comparable<ContainerId> {
 
     /**
      * @return A string representation of containerId. The format is container_e*epoch*_*clusterTimestamp*_*appId*_*attemptId*_*containerId*
-     * when epoch is larger than 0 (e.g. container_e17_1410901177871_0001_01_000005). *epoch* is increased when RM
-     * restarts or fails over. When epoch is 0, epoch is omitted (e.g. container_1410901177871_0001_01_000005).
+     * when epoch is larger than 0 (e.g. container_e17_1410901177871_0001_01_000005). *epoch* is
+     * increased when RM restarts or fails over. When epoch is 0, epoch is omitted (e.g.
+     * container_1410901177871_0001_01_000005).
      */
     @Override
     public String toString() {

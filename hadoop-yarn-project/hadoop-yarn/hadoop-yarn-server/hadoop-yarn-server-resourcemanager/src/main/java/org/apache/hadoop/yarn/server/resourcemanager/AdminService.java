@@ -100,55 +100,66 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
     ResourceManagerAdministrationProtocol {
 
     private static final Log LOG = LogFactory.getLog(AdminService.class);
-
+    //rm上下文对象
     private final RMContext rmContext;
+    //rm管理器
     private final ResourceManager rm;
+    //rm id
     private String rmId;
-
+    //是否开启容错模式
     private boolean autoFailoverEnabled;
-
+    //服务器对象
     private Server server;
 
     // Address to use for binding. May be a wildcard address.
+    //主节点绑定地址
     private InetSocketAddress masterServiceBindAddress;
-
+    //认证对象
     private YarnAuthorizationProvider authorizer;
-
+    //记录工厂对象
     private final RecordFactory recordFactory =
         RecordFactoryProvider.getRecordFactory(null);
-
+    //用户组对象
     private UserGroupInformation daemonUser;
 
     @VisibleForTesting
     boolean isCentralizedNodeLabelConfiguration = true;
 
+    // TODO: 17/5/27 by zmyer
     public AdminService(ResourceManager rm, RMContext rmContext) {
         super(AdminService.class.getName());
         this.rm = rm;
         this.rmContext = rmContext;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public void serviceInit(Configuration conf) throws Exception {
         autoFailoverEnabled =
             rmContext.isHAEnabled() && HAUtil.isAutomaticFailoverEnabled(conf);
 
+        //读取主节点服务绑定地址
         masterServiceBindAddress = conf.getSocketAddr(
             YarnConfiguration.RM_BIND_HOST,
             YarnConfiguration.RM_ADMIN_ADDRESS,
             YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
             YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
+        //用户组
         daemonUser = UserGroupInformation.getCurrentUser();
+        //认证
         authorizer = YarnAuthorizationProvider.getInstance(conf);
+        //设置管理用户组
         authorizer.setAdmins(getAdminAclList(conf), daemonUser);
+        //rm id
         rmId = conf.get(YarnConfiguration.RM_HA_ID);
-
+        //
         isCentralizedNodeLabelConfiguration =
             YarnConfiguration.isCentralizedNodeLabelConfiguration(conf);
 
         super.serviceInit(conf);
     }
 
+    // TODO: 17/5/27 by zmyer
     private AccessControlList getAdminAclList(Configuration conf) {
         AccessControlList aclList = new AccessControlList(conf.get(
             YarnConfiguration.YARN_ADMIN_ACL,
@@ -157,21 +168,27 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return aclList;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     protected void serviceStart() throws Exception {
         startServer();
         super.serviceStart();
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     protected void serviceStop() throws Exception {
         stopServer();
         super.serviceStop();
     }
 
+    // TODO: 17/5/27 by zmyer
     protected void startServer() throws Exception {
+        //获取配置
         Configuration conf = getConfig();
+        //创建rpc对象
         YarnRPC rpc = YarnRPC.create(conf);
+        //创建rpc服务器对象
         this.server = (Server) rpc.getServer(
             ResourceManagerAdministrationProtocol.class, this, masterServiceBindAddress,
             conf, null,
@@ -179,45 +196,55 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
                 YarnConfiguration.DEFAULT_RM_ADMIN_CLIENT_THREAD_COUNT));
 
         // Enable service authorization?
+        //开启了认证模式
         if (conf.getBoolean(
             CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHORIZATION,
             false)) {
+            //刷新acl列表
             refreshServiceAcls(
                 getConfiguration(conf,
                     YarnConfiguration.HADOOP_POLICY_CONFIGURATION_FILE),
                 RMPolicyProvider.getInstance());
         }
 
+        //开启了HA
         if (rmContext.isHAEnabled()) {
+            //设置rpc engine
             RPC.setProtocolEngine(conf, HAServiceProtocolPB.class,
                 ProtobufRpcEngine.class);
-
+            //创建服务器端协议转换对象
             HAServiceProtocolServerSideTranslatorPB haServiceProtocolXlator =
                 new HAServiceProtocolServerSideTranslatorPB(this);
+            //创建阻塞服务对象
             BlockingService haPbService =
                 HAServiceProtocolProtos.HAServiceProtocolService
                     .newReflectiveBlockingService(haServiceProtocolXlator);
+            //增加服务器支持的协议
             server.addProtocol(RPC.RpcKind.RPC_PROTOCOL_BUFFER,
                 HAServiceProtocol.class, haPbService);
         }
-
+        //启动服务
         this.server.start();
+        //更新连接地址
         conf.updateConnectAddr(YarnConfiguration.RM_BIND_HOST,
             YarnConfiguration.RM_ADMIN_ADDRESS,
             YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
             server.getListenerAddress());
     }
 
+    // TODO: 17/5/27 by zmyer
     protected void stopServer() throws Exception {
         if (this.server != null) {
             this.server.stop();
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private UserGroupInformation checkAccess(String method) throws IOException {
         return RMServerUtils.verifyAdminAccess(authorizer, method, LOG);
     }
 
+    // TODO: 17/5/27 by zmyer
     private UserGroupInformation checkAcls(String method) throws YarnException {
         try {
             return checkAccess(method);
@@ -234,6 +261,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
      * @param req the request to check
      * @throws AccessControlException if the request is disallowed
      */
+    // TODO: 17/5/27 by zmyer
     private void checkHaStateChange(StateChangeRequestInfo req)
         throws AccessControlException {
         switch (req.getSource()) {
@@ -263,14 +291,17 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private synchronized boolean isRMActive() {
         return HAServiceState.ACTIVE == rmContext.getHAServiceState();
     }
 
+    // TODO: 17/5/27 by zmyer
     private void throwStandbyException() throws StandbyException {
         throw new StandbyException("ResourceManager " + rmId + " is not Active!");
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public synchronized void monitorHealth()
         throws IOException {
@@ -326,6 +357,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             "RM");
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public synchronized void transitionToStandby(
         HAServiceProtocol.StateChangeRequestInfo reqInfo) throws IOException {
@@ -358,6 +390,8 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
      * @return {@link HAServiceStatus} of the current RM
      * @throws IOException if the caller does not have permissions
      */
+
+    // TODO: 17/5/27 by zmyer
     @Override
     public synchronized HAServiceStatus getServiceStatus() throws IOException {
         checkAccess("getServiceState");
@@ -371,6 +405,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return ret;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshQueuesResponse refreshQueues(RefreshQueuesRequest request)
         throws YarnException, StandbyException {
@@ -392,6 +427,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshQueues() throws IOException, YarnException {
         rmContext.getScheduler().reinitialize(getConfig(), this.rmContext);
         // refresh the reservation system
@@ -401,6 +437,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshNodesResponse refreshNodes(RefreshNodesRequest request)
         throws YarnException, StandbyException {
@@ -434,6 +471,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshNodes() throws IOException, YarnException {
         Configuration conf =
             getConfiguration(new Configuration(false),
@@ -441,6 +479,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         rmContext.getNodesListManager().refreshNodes(conf);
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshSuperUserGroupsConfigurationResponse refreshSuperUserGroupsConfiguration(
         RefreshSuperUserGroupsConfigurationRequest request)
@@ -459,6 +498,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             RefreshSuperUserGroupsConfigurationResponse.class);
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshSuperUserGroupsConfiguration()
         throws IOException, YarnException {
         // Accept hadoop common configs in core-site.xml as well as RM specific
@@ -471,6 +511,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         ProxyUsers.refreshSuperUserGroupsConfiguration(conf);
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshUserToGroupsMappingsResponse refreshUserToGroupsMappings(
         RefreshUserToGroupsMappingsRequest request)
@@ -488,18 +529,21 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             RefreshUserToGroupsMappingsResponse.class);
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshUserToGroupsMappings() throws IOException, YarnException {
         Groups.getUserToGroupsMappingService(
             getConfiguration(new Configuration(false),
                 YarnConfiguration.CORE_SITE_CONFIGURATION_FILE)).refresh();
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshAdminAclsResponse refreshAdminAcls(
         RefreshAdminAclsRequest request) throws YarnException, IOException {
         return refreshAdminAcls(true);
     }
 
+    // TODO: 17/5/27 by zmyer
     private RefreshAdminAclsResponse refreshAdminAcls(boolean checkRMHAState)
         throws YarnException, IOException {
         final String operation = "refreshAdminAcls";
@@ -518,6 +562,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return recordFactory.newRecordInstance(RefreshAdminAclsResponse.class);
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshServiceAclsResponse refreshServiceAcls(
         RefreshServiceAclsRequest request) throws YarnException, IOException {
@@ -542,6 +587,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return recordFactory.newRecordInstance(RefreshServiceAclsResponse.class);
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshServiceAcls() throws IOException, YarnException {
         PolicyProvider policyProvider = RMPolicyProvider.getInstance();
         Configuration conf =
@@ -556,17 +602,20 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             conf, policyProvider);
     }
 
+    // TODO: 17/5/27 by zmyer
     private synchronized void refreshServiceAcls(Configuration configuration,
         PolicyProvider policyProvider) {
         this.server.refreshServiceAclWithLoadedConfiguration(configuration,
             policyProvider);
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public String[] getGroupsForUser(String user) throws IOException {
         return UserGroupInformation.createRemoteUser(user).getGroupNames();
     }
 
+    // TODO: 17/5/27 by zmyer
     @SuppressWarnings("unchecked")
     @Override
     public UpdateNodeResourceResponse updateNodeResource(
@@ -623,6 +672,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return response;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshNodesResourcesResponse refreshNodesResources(
         RefreshNodesResourcesRequest request)
@@ -670,6 +720,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private synchronized Configuration getConfiguration(Configuration conf,
         String... confFileNames) throws YarnException, IOException {
         for (String confFileName : confFileNames) {
@@ -685,6 +736,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
     /*
      * Visibility could be private for test its made as default
      */
+    // TODO: 17/5/27 by zmyer
     @VisibleForTesting
     void refreshAll() throws ServiceFailedException {
         try {
@@ -715,8 +767,10 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return this.server;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
-    public AddToClusterNodeLabelsResponse addToClusterNodeLabels(AddToClusterNodeLabelsRequest request)
+    public AddToClusterNodeLabelsResponse addToClusterNodeLabels(
+        AddToClusterNodeLabelsRequest request)
         throws YarnException, IOException {
         final String operation = "addToClusterNodeLabels";
         final String msg = "add labels.";
@@ -728,14 +782,14 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             recordFactory.newRecordInstance(AddToClusterNodeLabelsResponse.class);
         try {
             rmContext.getNodeLabelManager().addToCluserNodeLabels(request.getNodeLabels());
-            RMAuditLogger
-                .logSuccess(user.getShortUserName(), operation, "AdminService");
+            RMAuditLogger.logSuccess(user.getShortUserName(), operation, "AdminService");
             return response;
         } catch (IOException ioe) {
             throw logAndWrapException(ioe, user.getShortUserName(), operation, msg);
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RemoveFromClusterNodeLabelsResponse removeFromClusterNodeLabels(
         RemoveFromClusterNodeLabelsRequest request) throws YarnException, IOException {
@@ -750,14 +804,14 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
             recordFactory.newRecordInstance(RemoveFromClusterNodeLabelsResponse.class);
         try {
             rmContext.getNodeLabelManager().removeFromClusterNodeLabels(request.getNodeLabels());
-            RMAuditLogger
-                .logSuccess(user.getShortUserName(), operation, "AdminService");
+            RMAuditLogger.logSuccess(user.getShortUserName(), operation, "AdminService");
             return response;
         } catch (IOException ioe) {
             throw logAndWrapException(ioe, user.getShortUserName(), operation, msg);
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public ReplaceLabelsOnNodeResponse replaceLabelsOnNode(
         ReplaceLabelsOnNodeRequest request) throws YarnException, IOException {
@@ -823,14 +877,14 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         try {
             rmContext.getNodeLabelManager().replaceLabelsOnNode(
                 request.getNodeToLabels());
-            RMAuditLogger
-                .logSuccess(user.getShortUserName(), operation, "AdminService");
+            RMAuditLogger.logSuccess(user.getShortUserName(), operation, "AdminService");
             return response;
         } catch (IOException ioe) {
             throw logAndWrapException(ioe, user.getShortUserName(), operation, msg);
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private void checkRMStatus(String user, String operation, String msg)
         throws StandbyException {
         if (!isRMActive()) {
@@ -840,6 +894,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private YarnException logAndWrapException(Exception exception, String user,
         String operation, String msg) throws YarnException {
         LOG.warn("Exception " + msg, exception);
@@ -848,6 +903,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return RPCUtil.getRemoteException(exception);
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public CheckForDecommissioningNodesResponse checkForDecommissioningNodes(
         CheckForDecommissioningNodesRequest checkForDecommissioningNodesRequest)
@@ -868,6 +924,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         return response;
     }
 
+    // TODO: 17/5/27 by zmyer
     @Override
     public RefreshClusterMaxPriorityResponse refreshClusterMaxPriority(
         RefreshClusterMaxPriorityRequest request) throws YarnException,
@@ -889,6 +946,7 @@ public class AdminService extends CompositeService implements HAServiceProtocol,
         }
     }
 
+    // TODO: 17/5/27 by zmyer
     private void refreshClusterMaxPriority() throws IOException, YarnException {
         Configuration conf =
             getConfiguration(new Configuration(false),

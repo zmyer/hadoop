@@ -115,8 +115,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
 
     protected ResourceUsage attemptResourceUsage = new ResourceUsage();
     /** Resource usage of opportunistic containers. */
-    protected ResourceUsage attemptOpportunisticResourceUsage =
-        new ResourceUsage();
+    protected ResourceUsage attemptOpportunisticResourceUsage = new ResourceUsage();
     /** Scheduled by a remote scheduler. */
     protected ResourceUsage attemptResourceUsageAllocatedRemotely = new ResourceUsage();
     private AtomicLong firstAllocationRequestSentTime = new AtomicLong(0);

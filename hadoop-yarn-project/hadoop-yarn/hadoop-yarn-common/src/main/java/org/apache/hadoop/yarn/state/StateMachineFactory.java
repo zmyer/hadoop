@@ -162,8 +162,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      * @param preState pre-transition state
      * @param postState post-transition state
      * @param eventType stimulus for the transition
-     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as a new legal
-     * transition.  This overload has no hook object.
+     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as
+     * a new legal transition.  This overload has no hook object.
      *
      * Note that the returned StateMachineFactory is a distinct object.
      *
@@ -180,8 +180,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      * @param preState pre-transition state
      * @param postState post-transition state
      * @param eventTypes List of stimuli for the transitions
-     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as a new legal
-     * transition.  This overload has no hook object.
+     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as
+     * a new legal transition.  This overload has no hook object.
      *
      *
      * Note that the returned StateMachineFactory is a distinct object.
@@ -200,8 +200,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      * @param postState post-transition state
      * @param eventTypes List of stimuli for the transitions
      * @param hook transition hook
-     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as a new legal
-     * transition
+     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as
+     * a new legal transition
      *
      * Note that the returned StateMachineFactory is a distinct object.
      *
@@ -232,8 +232,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      * @param postState post-transition state
      * @param eventType stimulus for the transition
      * @param hook transition hook
-     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as a new legal
-     * transition
+     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as
+     * a new legal transition
      *
      * Note that the returned StateMachineFactory is a distinct object.
      *
@@ -241,7 +241,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      */
     // TODO: 17/3/25 by zmyer
     public StateMachineFactory<OPERAND, STATE, EVENTTYPE, EVENT>
-    addTransition(STATE preState, STATE postState, EVENTTYPE eventType, SingleArcTransition<OPERAND, EVENT> hook) {
+    addTransition(STATE preState, STATE postState, EVENTTYPE eventType,
+        SingleArcTransition<OPERAND, EVENT> hook) {
         //创建状态机工厂对象
         return new StateMachineFactory<>(this, new ApplicableSingleOrMultipleTransition<>
             (preState, eventType, new SingleInternalArc(postState, hook)));
@@ -252,8 +253,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
      * @param postStates valid post-transition states
      * @param eventType stimulus for the transition
      * @param hook transition hook
-     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as a new legal
-     * transition
+     * @return a NEW StateMachineFactory just like {@code this} with the current transition added as
+     * a new legal transition
      *
      * Note that the returned StateMachineFactory is a distinct object.
      *
@@ -269,18 +270,18 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
     }
 
     /**
-     * @return a StateMachineFactory just like {@code this}, except that if you won't need any synchronization to build
-     * a state machine
+     * @return a StateMachineFactory just like {@code this}, except that if you won't need any
+     * synchronization to build a state machine
      *
      * Note that the returned StateMachineFactory is a distinct object.
      *
      * This method is part of the API.
      *
-     * The only way you could distinguish the returned StateMachineFactory from {@code this} would be by measuring the
-     * performance of the derived {@code StateMachine} you can get from it.
+     * The only way you could distinguish the returned StateMachineFactory from {@code this} would
+     * be by measuring the performance of the derived {@code StateMachine} you can get from it.
      *
-     * Calling this is optional.  It doesn't change the semantics of the factory, if you call it then when you use the
-     * factory there is no synchronization.
+     * Calling this is optional.  It doesn't change the semantics of the factory, if you call it
+     * then when you use the factory there is no synchronization.
      */
     // TODO: 17/3/25 by zmyer
     public StateMachineFactory<OPERAND, STATE, EVENTTYPE, EVENT> installTopology() {
@@ -368,7 +369,8 @@ final public class StateMachineFactory<OPERAND, STATE extends Enum<STATE>,
 
         // TODO: 17/3/25 by zmyer
         @Override
-        public STATE doTransition(OPERAND operand, STATE oldState, EVENT event, EVENTTYPE eventType) {
+        public STATE doTransition(OPERAND operand, STATE oldState, EVENT event,
+            EVENTTYPE eventType) {
             if (hook != null) {
                 hook.transition(operand, event);
             }

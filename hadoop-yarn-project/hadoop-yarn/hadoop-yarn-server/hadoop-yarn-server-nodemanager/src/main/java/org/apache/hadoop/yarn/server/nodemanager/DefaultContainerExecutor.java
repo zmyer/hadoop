@@ -185,8 +185,8 @@ public class DefaultContainerExecutor extends ContainerExecutor {
      * @param localDirs a list of directories to use as destinations for the localization
      * @param localizerFc the {@link FileContext} to use when localizing files
      * @return the new {@link ContainerLocalizer} instance
-     * @throws IOException if {@code user} or {@code locId} is {@code null} or if the container localizer has an
-     * initialization failure
+     * @throws IOException if {@code user} or {@code locId} is {@code null} or if the container
+     * localizer has an initialization failure
      */
     @Private
     @VisibleForTesting
@@ -339,8 +339,8 @@ public class DefaultContainerExecutor extends ContainerExecutor {
      * @param user the application owner's username
      * @param pidFile the path to the container's PID file
      * @param resource this parameter controls memory and CPU limits.
-     * @param workDir If not-null, specifies the directory which should be set as the current working directory for the
-     * command. If null, the current working directory is not modified.
+     * @param workDir If not-null, specifies the directory which should be set as the current
+     * working directory for the command. If null, the current working directory is not modified.
      * @param environment the container environment
      * @return the new {@link ShellCommandExecutor}
      * @see ShellCommandExecutor
@@ -751,7 +751,8 @@ public class DefaultContainerExecutor extends ContainerExecutor {
      * @param dirPath the target directory
      * @param perms the target permissions for the target directory
      * @param createParent whether the parent directories should also be created
-     * @param user the user as whom the target directory should be created. Used only on secure Windows hosts.
+     * @param user the user as whom the target directory should be created. Used only on secure
+     * Windows hosts.
      * @throws IOException if there's a failure performing a file operation
      * @see WindowsSecureContainerExecutor
      */
@@ -915,7 +916,8 @@ public class DefaultContainerExecutor extends ContainerExecutor {
      * @param appId the application ID
      * @param containerId the container ID
      * @param logDirs the target directories to create
-     * @param user the user as whom the directories should be created. Used only on secure Windows hosts.
+     * @param user the user as whom the directories should be created. Used only on secure Windows
+     * hosts.
      * @throws IOException if there's an issue initializing the container log directories
      */
     void createContainerLogDirs(String appId, String containerId,

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmcontainer;
 
 import java.util.List;
-
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -33,88 +32,90 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 
-
 /**
- * Represents the ResourceManager's view of an application container. See 
+ * Represents the ResourceManager's view of an application container. See
  * {@link RMContainerImpl} for an implementation. Containers may be in one
  * of several states, given in {@link RMContainerState}. An RMContainer
- * instance may exist even if there is no actual running container, such as 
- * when resources are being reserved to fill space for a future container 
+ * instance may exist even if there is no actual running container, such as
+ * when resources are being reserved to fill space for a future container
  * allocation.
  */
+
+// TODO: 17/5/27 by zmyer
 public interface RMContainer extends EventHandler<RMContainerEvent> {
 
-  ContainerId getContainerId();
+    ContainerId getContainerId();
 
-  void setContainerId(ContainerId containerId);
+    void setContainerId(ContainerId containerId);
 
-  ApplicationAttemptId getApplicationAttemptId();
+    ApplicationAttemptId getApplicationAttemptId();
 
-  RMContainerState getState();
+    RMContainerState getState();
 
-  Container getContainer();
+    Container getContainer();
 
-  Resource getReservedResource();
+    Resource getReservedResource();
 
-  NodeId getReservedNode();
-  
-  SchedulerRequestKey getReservedSchedulerKey();
+    NodeId getReservedNode();
 
-  Resource getAllocatedResource();
+    SchedulerRequestKey getReservedSchedulerKey();
 
-  Resource getLastConfirmedResource();
+    Resource getAllocatedResource();
 
-  NodeId getAllocatedNode();
+    Resource getLastConfirmedResource();
 
-  SchedulerRequestKey getAllocatedSchedulerKey();
+    NodeId getAllocatedNode();
 
-  Priority getAllocatedPriority();
+    SchedulerRequestKey getAllocatedSchedulerKey();
 
-  long getCreationTime();
+    Priority getAllocatedPriority();
 
-  long getFinishTime();
+    long getCreationTime();
 
-  String getDiagnosticsInfo();
+    long getFinishTime();
 
-  String getLogURL();
+    String getDiagnosticsInfo();
 
-  int getContainerExitStatus();
+    String getLogURL();
 
-  ContainerState getContainerState();
-  
-  ContainerReport createContainerReport();
-  
-  boolean isAMContainer();
-  
-  List<ResourceRequest> getResourceRequests();
+    int getContainerExitStatus();
 
-  String getNodeHttpAddress();
-  
-  String getNodeLabelExpression();
-  
-  boolean hasIncreaseReservation();
-  
-  void cancelIncreaseReservation();
+    ContainerState getContainerState();
 
-  String getQueueName();
+    ContainerReport createContainerReport();
 
-  ExecutionType getExecutionType();
+    boolean isAMContainer();
 
-  /**
-   * If the container was allocated by a container other than the Resource
-   * Manager (e.g., the distributed scheduler in the NM
-   * <code>LocalScheduler</code>).
-   * @return If the container was allocated remotely.
-   */
-  boolean isRemotelyAllocated();
+    List<ResourceRequest> getResourceRequests();
 
-  /*
-   * Return reserved resource for reserved containers, return allocated resource
-   * for other container
-   */
-  Resource getAllocatedOrReservedResource();
+    String getNodeHttpAddress();
 
-  boolean completed();
+    String getNodeLabelExpression();
 
-  NodeId getNodeId();
+    boolean hasIncreaseReservation();
+
+    void cancelIncreaseReservation();
+
+    String getQueueName();
+
+    ExecutionType getExecutionType();
+
+    /**
+     * If the container was allocated by a container other than the Resource
+     * Manager (e.g., the distributed scheduler in the NM
+     * <code>LocalScheduler</code>).
+     *
+     * @return If the container was allocated remotely.
+     */
+    boolean isRemotelyAllocated();
+
+    /*
+     * Return reserved resource for reserved containers, return allocated resource
+     * for other container
+     */
+    Resource getAllocatedOrReservedResource();
+
+    boolean completed();
+
+    NodeId getNodeId();
 }

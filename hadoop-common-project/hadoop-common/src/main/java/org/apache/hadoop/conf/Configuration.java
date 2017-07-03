@@ -106,30 +106,24 @@ import org.xml.sax.SAXException;
  *
  * <h4 id="Resources">Resources</h4>
  *
- * <p>Configurations are specified by resources. A resource contains a set of
- * name/value pairs as XML data. Each resource is named by either a
- * <code>String</code> or by a {@link Path}. If named by a <code>String</code>,
- * then the classpath is examined for a file with that name.  If named by a
- * <code>Path</code>, then the local filesystem is examined directly, without
- * referring to the classpath.
+ * <p>Configurations are specified by resources. A resource contains a set of name/value pairs as
+ * XML data. Each resource is named by either a <code>String</code> or by a {@link Path}. If named
+ * by a <code>String</code>, then the classpath is examined for a file with that name.  If named by
+ * a <code>Path</code>, then the local filesystem is examined directly, without referring to the
+ * classpath.
  *
- * <p>Unless explicitly turned off, Hadoop by default specifies two
- * resources, loaded in-order from the classpath: <ol>
- * <li><tt>
- * <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
- * core-default.xml</a></tt>: Read-only defaults for hadoop.</li>
- * <li><tt>core-site.xml</tt>: Site-specific configuration for a given hadoop
- * installation.</li>
- * </ol>
- * Applications may add additional resources, which are loaded
- * subsequent to these resources in the order they are added.
+ * <p>Unless explicitly turned off, Hadoop by default specifies two resources, loaded in-order from
+ * the classpath: <ol> <li><tt> <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
+ * core-default.xml</a></tt>: Read-only defaults for hadoop.</li> <li><tt>core-site.xml</tt>:
+ * Site-specific configuration for a given hadoop installation.</li> </ol> Applications may add
+ * additional resources, which are loaded subsequent to these resources in the order they are
+ * added.
  *
  * <h4 id="FinalParams">Final Parameters</h4>
  *
- * <p>Configuration parameters may be declared <i>final</i>.
- * Once a resource declares a value final, no subsequently-loaded
- * resource can alter that value.
- * For example, one might define a final parameter with:
+ * <p>Configuration parameters may be declared <i>final</i>. Once a resource declares a value final,
+ * no subsequently-loaded resource can alter that value. For example, one might define a final
+ * parameter with:
  * <tt><pre>
  *  &lt;property&gt;
  *    &lt;name&gt;dfs.hosts.include&lt;/name&gt;
@@ -137,22 +131,17 @@ import org.xml.sax.SAXException;
  *    <b>&lt;final&gt;true&lt;/final&gt;</b>
  *  &lt;/property&gt;</pre></tt>
  *
- * Administrators typically define parameters as final in
- * <tt>core-site.xml</tt> for values that user applications may not alter.
+ * Administrators typically define parameters as final in <tt>core-site.xml</tt> for values that
+ * user applications may not alter.
  *
  * <h4 id="VariableExpansion">Variable Expansion</h4>
  *
- * <p>Value strings are first processed for <i>variable expansion</i>. The
- * available properties are:<ol>
- * <li>Other properties defined in this Configuration; and, if a name is
- * undefined here,</li>
- * <li>Environment variables in {@link System#getenv()} if a name starts with
- * "env.", or</li>
- * <li>Properties in {@link System#getProperties()}.</li>
- * </ol>
+ * <p>Value strings are first processed for <i>variable expansion</i>. The available properties
+ * are:<ol> <li>Other properties defined in this Configuration; and, if a name is undefined
+ * here,</li> <li>Environment variables in {@link System#getenv()} if a name starts with "env.",
+ * or</li> <li>Properties in {@link System#getProperties()}.</li> </ol>
  *
- * <p>For example, if a configuration resource contains the following property
- * definitions:
+ * <p>For example, if a configuration resource contains the following property definitions:
  * <tt><pre>
  *  &lt;property&gt;
  *    &lt;name&gt;basedir&lt;/name&gt;
@@ -170,20 +159,17 @@ import org.xml.sax.SAXException;
  *  &lt;/property&gt;
  *  </pre></tt>
  *
- * <p>When <tt>conf.get("tempdir")</tt> is called, then <tt>${<i>basedir</i>}</tt>
- * will be resolved to another property in this Configuration, while
- * <tt>${<i>user.name</i>}</tt> would then ordinarily be resolved to the value
- * of the System property with that name.
- * <p>When <tt>conf.get("otherdir")</tt> is called, then <tt>${<i>env.BASE_DIR</i>}</tt>
- * will be resolved to the value of the <tt>${<i>BASE_DIR</i>}</tt> environment variable.
- * It supports <tt>${<i>env.NAME:-default</i>}</tt> and <tt>${<i>env.NAME-default</i>}</tt> notations.
- * The former is resolved to "default" if <tt>${<i>NAME</i>}</tt> environment variable is undefined
- * or its value is empty.
- * The latter behaves the same way only if <tt>${<i>NAME</i>}</tt> is undefined.
- * <p>By default, warnings will be given to any deprecated configuration
- * parameters and these are suppressible by configuring
- * <tt>log4j.logger.org.apache.hadoop.conf.Configuration.deprecation</tt> in
- * log4j.properties file.
+ * <p>When <tt>conf.get("tempdir")</tt> is called, then <tt>${<i>basedir</i>}</tt> will be resolved
+ * to another property in this Configuration, while <tt>${<i>user.name</i>}</tt> would then
+ * ordinarily be resolved to the value of the System property with that name. <p>When
+ * <tt>conf.get("otherdir")</tt> is called, then <tt>${<i>env.BASE_DIR</i>}</tt> will be resolved to
+ * the value of the <tt>${<i>BASE_DIR</i>}</tt> environment variable. It supports
+ * <tt>${<i>env.NAME:-default</i>}</tt> and <tt>${<i>env.NAME-default</i>}</tt> notations. The
+ * former is resolved to "default" if <tt>${<i>NAME</i>}</tt> environment variable is undefined or
+ * its value is empty. The latter behaves the same way only if <tt>${<i>NAME</i>}</tt> is undefined.
+ * <p>By default, warnings will be given to any deprecated configuration parameters and these are
+ * suppressible by configuring <tt>log4j.logger.org.apache.hadoop.conf.Configuration.deprecation</tt>
+ * in log4j.properties file.
  */
 // TODO: 17/3/19 by zmyer
 @InterfaceAudience.Public
@@ -396,7 +382,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
          * @param other The previous deprecation context to copy, or null to start from nothing.
          * @param deltas The deltas to apply.
          */
-        @SuppressWarnings("unchecked") DeprecationContext(DeprecationContext other, DeprecationDelta[] deltas) {
+        @SuppressWarnings("unchecked") DeprecationContext(DeprecationContext other,
+            DeprecationDelta[] deltas) {
             HashMap<String, DeprecatedKeyInfo> newDeprecatedKeyMap =
                 new HashMap<String, DeprecatedKeyInfo>();
             HashMap<String, String> newReverseDeprecatedKeyMap =
@@ -500,7 +487,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * @param key
      * @param newKeys
      * @param customMessage
-     * @deprecated use {@link #addDeprecation(String key, String newKey, String customMessage)} instead
+     * @deprecated use {@link #addDeprecation(String key, String newKey, String customMessage)}
+     * instead
      */
     @Deprecated
     public static void addDeprecation(String key, String[] newKeys,
@@ -616,8 +604,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * the provided property name.
      *
      * @param name the property name
-     * @return the first property in the list of properties mapping the <code>name</code> or the <code>name</code>
-     * itself.
+     * @return the first property in the list of properties mapping the <code>name</code> or the
+     * <code>name</code> itself.
      */
     private String[] handleDeprecation(DeprecationContext deprecations,
         String name) {
@@ -783,8 +771,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * The properties of this resource will override properties of previously
      * added resources, unless they were marked <a href="#Final">final</a>.
      *
-     * @param url url of the resource to be added, the local filesystem is examined directly to find the resource,
-     * without referring to the classpath.
+     * @param url url of the resource to be added, the local filesystem is examined directly to find
+     * the resource, without referring to the classpath.
      */
     public void addResource(URL url) {
         addResourceObject(new Resource(url));
@@ -796,8 +784,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * The properties of this resource will override properties of previously
      * added resources, unless they were marked <a href="#Final">final</a>.
      *
-     * @param file file-path of resource to be added, the local filesystem is examined directly to find the resource,
-     * without referring to the classpath.
+     * @param file file-path of resource to be added, the local filesystem is examined directly to
+     * find the resource, without referring to the classpath.
      */
     public void addResource(Path file) {
         addResourceObject(new Resource(file));
@@ -812,8 +800,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * WARNING: The contents of the InputStream will be cached, by this method.
      * So use this sparingly because it does increase the memory consumption.
      *
-     * @param in InputStream to deserialize the object from. In will be read from when a get or set is called next.
-     * After it is read the stream will be closed.
+     * @param in InputStream to deserialize the object from. In will be read from when a get or set
+     * is called next. After it is read the stream will be closed.
      */
     public void addResource(InputStream in) {
         addResourceObject(new Resource(in));
@@ -826,7 +814,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * added resources, unless they were marked <a href="#Final">final</a>.
      *
      * @param in InputStream to deserialize the object from.
-     * @param name the name of the resource because InputStream.toString is not very descriptive some times.
+     * @param name the name of the resource because InputStream.toString is not very descriptive
+     * some times.
      */
     // TODO: 17/3/23 by zmyer
     public void addResource(InputStream in, String name) {
@@ -878,8 +867,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * hash table lookup, especially when the eval is a long string.
      *
      * @param eval a string that may contain variables requiring expansion.
-     * @return a 2-element int array res such that eval.substring(res[0], res[1]) is "var" for the left-most occurrence
-     * of ${var} in eval. If no variable is found -1, -1 is returned.
+     * @return a 2-element int array res such that eval.substring(res[0], res[1]) is "var" for the
+     * left-most occurrence of ${var} in eval. If no variable is found -1, -1 is returned.
      */
     private static int[] findSubVariable(String eval) {
         int[] result = {-1, -1};
@@ -951,8 +940,10 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * involving multiple substitutions are not detected.
      *
      * @param expr the literal value of a config key
-     * @return null if expr is null, otherwise the value resulting from expanding expr using the algorithm above.
-     * @throws IllegalArgumentException when more than {@link Configuration#MAX_SUBST} replacements are required
+     * @return null if expr is null, otherwise the value resulting from expanding expr using the
+     * algorithm above.
+     * @throws IllegalArgumentException when more than {@link Configuration#MAX_SUBST} replacements
+     * are required
      */
     private String substituteVars(String expr) {
         if (expr == null) {
@@ -1038,7 +1029,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * before being returned.
      *
      * @param name the property name, will be trimmed before get value.
-     * @return the value of the <code>name</code> or its replacing property, or null if no such property exists.
+     * @return the value of the <code>name</code> or its replacing property, or null if no such
+     * property exists.
      */
     public String get(String name) {
         String[] names = handleDeprecation(deprecationContext.get(), name);
@@ -1090,7 +1082,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * before being returned.
      *
      * @param name the property name.
-     * @return the value of the <code>name</code> or its replacing property, or null if no such property exists.
+     * @return the value of the <code>name</code> or its replacing property, or null if no such
+     * property exists.
      */
     public String getTrimmed(String name) {
         String value = get(name);
@@ -1123,8 +1116,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * the deprecated key and is not null.
      *
      * @param name the property name.
-     * @return the value of the <code>name</code> property or its replacing property and null if no such property
-     * exists.
+     * @return the value of the <code>name</code> property or its replacing property and null if no
+     * such property exists.
      */
     public String getRaw(String name) {
         String[] names = handleDeprecation(deprecationContext.get(), name);
@@ -1740,10 +1733,11 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * command line.
      *
      * @param name - The property name to get the source of.
-     * @return null - If the property or its source wasn't found. Otherwise, returns a list of the sources of the
-     * resource.  The older sources are the first ones in the list.  So for example if a configuration is set from the
-     * command line, and then written out to a file that is read back in the first entry would indicate that it was set
-     * from the command line, while the second one would indicate the file that the new configuration was read in from.
+     * @return null - If the property or its source wasn't found. Otherwise, returns a list of the
+     * sources of the resource.  The older sources are the first ones in the list.  So for example
+     * if a configuration is set from the command line, and then written out to a file that is read
+     * back in the first entry would indicate that it was set from the command line, while the
+     * second one would indicate the file that the new configuration was read in from.
      */
     @InterfaceStability.Unstable
     public synchronized String[] getPropertySources(String name) {
@@ -1982,7 +1976,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * If no such property is specified then empty <code>Collection</code> is returned.
      *
      * @param name property name.
-     * @return property value as a collection of <code>String</code>s, or empty <code>Collection</code>
+     * @return property value as a collection of <code>String</code>s, or empty
+     * <code>Collection</code>
      */
     // TODO: 17/3/23 by zmyer
     public Collection<String> getTrimmedStringCollection(String name) {
@@ -3042,7 +3037,8 @@ public class Configuration implements Iterable<Map.Entry<String, String>>, Writa
      * @param propertyName property name
      * @param out the Writer to write to
      * @throws IOException
-     * @throws IllegalArgumentException when property name is not empty and the property is not found in configuration
+     * @throws IllegalArgumentException when property name is not empty and the property is not
+     * found in configuration
      **/
     public static void dumpConfiguration(Configuration config,
         String propertyName, Writer out) throws IOException {

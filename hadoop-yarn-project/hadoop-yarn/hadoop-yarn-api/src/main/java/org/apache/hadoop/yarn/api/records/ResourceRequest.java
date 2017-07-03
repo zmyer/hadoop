@@ -420,7 +420,8 @@ public abstract class ResourceRequest extends AbstractResourceRequest
      * specific rack, the corresponding any-level request should have locality
      * relaxation set to false.<p>
      *
-     * @param relaxLocality whether locality relaxation is enabled with this <code>ResourceRequest</code>.
+     * @param relaxLocality whether locality relaxation is enabled with this
+     * <code>ResourceRequest</code>.
      */
     @Public
     @Stable

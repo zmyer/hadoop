@@ -198,7 +198,8 @@ public interface Service extends Closeable {
     /**
      * Get the service start time
      *
-     * @return the start time of the service. This will be zero if the service has not yet been started.
+     * @return the start time of the service. This will be zero if the service has not yet been
+     * started.
      */
     // TODO: 17/3/20 by zmyer
     long getStartTime();

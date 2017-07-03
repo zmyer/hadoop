@@ -47,11 +47,9 @@ public interface DistributedSchedulingAMProtocol
      * with additional metadata.
      * </p>
      *
-     * @param request
-     *          ApplicationMaster registration request
-     * @return A <code>RegisterDistributedSchedulingAMResponse</code> that
-     *         contains a standard AM registration response along with additional
-     *         information required for distributed scheduling
+     * @param request ApplicationMaster registration request
+     * @return A <code>RegisterDistributedSchedulingAMResponse</code> that contains a standard AM
+     * registration response along with additional information required for distributed scheduling
      * @throws YarnException YarnException
      * @throws IOException IOException
      */
@@ -69,11 +67,9 @@ public interface DistributedSchedulingAMProtocol
      * metadata.
      * </p>
      *
-     * @param request
-     *          ApplicationMaster allocate request
-     * @return A <code>DistributedSchedulingAllocateResponse</code> that contains
-     *         a standard AM allocate response along with additional information
-     *         required for distributed scheduling
+     * @param request ApplicationMaster allocate request
+     * @return A <code>DistributedSchedulingAllocateResponse</code> that contains a standard AM
+     * allocate response along with additional information required for distributed scheduling
      * @throws YarnException YarnException
      * @throws IOException IOException
      */

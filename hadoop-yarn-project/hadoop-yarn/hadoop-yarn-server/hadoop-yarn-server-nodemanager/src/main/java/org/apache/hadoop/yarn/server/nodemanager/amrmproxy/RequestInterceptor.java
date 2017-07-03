@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,44 +28,44 @@ import org.apache.hadoop.yarn.server.api.DistributedSchedulingAMProtocol;
  */
 public interface RequestInterceptor extends DistributedSchedulingAMProtocol,
     Configurable {
-  /**
-   * This method is called for initializing the intercepter. This is guaranteed
-   * to be called only once in the lifetime of this instance.
-   *
-   * @param ctx
-   */
-  void init(AMRMProxyApplicationContext ctx);
+    /**
+     * This method is called for initializing the intercepter. This is guaranteed
+     * to be called only once in the lifetime of this instance.
+     *
+     * @param ctx
+     */
+    void init(AMRMProxyApplicationContext ctx);
 
-  /**
-   * This method is called to release the resources held by the intercepter.
-   * This will be called when the application pipeline is being destroyed. The
-   * concrete implementations should dispose the resources and forward the
-   * request to the next intercepter, if any.
-   */
-  void shutdown();
+    /**
+     * This method is called to release the resources held by the intercepter.
+     * This will be called when the application pipeline is being destroyed. The
+     * concrete implementations should dispose the resources and forward the
+     * request to the next intercepter, if any.
+     */
+    void shutdown();
 
-  /**
-   * Sets the next intercepter in the pipeline. The concrete implementation of
-   * this interface should always pass the request to the nextInterceptor after
-   * inspecting the message. The last intercepter in the chain is responsible to
-   * send the messages to the resource manager service and so the last
-   * intercepter will not receive this method call.
-   *
-   * @param nextInterceptor
-   */
-  void setNextInterceptor(RequestInterceptor nextInterceptor);
+    /**
+     * Sets the next intercepter in the pipeline. The concrete implementation of
+     * this interface should always pass the request to the nextInterceptor after
+     * inspecting the message. The last intercepter in the chain is responsible to
+     * send the messages to the resource manager service and so the last
+     * intercepter will not receive this method call.
+     *
+     * @param nextInterceptor
+     */
+    void setNextInterceptor(RequestInterceptor nextInterceptor);
 
-  /**
-   * Returns the next intercepter in the chain.
-   * 
-   * @return the next intercepter in the chain
-   */
-  RequestInterceptor getNextInterceptor();
+    /**
+     * Returns the next intercepter in the chain.
+     *
+     * @return the next intercepter in the chain
+     */
+    RequestInterceptor getNextInterceptor();
 
-  /**
-   * Returns the context.
-   * 
-   * @return the context
-   */
-  AMRMProxyApplicationContext getApplicationContext();
+    /**
+     * Returns the context.
+     *
+     * @return the context
+     */
+    AMRMProxyApplicationContext getApplicationContext();
 }
